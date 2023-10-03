@@ -1,0 +1,40 @@
+
+
+
+
+maxIteration        10000;
+cfl                 0.8;
+targetError         0.000001;
+
+
+fluxScheme          hllc;
+
+
+initialConditions   (1.0, 0.0, 0.0, 0.0, 0.7143);
+
+BoundaryCondition
+{
+    inlet
+    {
+        type                PressureTemperatureInlet;
+        totalPressure       0.7143;
+        totalTemperature    0.5102;
+        velocityDirection   (1.0, 0.0, 0.0);
+    }
+
+    outlet
+    {
+        type                PressureOutlet;
+        pressure            0.5264;
+    }
+
+    wall
+    {
+        type Wall;
+    }
+
+    freeBoundary
+    {
+        type FreeBoundary;
+    }
+}
