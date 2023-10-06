@@ -59,6 +59,27 @@ void Iawps95::loadCoeffs(std::string dirPath)
     std::move(A.begin(), A.begin() + 56, coeffs.A.begin());
 }
 
+void Iawps95::test(double rho, double T) const
+{
+    double delta = rho/critRho;
+    double tau = critT/T;
+
+    std::cout << "phi0: " << phi0(delta, tau) << std::endl;
+    std::cout << "phi0d: " << phi0d(delta, tau) << std::endl;
+    std::cout << "phi0dd: " << phi0dd(delta, tau) << std::endl;
+    std::cout << "phi0t: " << phi0t(delta, tau) << std::endl;
+    std::cout << "phi0tt: " << phi0tt(delta, tau) << std::endl;
+    std::cout << "phi0dt: " << phi0dt(delta, tau) << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "phir: " << phir(delta, tau) << std::endl;
+    std::cout << "phird: " << phird(delta, tau) << std::endl;
+    std::cout << "phirdd: " << phirdd(delta, tau) << std::endl;
+    std::cout << "phirt: " << phirt(delta, tau) << std::endl;
+    std::cout << "phirtt: " << phirtt(delta, tau) << std::endl;
+    std::cout << "phirdt: " << phirdt(delta, tau) << std::endl;
+}
 
 double Iawps95::p(double rho, double T) const
 {
@@ -206,7 +227,7 @@ double Iawps95::phird(double delta, double tau) const
     }
     for (int i = 7; i < 51; i++)
     {
-        out += coeffs.n[i]*exp(-pow(-delta, coeffs.c[i]))*(pow(delta, coeffs.d[i] - 1.0)*pow(tau, coeffs.t[i])*(coeffs.d[i] - coeffs.c[i]*pow(delta, coeffs.c[i])));
+        out += coeffs.n[i]*exp(-pow(delta, coeffs.c[i]))*(pow(delta, coeffs.d[i] - 1.0)*pow(tau, coeffs.t[i])*(coeffs.d[i] - coeffs.c[i]*pow(delta, coeffs.c[i])));
     }
     for (int i = 51; i < 54; i++)
     {
@@ -228,7 +249,7 @@ double Iawps95::phirdd(double delta, double tau) const
     }
     for (int i = 7; i < 51; i++)
     {
-        out += coeffs.n[i]*exp(-pow(-delta, coeffs.c[i]))*(pow(delta, coeffs.d[i] - 2.0)*pow(tau, coeffs.t[i])*((coeffs.d[i] - coeffs.c[i]*pow(delta, coeffs.c[i]))*(coeffs.d[i] - 1.0 - coeffs.c[i]*pow(delta, coeffs.c[i])) - pow(coeffs.c[i], 2)*pow(delta, coeffs.c[i])));
+        out += coeffs.n[i]*exp(-pow(delta, coeffs.c[i]))*(pow(delta, coeffs.d[i] - 2.0)*pow(tau, coeffs.t[i])*((coeffs.d[i] - coeffs.c[i]*pow(delta, coeffs.c[i]))*(coeffs.d[i] - 1.0 - coeffs.c[i]*pow(delta, coeffs.c[i])) - pow(coeffs.c[i], 2)*pow(delta, coeffs.c[i])));
     }
     for (int i = 51; i < 54; i++)
     {
@@ -312,17 +333,17 @@ double Iawps95::phirdt(double delta, double tau) const
 
 double Iawps95::deltaFunc(double delta, double tau, int i) const
 {
-    return pow(thetaFunc(delta, tau, i), 2.0) + coeffs.B[i]*pow((delta - 1.0)*(delta - 1.0), coeffs.a[i]);
+    return pow(thetaFunc(delta, tau, i), 2) + coeffs.B[i]*pow(pow(delta - 1.0, 2), coeffs.a[i]);
 }
 
 double Iawps95::thetaFunc(double delta, double tau, int i) const
 {
-    return 1.0 - tau + coeffs.A[i]*pow((delta - 1.0)*(delta - 1.0), 1.0/(2.0*coeffs.beta[i]));
+    return 1.0 - tau + coeffs.A[i]*pow(pow(delta - 1.0, 2), 1.0/(2.0*coeffs.beta[i]));
 }
 
 double Iawps95::psiFunc(double delta, double tau, int i) const
 {
-    return exp(-coeffs.C[i]*(delta - 1.0)*(delta - 1.0) - coeffs.D[i]*(tau - 1.0)*(tau - 1.0));
+    return exp(-coeffs.C[i]*pow(delta - 1.0, 2) - coeffs.D[i]*pow(tau - 1.0, 2));
 }
 
 

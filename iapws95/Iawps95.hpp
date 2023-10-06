@@ -41,6 +41,8 @@ class Iawps95
 
         double implicitTemperature(double rho, double e, double guessT) const;
 
+        void test(double rho, double T) const;
+
 
 
     private:
