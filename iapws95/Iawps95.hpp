@@ -39,7 +39,8 @@ class Iawps95
         double h(double rho, double T) const; //TODO
         double w2(double rho, double T) const; //TODO
 
-        double implicitTemperature(double rho, double e, double guessT) const;
+        double temperatureFromRhoE(double rho, double e, double guessT) const;
+        double temperatureFromRhoP(double rho, double p, double guessT) const;
 
         void test(double rho, double T) const;
 
@@ -50,7 +51,7 @@ class Iawps95
         static constexpr  double critRho = 322.0;
         static constexpr  double specGasConst = 0.46151805;
 
-        static constexpr  double numericalTolerance = 0.001;
+        static constexpr  double numericalTolerance = 0.0001;
 
         Coeffs coeffs;
 
@@ -69,7 +70,7 @@ class Iawps95
         double phir(double delta, double tau) const;
         double phird(double delta, double tau) const;
         double phirdd(double delta, double tau) const;
-        double phirt(double delta, double tau) const; 
+        double phirt(double delta, double tau) const;
         double phirtt(double delta, double tau) const;
         double phirdt(double delta, double tau) const;
 
@@ -77,20 +78,20 @@ class Iawps95
         double thetaFunc(double delta, double tau, int i) const;
         double psiFunc(double delta, double tau, int i) const;
 
-        double deltaFuncd(double delta, double tau, int i) const; //TODO
-        double deltaFuncdd(double delta, double tau, int i) const; //TODO
+        double deltaFuncd(double delta, double tau, int i) const;
+        double deltaFuncdd(double delta, double tau, int i) const;
 
-        double deltaFuncbid(double delta, double tau, int i) const; //TODO
-        double deltaFuncbidd(double delta, double tau, int i) const; //TODO
+        double deltaFuncbid(double delta, double tau, int i) const;
+        double deltaFuncbidd(double delta, double tau, int i) const;
         double deltaFuncbit(double delta, double tau, int i) const;
         double deltaFuncbitt(double delta, double tau, int i) const;
-        double deltaFuncbidt(double delta, double tau, int i) const; //TODO
+        double deltaFuncbidt(double delta, double tau, int i) const;
 
-        double psiFuncd(double delta, double tau, int i) const; //TODO
-        double psiFuncdd(double delta, double tau, int i) const; //TODO
-        double psiFunct(double delta, double tau, int i) const; 
+        double psiFuncd(double delta, double tau, int i) const;
+        double psiFuncdd(double delta, double tau, int i) const;
+        double psiFunct(double delta, double tau, int i) const;
         double psiFunctt(double delta, double tau, int i) const;
-        double psiFuncdt(double delta, double tau, int i) const; //TODO
+        double psiFuncdt(double delta, double tau, int i) const;
 
 };
 

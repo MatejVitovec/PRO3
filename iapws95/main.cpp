@@ -12,16 +12,23 @@ int main(int argc, char** argv)
 {
     Iawps95 termo = Iawps95();
 
-    double T = 500.0;
-    double rho = 1084.564;
-    //double e = 1966.95;
+    //double T = 500.0;
 
-    //double T = termo.implicitTemperature(rho, e, 600.0);
+    //double rho = 1080;
+    //double e = 768.08;
     
-    double p = termo.p(rho, T);
+    double rho = 1084.564;
+    double p = 700000.405;
+
+    //double T = termo.temperatureFromRhoE(rho, e, 300.0);
+    double T = termo.temperatureFromRhoP(rho, p, 300.0);
+
+    //double TIG = e*(1.4 - 1.0)/0.46151805;
+    
+    /*double p = termo.p(rho, T);
     double e = termo.e(rho, T);
     double s = termo.s(rho, T);
-    double w = sqrt(termo.w2(rho, T));
+    double w = sqrt(termo.w2(rho, T));*/
 
     //termo.test(838.025, 500);
 

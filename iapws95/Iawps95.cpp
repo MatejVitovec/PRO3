@@ -123,7 +123,7 @@ double Iawps95::w2(double rho, double T) const
     return specGasConst*T*(1.0 + 2.0*delta*phirdAux + delta*delta*phirdd(delta, tau) - pow(1.0 + delta*(phirdAux - tau*phirdt(delta, tau)), 2)/(tau*tau*(phi0tt(delta, tau) + phirtt(delta, tau))));
 }
 
-double Iawps95::implicitTemperature(double rho, double e, double guessT) const
+double Iawps95::temperatureFromRhoE(double rho, double e, double guessT) const
 {
     double delta = rho/critRho;
     double tauOld = critT/guessT;
@@ -135,7 +135,7 @@ double Iawps95::implicitTemperature(double rho, double e, double guessT) const
     // Newton method
     while (change > numericalTolerance)
     {
-        tau = tauOld - (tauOld*(e/(specGasConst*critT) - (phi0t(delta, tauOld) + phirt(delta, tauOld))))/(e/(specGasConst*critT) - (phi0t(delta, tauOld) + phirt(delta, tauOld)) - tauOld*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
+        tau = tauOld - (e - specGasConst*critT*(phi0t(delta, tauOld) + phirt(delta, tauOld)))/(-specGasConst*critT*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
     
         change = fabs(tau - tauOld);
 
@@ -147,6 +147,34 @@ double Iawps95::implicitTemperature(double rho, double e, double guessT) const
     
     return critT/tau;
 }
+
+double Iawps95::temperatureFromRhoP(double rho, double p, double guessT) const
+{
+    double delta = rho/critRho;
+    double tauOld = critT/guessT;
+    double tau = 0.0;
+
+    double change = 100000;
+    int i = 0;
+
+    // Newton method
+    while (change > numericalTolerance)
+    {
+        double phirdAux = phird(delta, tauOld);
+        double auxVar = specGasConst*critRho*critT*(delta/tauOld);
+        tau = tauOld - (p - auxVar*(1.0 + delta*phirdAux))/(auxVar*(1.0/tauOld + (delta/tauOld)*phirdAux - delta*phirdt(delta, tauOld)));
+        
+        change = fabs(tau - tauOld);
+
+        tauOld = tau;
+        i++;
+    }
+
+    std::cout << i << std::endl;
+    
+    return critT/tau;
+}
+
 
 // dimensionless Helmholtz free energy functions
 
