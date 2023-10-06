@@ -7,27 +7,24 @@
 
 #include "Iawps95.hpp"
 
-double phi0(double delta, double tau)
-{
-    auto val2 = [](double delta, double tau) -> double
-    {
-        return delta + tau;
-    };
-
-    return val2(delta, tau);
-}
-
-double T(double p0, double rho0)
-{
-    return 0.0;
-}
 
 int main(int argc, char** argv)
 {
-    double d = 10;
-    double t = 5;
-
     Iawps95 termo = Iawps95();
+
+    double T = 647.0;
+    double rho = 358.0;
+    //double e = 1966.95;
+
+    //double T = termo.implicitTemperature(rho, e, 600.0);
+    
+    double p = termo.p(rho, T);
+    double e = termo.e(rho, T);
+    double s = termo.s(rho, T);
+    double w = sqrt(termo.w2(rho, T));
+
+    //double s = termo.s(rho, T);
+
 
 
     int a = 5;

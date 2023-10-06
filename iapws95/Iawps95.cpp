@@ -1,5 +1,6 @@
-#include "Iawps95.hpp"
+#include <cmath>
 
+#include "Iawps95.hpp"
 
 
 Iawps95::Iawps95()
@@ -59,6 +60,48 @@ void Iawps95::loadCoeffs(std::string dirPath)
 }
 
 
+double Iawps95::p(double rho, double T) const
+{
+    double delta = rho/critRho;
+    double tau = critT/T;
+
+    return rho*specGasConst*T*(1.0 + delta*phird(delta, tau));
+}
+
+double Iawps95::e(double rho, double T) const
+{
+    double delta = rho/critRho;
+    double tau = critT/T;
+
+    return specGasConst*critT*(phi0t(delta, tau) + phirt(delta, tau));
+}
+
+double Iawps95::s(double rho, double T) const
+{
+    double delta = rho/critRho;
+    double tau = critT/T;
+
+    return specGasConst*(tau*(phi0t(delta, tau) + phirt(delta, tau)) - phi0(delta, tau) - phir(delta, tau));
+}
+
+double Iawps95::h(double rho, double T) const
+{
+    double delta = rho/critRho;
+    double tau = critT/T;
+
+    return specGasConst*T*(1.0 + tau*(phi0t(delta, tau) + phirt(delta, tau)) + delta*phird(delta, tau));
+}
+
+double Iawps95::w2(double rho, double T) const
+{
+    double delta = rho/critRho;
+    double tau = critT/T;
+
+    double phirdAux = phird(delta, tau);
+
+    return specGasConst*T*(1.0 + 2.0*delta*phirdAux + delta*delta*phirdd(delta, tau) - pow(1.0 + delta*(phirdAux - tau*phirdt(delta, tau)), 2)/(tau*tau*(phi0tt(delta, tau) + phirtt(delta, tau))));
+}
+
 double Iawps95::implicitTemperature(double rho, double e, double guessT) const
 {
     double delta = rho/critRho;
@@ -66,21 +109,23 @@ double Iawps95::implicitTemperature(double rho, double e, double guessT) const
     double tau = 0.0;
 
     double change = 100000;
+    int i = 0;
 
     // Newton method
-    while (change <= numericalTolerance)
+    while (change > numericalTolerance)
     {
         tau = tauOld - (tauOld*(e/(specGasConst*critT) - (phi0t(delta, tauOld) + phirt(delta, tauOld))))/(e/(specGasConst*critT) - (phi0t(delta, tauOld) + phirt(delta, tauOld)) - tauOld*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
     
-        change = abs(tau - tauOld);
+        change = fabs(tau - tauOld);
 
         tauOld = tau;
+        i++;
     }
+
+    std::cout << i << std::endl;
     
-    return tau;
+    return critT/tau;
 }
-
-
 
 // dimensionless Helmholtz free energy functions
 
@@ -143,7 +188,7 @@ double Iawps95::phir(double delta, double tau) const
     }
     for (int i = 51; i < 54; i++)
     {
-        out += coeffs.n[i]*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i])*exp(coeffs.a[i]*(delta - coeffs.epsilon[i])*(delta - coeffs.epsilon[i]) - coeffs.beta[i]*(tau - coeffs.gamma[i])*(tau - coeffs.gamma[i]));
+        out += coeffs.n[i]*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i])*exp(-coeffs.alpha[i]*pow(delta - coeffs.epsilon[i], 2) - coeffs.beta[i]*pow(tau - coeffs.gamma[i], 2));
     }
     for (int i = 54; i < 56; i++)
     {
@@ -154,12 +199,46 @@ double Iawps95::phir(double delta, double tau) const
 
 double Iawps95::phird(double delta, double tau) const
 {
-    return 0.0;
+    double out = 0.0;
+    for (int i = 0; i < 7; i++)
+    {
+        out += coeffs.n[i]*coeffs.d[i]*pow(delta, coeffs.d[i] - 1.0)*pow(tau, coeffs.t[i]);
+    }
+    for (int i = 7; i < 51; i++)
+    {
+        out += coeffs.n[i]*exp(-pow(-delta, coeffs.c[i]))*(pow(delta, coeffs.d[i] - 1.0)*pow(tau, coeffs.t[i])*(coeffs.d[i] - coeffs.c[i]*pow(delta, coeffs.c[i])));
+    }
+    for (int i = 51; i < 54; i++)
+    {
+        out += coeffs.n[i]*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i])*exp(-coeffs.alpha[i]*pow(delta - coeffs.epsilon[i], 2) - coeffs.beta[i]*pow(tau - coeffs.gamma[i], 2));
+    }
+    for (int i = 54; i < 56; i++)
+    {
+        out += coeffs.n[i]*(pow(deltaFunc(delta, tau, i), coeffs.b[i])*(psiFunc(delta, tau, i) + delta*psiFuncd(delta, tau, i)) + deltaFuncbid(delta, tau, i)*delta*psiFunc(delta, tau, i));                            
+    }
+    return out;
 }
 
 double Iawps95::phirdd(double delta, double tau) const
 {
-    return 0.0;
+    double out = 0.0;
+    for (int i = 0; i < 7; i++)
+    {
+        out += coeffs.n[i]*coeffs.d[i]*(coeffs.d[i] - 1.0)*pow(delta, coeffs.d[i] - 2.0)*pow(tau, coeffs.t[i]);
+    }
+    for (int i = 7; i < 51; i++)
+    {
+        out += coeffs.n[i]*exp(-pow(-delta, coeffs.c[i]))*(pow(delta, coeffs.d[i] - 2.0)*pow(tau, coeffs.t[i])*((coeffs.d[i] - coeffs.c[i]*pow(delta, coeffs.c[i]))*(coeffs.d[i] - 1.0 - coeffs.c[i]*pow(delta, coeffs.c[i])) - pow(coeffs.c[i], 2)*pow(delta, coeffs.c[i])));
+    }
+    for (int i = 51; i < 54; i++)
+    {
+        out += coeffs.n[i]*pow(tau, coeffs.t[i])*exp(-coeffs.alpha[i]*pow(delta - coeffs.epsilon[i], 2) - coeffs.beta[i]*pow(tau - coeffs.gamma[i], 2))*(-2.0*coeffs.alpha[i]*pow(delta, coeffs.d[i]) + 4.0*pow(coeffs.alpha[i], 2)*pow(delta, coeffs.d[i])*pow(delta - coeffs.epsilon[i], 2) - 4.0*coeffs.d[i]*coeffs.alpha[i]*pow(delta, coeffs.d[i] - 1.0)*(delta - coeffs.epsilon[i]) + coeffs.d[i]*(coeffs.d[i] - 1.0)*pow(delta, coeffs.d[i] - 2.0));
+    }
+    for (int i = 54; i < 56; i++)
+    {
+        out += coeffs.n[i]*(pow(deltaFunc(delta, tau, i), coeffs.b[i])*(2*psiFuncd(delta, tau, i) + delta*psiFuncdd(delta, tau, i)) + 2*deltaFuncbid(delta, tau, i)*(psiFunc(delta, tau, i) + delta*psiFunc(delta, tau ,i)) + deltaFuncbidd(delta, tau, i)*delta*psiFunc(delta, tau, i));
+    }
+    return out;
 }
 
 double Iawps95::phirt(double delta, double tau) const
@@ -175,7 +254,7 @@ double Iawps95::phirt(double delta, double tau) const
     }
     for (int i = 51; i < 54; i++)
     {
-        out += (coeffs.n[i]*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i])*exp(coeffs.a[i]*(delta - coeffs.epsilon[i])*(delta - coeffs.epsilon[i]) - coeffs.beta[i]*(tau - coeffs.gamma[i])*(tau - coeffs.gamma[i])))*(coeffs.t[i]/tau - 2.0*coeffs.beta[i]*(tau - coeffs.gamma[i]));                           
+        out += (coeffs.n[i]*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i])*exp(-coeffs.alpha[i]*(delta - coeffs.epsilon[i])*(delta - coeffs.epsilon[i]) - coeffs.beta[i]*(tau - coeffs.gamma[i])*(tau - coeffs.gamma[i])))*(coeffs.t[i]/tau - 2.0*coeffs.beta[i]*(tau - coeffs.gamma[i]));                           
     }
     for (int i = 54; i < 56; i++)
     {
@@ -186,12 +265,46 @@ double Iawps95::phirt(double delta, double tau) const
 
 double Iawps95::phirtt(double delta, double tau) const
 {
-    return 0.0;
+    double out = 0.0;
+    for (int i = 0; i < 7; i++)
+    {
+        out += coeffs.n[i]*coeffs.t[i]*(coeffs.t[i] - 1.0)*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i] - 2.0);
+    }
+    for (int i = 7; i < 51; i++)
+    {
+        out += coeffs.n[i]*coeffs.t[i]*(coeffs.t[i] - 1.0)*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i] - 2.0)*exp(-pow(delta, coeffs.c[i]));
+    }
+    for (int i = 51; i < 54; i++)
+    {
+        out += (coeffs.n[i]*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i])*exp(-coeffs.alpha[i]*(delta - coeffs.epsilon[i])*(delta - coeffs.epsilon[i]) - coeffs.beta[i]*(tau - coeffs.gamma[i])*(tau - coeffs.gamma[i])))*(pow(coeffs.t[i]/tau - 2.0*coeffs.beta[i]*(tau - coeffs.gamma[i]), 2.0) - coeffs.t[i]/(tau*tau) - 2.0*coeffs.beta[i]);                           
+    }
+    for (int i = 54; i < 56; i++)
+    {
+        out += coeffs.n[i]*delta*(deltaFuncbitt(delta, tau, i)*psiFunc(delta, tau, i) + 2.0*deltaFuncbidt(delta, tau, i)*psiFunct(delta, tau, i) + pow(deltaFunc(delta, tau, i), coeffs.b[i])*psiFunctt(delta, tau, i));
+    }
+    return out;
 }
 
 double Iawps95::phirdt(double delta, double tau) const
 {
-    return 0.0;
+    double out = 0.0;
+    for (int i = 0; i < 7; i++)
+    {
+        out += coeffs.n[i]*coeffs.d[i]*coeffs.t[i]*pow(delta, coeffs.d[i] - 1.0)*pow(tau, coeffs.t[i] - 1.0);
+    }
+    for (int i = 7; i < 51; i++)
+    {
+        out += coeffs.n[i]*coeffs.t[i]*pow(delta, coeffs.d[i] - 1.0)*pow(tau, coeffs.t[i] - 1.0)*(coeffs.d[i] - coeffs.c[i]*pow(delta, coeffs.c[i]))*exp(-pow(delta, coeffs.c[i]));
+    }
+    for (int i = 51; i < 54; i++)
+    {
+        out += coeffs.n[i]*pow(delta, coeffs.d[i])*pow(tau, coeffs.t[i])*exp(-coeffs.alpha[i]*pow(delta - coeffs.epsilon[i], 2) - coeffs.beta[i]*pow(tau - coeffs.gamma[i], 2))*(coeffs.d[i]/delta - 2.0*coeffs.alpha[i]*(delta - coeffs.epsilon[i]))*(coeffs.t[i]/tau - 2.0*coeffs.beta[i]*(tau - coeffs.gamma[i]));                           
+    }
+    for (int i = 54; i < 56; i++)
+    {
+        out += coeffs.n[i]*(pow(deltaFunc(delta, tau, i), coeffs.b[i])*(psiFunct(delta, tau, i) + delta*psiFuncdt(delta, tau, i)) + delta*(deltaFuncbid(delta, tau, i)*psiFunct(delta, tau, i)) + deltaFuncbit(delta, tau, i)*(psiFunct(delta, tau, i) + delta*psiFuncd(delta, tau, i)) + deltaFuncbidt(delta, tau, i)*delta*psiFunc(delta, tau, i));
+    }
+    return out;
 }
 
 
@@ -215,23 +328,23 @@ double Iawps95::psiFunc(double delta, double tau, int i) const
 
 double Iawps95::deltaFuncd(double delta, double tau, int i) const
 {
-    return 0.0;
+    return (delta - 1.0)*(coeffs.A[i]*thetaFunc(delta, tau, i)*(2.0/coeffs.beta[i])*pow(pow(delta - 1.0, 2), 1/(2.0*coeffs.beta[i]) - 1.0) + 2.0*coeffs.B[i]*coeffs.a[i]*pow(delta - 1.0, coeffs.a[i] - 1.0));
 }
 
 double Iawps95::deltaFuncdd(double delta, double tau, int i) const
 {
-    return 0.0;
+    return (1.0/(delta - 1.0))*deltaFuncd(delta, tau, i) + pow(delta - 1.0, 2)*(4.0*coeffs.B[i]*coeffs.a[i]*(coeffs.a[i] - 1.0)*pow(pow(delta - 1.0, 2), coeffs.a[i] - 2.0) + 2.0*pow(coeffs.A[i], 2)*pow(1/coeffs.beta[i], 2)*pow(pow(pow(delta - 1.0, 2), 1/(2*coeffs.beta[i]) - 1.0), 2) + coeffs.A[i]*thetaFunc(delta, tau, i)*(4.0/coeffs.beta[i])*(1/(2*coeffs.beta[i]) - 1.0)*pow(pow(delta - 1.0, 2), 1/(2*coeffs.beta[i] - 2.0)));
 }
 
 
 double Iawps95::deltaFuncbid(double delta, double tau, int i) const
 {
-    return 0.0;
+    return coeffs.b[i]*pow(deltaFunc(delta, tau, i), coeffs.b[i] - 1.0)*deltaFuncd(delta, tau, i);
 }
 
 double Iawps95::deltaFuncbidd(double delta, double tau, int i) const
 {
-    return 0.0;
+    return coeffs.b[i]*(pow(deltaFunc(delta, tau, i), coeffs.b[i] - 1.0)*deltaFuncdd(delta, tau, i) + (coeffs.b[i] - 1.0)*pow(deltaFunc(delta, tau, i), coeffs.b[i] - 2.0)*pow(deltaFuncd(delta, tau, i), 2));
 }
 
 double Iawps95::deltaFuncbit(double delta, double tau, int i) const
@@ -241,23 +354,23 @@ double Iawps95::deltaFuncbit(double delta, double tau, int i) const
 
 double Iawps95::deltaFuncbitt(double delta, double tau, int i) const
 {
-    return 0.0;
+    return 2.0*coeffs.b[i]*pow(deltaFunc(delta, tau, i), coeffs.b[i] - 1.0) + 4.0*pow(thetaFunc(delta, tau, i), 2.0)*coeffs.b[i]*(coeffs.b[i] - 1.0)*pow(deltaFunc(delta, tau, i), coeffs.b[i] - 2.0);
 }
 
 double Iawps95::deltaFuncbidt(double delta, double tau, int i) const
 {
-    return 0.0;
+    return -coeffs.A[i]*coeffs.b[i]*(2.0/coeffs.beta[i])*pow(deltaFunc(delta, tau, i), coeffs.b[i] - 1.0)*(delta - 1.0)*pow(pow(delta - 1, 2), 1.0/(2.0*coeffs.beta[i]) - 1.0) - 2.0*thetaFunc(delta, tau, i)*coeffs.b[i]*(coeffs.b[i] - 1.0)*pow(deltaFunc(delta, tau, i), coeffs.b[i] - 2.0)*deltaFuncd(delta, tau, i);
 }
 
 
 double Iawps95::psiFuncd(double delta, double tau, int i) const
 {
-    return 0.0;
+    return -2.0*coeffs.C[i]*(delta - 1.0)*psiFunc(delta, tau, i);
 }
 
 double Iawps95::psiFuncdd(double delta, double tau, int i) const
 {
-    return 0.0;
+    return (2.0*coeffs.C[i]*pow(delta - 1.0, 2) - 1.0)*2.0*coeffs.C[i]*psiFunc(delta, tau, i);
 }
 
 double Iawps95::psiFunct(double delta, double tau, int i) const
@@ -267,10 +380,10 @@ double Iawps95::psiFunct(double delta, double tau, int i) const
 
 double Iawps95::psiFunctt(double delta, double tau, int i) const
 {
-    return 0.0;
+    return (2.0*coeffs.D[i]*(tau - 1.0)*(tau - 1.0) - 1.0)*2.0*coeffs.D[i]*psiFunc(delta, tau, i);
 }
 
 double Iawps95::psiFuncdt(double delta, double tau, int i) const
 {
-    return 0.0;
+    return 4.0*coeffs.C[i]*coeffs.D[i]*(delta - 1.0)*(tau - 1.0)*psiFunc(delta, tau, i);
 }
