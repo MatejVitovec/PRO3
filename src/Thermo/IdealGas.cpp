@@ -51,11 +51,15 @@ Compressible IdealGas::primitiveToConservative(const Vars<5>& primitive) const
 {
     double velocity2 = primitive[1]*primitive[1] + primitive[2]*primitive[2] + primitive[3]*primitive[3];
 
-    return Compressible({primitive[0],
-                         primitive[0]*primitive[1],
-                         primitive[0]*primitive[2],
-                         primitive[0]*primitive[3],
-                         0.5*primitive[0]*velocity2 + (primitive[4])/(gamma - 1.0)});
+    Compressible out = Compressible({primitive[0],
+                                     primitive[0]*primitive[1],
+                                     primitive[0]*primitive[2],
+                                     primitive[0]*primitive[3],
+                                     0.5*primitive[0]*velocity2 + (primitive[4])/(gamma - 1.0)});
+
+    out.setThermoVar(Vars<3>({temperature(out), pressure(out), soundSpeed(out)}));
+
+    return out;
 }
 
 Compressible IdealGas::isentropicInlet(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const

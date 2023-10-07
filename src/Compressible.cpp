@@ -51,15 +51,20 @@ double Compressible::totalEnergy() const
     return data[RHO_E] / data[RHO];
 }
 
+double Compressible::temperature() const
+{
+    return thermoVar[T];
+}
+
 double Compressible::pressure() const
 {
     return thermoVar[P];
 }
 
-/*double Compressible::internalEnergy() const
+double Compressible::internalEnergy() const
 {
-    return 0.0;
-}*/
+    return data[RHO_E]/data[RHO] - 0.5*this->absVelocity2();
+}
 
 double Compressible::soundSpeed() const
 {

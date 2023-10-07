@@ -33,9 +33,10 @@ class Compressible : public Vars<5>
         double velocityV() const;
         double velocityW() const;
         double totalEnergy() const;
+        double internalEnergy() const;
 
-        double pressure() const;
-        //double internalEnergy() const;
+        double temperature() const;
+        double pressure() const;        
         double soundSpeed() const;
         double machNumber() const;
 
