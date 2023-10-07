@@ -58,6 +58,7 @@ class FVMScheme
         double cfl;
         int maxIter;
         double targetError;
+        //bool localTimeStep;
 
         void updateTimeStep();
         void applyBoundaryConditions();

@@ -6,9 +6,9 @@ void PressureDensityInlet::setTotalPressure(double totalPressure_)
     totalPressure = totalPressure_;
 }
 
-void PressureDensityInlet::setTotalDensity(double totaltemperature_)
+void PressureDensityInlet::setTotalDensity(double totalDensity)
 {
-    totalDensity = totaltemperature_;
+    totalDensity = totalDensity;
 }
 
 void PressureDensityInlet::setVelocityDirection(Vars<3> velocityDirection_)
@@ -34,10 +34,9 @@ Vars<3> PressureDensityInlet::getVelocityDirection() const
 Compressible PressureDensityInlet::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
 {
     double pressure = std::min(wl.pressure(), totalPressure); //interpolate from domain
-
-    //TODO
     double gamma = 1.4;
     double machNumber2 = (2.0/(gamma - 1.0))*(std::pow((pressure/totalPressure), ((1.0 - gamma)/gamma)) - 1.0);
+    //double machNumber2 = (2.0/(gamma - 1.0))*(std::pow((totalPressure/pressure), ((gamma - 1.0)/gamma)) - 1.0);
     double density = totalDensity*std::pow(1.0 + ((gamma - 1.0)/2.0)*machNumber2, 1.0/(1.0 - gamma));
     double absVelocity = std::sqrt(machNumber2)*std::sqrt((gamma*pressure)/density);
 

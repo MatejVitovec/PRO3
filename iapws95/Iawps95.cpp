@@ -227,6 +227,8 @@ double Iawps95::implicitRhoFromTS(double T, double s, double guessRho) const
     return delta*critRho;
 }
 
+
+
 // dimensionless Helmholtz free energy functions
 
 double Iawps95::phi0(double delta, double tau) const

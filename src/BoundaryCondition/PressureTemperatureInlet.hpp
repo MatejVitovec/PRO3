@@ -1,31 +1,31 @@
-#ifndef PRESSUREDENSITYINLET_HPP
-#define PRESSUREDENSITYINLET_HPP
+#ifndef PRESSURETEMPERATUREINLET_HPP
+#define PRESSURETEMPERATUREINLET_HPP
 
 #include "BoundaryCondition.hpp"
 
-class PressureDensityInlet : public BoundaryCondition
+class PressureTemperatureInlet : public BoundaryCondition
 {
     public:
 
-        PressureDensityInlet() {}
-        PressureDensityInlet(Boundary meshBoundary, double totalPressure_, double totalDensity, Vars<3> velocityDirection_) : BoundaryCondition(meshBoundary),
+        PressureTemperatureInlet() {}
+        PressureTemperatureInlet(Boundary meshBoundary, double totalPressure_, double totalTemperature_, Vars<3> velocityDirection_) : BoundaryCondition(meshBoundary),
                     totalPressure(totalPressure_),
-                    totalDensity(totalDensity),
+                    totalTemperature(totalTemperature_),
                     velocityDirection(velocityDirection_) {}
 
         void setTotalPressure(double totalPressure_);
-        void setTotalDensity(double totalDensity);
+        void setTotalTemperature(double totalTemperature_);
         void setVelocityDirection(Vars<3> velocityDirection_);
         double getTotalPressure() const;
-        double getTotalDensity() const;
+        double getTotalTemperature() const;
         Vars<3> getVelocityDirection() const;
 
         Compressible calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const;        
 
     private:
         double totalPressure;
-        double totalDensity;
+        double totalTemperature;
         Vars<3> velocityDirection;
 };
 
-#endif // PRESSUREDENSITYINLET
+#endif // PRESSURETEMPERATUREINLET

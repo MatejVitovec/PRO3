@@ -13,6 +13,7 @@ class Compressible : public Vars<5>
 
         Compressible() : Vars<5>() {}
         Compressible(const std::array<double, 5>& in) : Vars<5>(in) {}
+        Compressible(const std::array<double, 5>& in, const std::array<double, 3>& inTermo) : Vars<5>(in), thermoVar(inTermo) {}
 
         void setThermoVar(Vars<3> thermoProp);
 

@@ -13,7 +13,6 @@ double PressureOutlet::getPressure() const
 
 Compressible PressureOutlet::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
 {
-    Vars<3> normalVector = vector3toVars(f.normalVector);
     double referenceSoundSpeed = wl.soundSpeed();
 
     if(wl.absVelocity()/referenceSoundSpeed >= 1.0)

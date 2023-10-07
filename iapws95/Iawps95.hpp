@@ -48,11 +48,11 @@ class Iawps95
 
 
     private:
-        static constexpr  double critT = 647.096;
-        static constexpr  double critRho = 322.0;
-        static constexpr  double specGasConst = 461.51805;
+        static constexpr double critT = 647.096;
+        static constexpr double critRho = 322.0;
+        static constexpr double specGasConst = 461.51805;
 
-        static constexpr  double numericalTolerance = 0.0001;
+        static constexpr double numericalTolerance = 0.0001;
 
         Coeffs coeffs;
 
