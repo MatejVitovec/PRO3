@@ -109,13 +109,13 @@ void outputVTK(std::string filename, const Mesh& mesh, const Field<Compressible>
 		f << roundToZero(w[i].machNumber()) << "\n";
 	}
 	
- 	f << "SCALARS x float 3\n"; 
+ 	/*f << "SCALARS x float 3\n"; 
 	f << "LOOKUP_TABLE default\n";
 
     for (int i = 0; i < cellSize; i++)
     {
 		f << cellList[i].center << "\n";
-	}
+	}*/
 	f << std::endl;
 
 	f.close();

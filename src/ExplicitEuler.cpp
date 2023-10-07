@@ -36,8 +36,8 @@ void ExplicitEuler::solve()
 
         wn = thermo->updateField(wn);
 
-        Vars<5> resNorm = (wn - w).norm(); //mozna spatne
-        saveResidual("results/residuals.txt", resNorm);
+        Vars<5> resNorm = (wn - w).norm();
+        saveResidual("../results/residuals.txt", resNorm);
 
         if(resNorm[0] < targetError) exitLoop = true;
         
