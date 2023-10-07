@@ -36,20 +36,21 @@ class Iawps95
         double p(double rho, double T) const;
         double e(double rho, double T) const;
         double s(double rho, double T) const;
-        double h(double rho, double T) const; //TODO
-        double w2(double rho, double T) const; //TODO
+        double h(double rho, double T) const;
+        double w2(double rho, double T) const;
 
-        double temperatureFromRhoE(double rho, double e, double guessT) const;
-        double temperatureFromRhoP(double rho, double p, double guessT) const;
+        double implicitTFromRhoE(double rho, double e, double guessT) const;
+        double implicitTFromRhoP(double rho, double p, double guessT) const;
+        double implicitTFromRhoS(double rho, double s, double guessT) const;
+        double implicitRhoFromTS(double T, double s, double guessRho) const;
 
         void test(double rho, double T) const;
-
 
 
     private:
         static constexpr  double critT = 647.096;
         static constexpr  double critRho = 322.0;
-        static constexpr  double specGasConst = 0.46151805;
+        static constexpr  double specGasConst = 461.51805;
 
         static constexpr  double numericalTolerance = 0.0001;
 
@@ -57,8 +58,6 @@ class Iawps95
 
         std::vector<double> loadCoeffFile(std::string name, std::string dirName, int size) const;
         void loadCoeffs(std::string dirPath);
-
-        
 
         double phi0(double delta, double tau) const;
         double phi0d(double delta, double tau) const;
@@ -92,7 +91,6 @@ class Iawps95
         double psiFunct(double delta, double tau, int i) const;
         double psiFunctt(double delta, double tau, int i) const;
         double psiFuncdt(double delta, double tau, int i) const;
-
 };
 
 #endif // IAWPS95

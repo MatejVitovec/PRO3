@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "BoundaryCondition/PressureTemperatureInlet.hpp"
+//#include "BoundaryCondition/PressureTemperatureInlet.hpp"
 #include "BoundaryCondition/PressureDensityInlet.hpp"
 #include "BoundaryCondition/PressureOutlet.hpp"
 #include "BoundaryCondition/FreeBoundary.hpp"
@@ -56,7 +56,7 @@ std::vector<std::unique_ptr<BoundaryCondition>> createBoundaryCondition(const Me
 
 		if(boundaryTypes[i] == BoundaryCondition::PRESSURETEMPERATUREINLET)
 		{
-			out.push_back(std::make_unique<PressureTemperatureInlet>(aux, 0.7143, 0.5102, Vars<3>({1.0, 0.0, 0.0})));
+			//out.push_back(std::make_unique<PressureTemperatureInlet>(aux, 0.7143, 0.5102, Vars<3>({1.0, 0.0, 0.0})));
 		}
 		else if(boundaryTypes[i] == BoundaryCondition::PRESSUREDENSITYINLET)
 		{

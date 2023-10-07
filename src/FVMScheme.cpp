@@ -47,6 +47,17 @@ void FVMScheme::setInitialConditions(Compressible initialCondition)
     }    
 }
 
+void FVMScheme::setInitialConditionsPrimitive(Vars<5> initialCondition)
+{
+    Compressible CompressibleIC = thermo->primitiveToConservative(initialCondition);
+
+    w = Field<Compressible>(mesh.getCellsSize());
+    for (int i = 0; i < mesh.getCellsSize(); i++)
+    {
+        w[i] = CompressibleIC;
+    }  
+}
+
 void FVMScheme::setInitialConditionsRiemann(Compressible initialConditionL, Compressible initialConditionR)
 {
     w = Field<Compressible>(mesh.getCellsSize());
@@ -68,7 +79,7 @@ void FVMScheme::applyBoundaryConditions()
 
     for (auto & boundaryCondition : boundaryConditionList)
     {
-        boundaryCondition->apply(ownerIndexList, faceList, w, wr);
+        boundaryCondition->apply(ownerIndexList, faceList, w, wr, thermo.get());
     }
 }
 

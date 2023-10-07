@@ -22,11 +22,6 @@ double IdealGas::getR() const
     return R;
 }
 
-double IdealGas::cp() const
-{
-    return (gamma*R)/(gamma - 1.0);
-}
-
 double IdealGas::pressure(const Compressible& data) const
 {
     return (gamma - 1.0)*data.density()*(data.totalEnergy() - 0.5*data.absVelocity2());
@@ -34,30 +29,31 @@ double IdealGas::pressure(const Compressible& data) const
 
 double IdealGas::internalEnergy(const Compressible& data) const
 {
-    return data.pressure()/((gamma - 1.0)*data.density());
+    return pressure(data)/((gamma - 1.0)*data.density());
 }
 
 double IdealGas::soundSpeed(const Compressible& data) const
 {
-    return std::sqrt((gamma*data.pressure())/data.density());
+    return std::sqrt((gamma*pressure(data))/data.density());
 }
 
-double IdealGas::density(double totalDensity, double machNumeber2) const
+double IdealGas::temperature(const Compressible& data) const
 {
-    return totalDensity*std::pow(1.0 + ((gamma - 1.0)/2.0)*machNumeber2, 1.0/(1.0 - gamma));
-}
-
-double IdealGas::soundSpeed(double pressure, double density) const
-{
-    return std::sqrt((gamma*pressure)/density);
-}
-
-double IdealGas::machNumber2(double totalPressure, double pressure) const
-{
-    return (2.0/(gamma - 1.0))*(std::pow((pressure/totalPressure), ((1.0 - gamma)/gamma)) - 1.0);
+    return pressure(data)/(R*data[Compressible::RHO]);
 }
 
 Vars<3> IdealGas::calculateThermo(const Compressible& data) const
 {
-    return Vars<3>({pressure(data), pressure(data), soundSpeed(data)});
+    return Vars<3>({temperature(data), pressure(data), soundSpeed(data)});
+}
+
+Compressible IdealGas::primitiveToConservative(const Vars<5>& primitive) const
+{
+    double velocity2 = primitive[1]*primitive[1] + primitive[2]*primitive[2] + primitive[3]*primitive[3];
+
+    return Compressible({primitive[0],
+                         primitive[0]*primitive[1],
+                         primitive[0]*primitive[2],
+                         primitive[0]*primitive[3],
+                         0.5*primitive[0]*velocity2 + (primitive[4])/(gamma - 1.0)});
 }

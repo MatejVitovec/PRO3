@@ -31,19 +31,19 @@ Vars<3> PressureDensityInlet::getVelocityDirection() const
     return velocityDirection;
 }
 
-Compressible PressureDensityInlet::calculateState(const Compressible& wl, const Face& f) const
+Compressible PressureDensityInlet::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
 {
-    std::shared_ptr<EquationOfState> eqs = Compressible::getEquationOfState();
-
     double pressure = std::min(wl.pressure(), totalPressure); //interpolate from domain
 
-    double machNumber2 = eqs->machNumber2(totalPressure, pressure);
-    double density = eqs->density(totalDensity, machNumber2);
-    double absVelocity = std::sqrt(machNumber2)*eqs->soundSpeed(pressure, density);
+    //TODO
+    double gamma = 1.4;
+    double machNumber2 = (2.0/(gamma - 1.0))*(std::pow((pressure/totalPressure), ((1.0 - gamma)/gamma)) - 1.0);
+    double density = totalDensity*std::pow(1.0 + ((gamma - 1.0)/2.0)*machNumber2, 1.0/(1.0 - gamma));
+    double absVelocity = std::sqrt(machNumber2)*std::sqrt((gamma*pressure)/density);
 
-    return eqs->primitiveToConservative(Vars<5>({density,
-                                                 absVelocity*velocityDirection[0],
-                                                 absVelocity*velocityDirection[1],
-                                                 absVelocity*velocityDirection[2],
-                                                 pressure}));
+    return thermoModel->primitiveToConservative(Vars<5>({density,
+                                                         absVelocity*velocityDirection[0],
+                                                         absVelocity*velocityDirection[1],
+                                                         absVelocity*velocityDirection[2],
+                                                         pressure}));
 }

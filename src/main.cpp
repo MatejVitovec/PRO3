@@ -10,6 +10,7 @@
 #include "ExplicitEuler.hpp"
 #include "FluxSolver/Hll.hpp"
 #include "FluxSolver/Hllc.hpp"
+#include "Thermo/IdealGas.hpp"
 #include "outputCFD.hpp"
 #include "setCFD.hpp"
 
@@ -21,7 +22,7 @@ int main(int argc, char** argv)
 
     //auto stop1 = std::chrono::high_resolution_clock::now();
 
-    myMesh.loadGmsh2("../meshes/GAMM_extraFine.msh");
+    myMesh.loadGmsh2("../meshes/GAMM.msh");
 
     /*auto stop2 = std::chrono::high_resolution_clock::now();
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";
@@ -37,8 +38,9 @@ int main(int argc, char** argv)
 
 
     std::unique_ptr<FluxSolver> myFluxSolver = std::make_unique<Hllc>();
+    std::unique_ptr<Thermo> myThermoModel = std::make_unique<IdealGas>();
 
-    ExplicitEuler mySolver(std::move(myMesh), std::move(myFluxSolver));
+    ExplicitEuler mySolver(std::move(myMesh), std::move(myFluxSolver), std::move(myThermoModel));
 
     mySolver.setCfl(0.8);
     mySolver.setMaxIter(5000000);
@@ -48,7 +50,7 @@ int main(int argc, char** argv)
 
     mySolver.setBoundaryConditions(std::move(bc));
 
-    mySolver.setInitialConditions(Compressible::primitiveToConservative(Vars<5>({1.0, 0.0, 0.0, 0.0, 0.7143})));
+    mySolver.setInitialConditionsPrimitive(Vars<5>({1.0, 0.0, 0.0, 0.0, 0.7143}));
 
     outputVTK("../results/results.0.vtk", mySolver.getMesh(), mySolver.getResults());
 

@@ -17,6 +17,7 @@ class IdealGas : public Thermo
 
         //overwritten virtual
         Vars<3> calculateThermo(const Compressible& data) const;
+        Compressible primitiveToConservative(const Vars<5>& primitive) const;
 
     private:
         double gamma;
@@ -25,11 +26,7 @@ class IdealGas : public Thermo
         double pressure(const Compressible& data) const;
         double internalEnergy(const Compressible& data) const;
         double soundSpeed(const Compressible& data) const;
-
-        double density(double totalDensity, double machNumeber2) const;
-        double soundSpeed(double pressure, double density) const;
-        double machNumber2(double totalPressure, double pressure) const;
-        double cp() const;
+        double temperature(const Compressible& data) const;
 
 };
 

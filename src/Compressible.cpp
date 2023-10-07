@@ -63,7 +63,7 @@ double Compressible::pressure() const
 
 double Compressible::soundSpeed() const
 {
-    return thermoVar[W];
+    return thermoVar[A];
 }
 
 double Compressible::machNumber() const

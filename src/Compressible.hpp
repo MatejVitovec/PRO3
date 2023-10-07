@@ -45,7 +45,7 @@ class Compressible : public Vars<5>
 
     private:
         //0:T; 1:p, 2:w
-        enum {T, P, W};
+        enum {T, P, A};
         Vars<3> thermoVar;
 };
 

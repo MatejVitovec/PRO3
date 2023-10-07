@@ -32,6 +32,7 @@ class FVMScheme
         const Mesh& getMesh() const;
 
         void setInitialConditions(Compressible initialCondition);
+        void setInitialConditionsPrimitive(Vars<5> initialCondition);
         void setInitialConditionsRiemann(Compressible initialConditionL, Compressible initialConditionR);
         void setBoundaryConditions(std::vector<std::unique_ptr<BoundaryCondition>> boundaryConditions);
 

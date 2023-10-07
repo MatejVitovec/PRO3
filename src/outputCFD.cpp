@@ -85,13 +85,13 @@ void outputVTK(std::string filename, const Mesh& mesh, const Field<Compressible>
 		f << roundToZero(w[i].velocityU()) << " " << roundToZero(w[i].velocityV()) << " " << roundToZero(w[i].velocityW()) << "\n";
 	}	
 
- 	f << "SCALARS e float\n"; 
+ 	/*f << "SCALARS e float\n"; 
 	f << "LOOKUP_TABLE default\n";
 
     for (int i = 0; i < cellSize; i++)
     {
 		f << roundToZero(w[i].internalEnergy()) << "\n";
-	}
+	}*/
 	
 	f << "SCALARS p float\n"; 
 	f << "LOOKUP_TABLE default\n";

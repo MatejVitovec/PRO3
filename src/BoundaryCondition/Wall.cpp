@@ -1,6 +1,6 @@
 #include "Wall.hpp"
 
-Compressible Wall::calculateState(const Compressible& wl, const Face& f) const
+Compressible Wall::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
 {
     Vars<3> normalVector = vector3toVars(f.normalVector);
     Vars<3> ghostVelocity = wl.velocity() - 2*wl.normalVelocity(normalVector)*normalVector;

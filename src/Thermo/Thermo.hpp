@@ -11,9 +11,11 @@ class Thermo
     
         Thermo() {}
 
-        virtual Vars<3> calculateThermo(const Compressible& data) const = 0;
-        Field<Compressible> updateField(const Field<Compressible>& w) const;
+        Field<Compressible> updateField(Field<Compressible> w) const;
 
+        virtual Vars<3> calculateThermo(const Compressible& data) const = 0;        
+        virtual Compressible primitiveToConservative(const Vars<5>& primitive) const = 0;
+        
 };
 
 #endif // THERMO_HPP

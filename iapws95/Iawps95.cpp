@@ -81,6 +81,8 @@ void Iawps95::test(double rho, double T) const
     std::cout << "phirdt: " << phirdt(delta, tau) << std::endl;
 }
 
+
+
 double Iawps95::p(double rho, double T) const
 {
     double delta = rho/critRho;
@@ -123,7 +125,7 @@ double Iawps95::w2(double rho, double T) const
     return specGasConst*T*(1.0 + 2.0*delta*phirdAux + delta*delta*phirdd(delta, tau) - pow(1.0 + delta*(phirdAux - tau*phirdt(delta, tau)), 2)/(tau*tau*(phi0tt(delta, tau) + phirtt(delta, tau))));
 }
 
-double Iawps95::temperatureFromRhoE(double rho, double e, double guessT) const
+double Iawps95::implicitTFromRhoE(double rho, double e, double guessT) const
 {
     double delta = rho/critRho;
     double tauOld = critT/guessT;
@@ -148,7 +150,7 @@ double Iawps95::temperatureFromRhoE(double rho, double e, double guessT) const
     return critT/tau;
 }
 
-double Iawps95::temperatureFromRhoP(double rho, double p, double guessT) const
+double Iawps95::implicitTFromRhoP(double rho, double p, double guessT) const
 {
     double delta = rho/critRho;
     double tauOld = critT/guessT;
@@ -175,6 +177,55 @@ double Iawps95::temperatureFromRhoP(double rho, double p, double guessT) const
     return critT/tau;
 }
 
+double Iawps95::implicitTFromRhoS(double rho, double s, double guessT) const
+{
+    double delta = rho/critRho;
+    double tauOld = critT/guessT;
+    double tau = 0.0;
+
+    double change = 100000;
+    int i = 0;
+
+    // Newton method
+    while (change > numericalTolerance)
+    {
+        tau = tauOld - (s/specGasConst - tauOld*(phi0t(delta, tauOld) + phirt(delta, tauOld)) + phi0(delta, tauOld) + phir(delta, tauOld))/(-tauOld*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
+        
+        change = fabs(tau - tauOld);
+
+        tauOld = tau;
+        i++;
+    }
+
+    std::cout << i << std::endl;
+    
+    return critT/tau;
+}
+
+double Iawps95::implicitRhoFromTS(double T, double s, double guessRho) const
+{
+    double deltaOld = guessRho/critRho;
+    double tau = critT/T;
+    double delta = 0.0;
+
+    double change = 100000;
+    int i = 0;
+
+    // Newton method
+    while (change > numericalTolerance)
+    {
+        delta = deltaOld - (s/specGasConst - tau*(phi0t(deltaOld, tau) + phirt(deltaOld, tau)) + phi0(deltaOld, tau) + phir(deltaOld, tau))/(-tau*(phi0dt(deltaOld, tau) + phirdt(deltaOld, tau)) + phi0d(deltaOld, tau) + phird(deltaOld, tau));
+        
+        change = fabs(delta - deltaOld);
+
+        deltaOld = delta;
+        i++;
+    }
+
+    std::cout << i << std::endl;
+    
+    return delta*critRho;
+}
 
 // dimensionless Helmholtz free energy functions
 

@@ -47,7 +47,7 @@ void ExplicitEuler::solve()
 
         if(iter % 500 == 0)
         {
-            outputVTK("results/results." + std::to_string(iter) + ".vtk", mesh, w);
+            outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
             std::cout << "iter: " << iter << std::endl;
         }
     }
