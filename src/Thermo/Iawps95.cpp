@@ -65,7 +65,7 @@ Vars<3> Iawps95::updateThermo(const Compressible& data) const
 {
     //treti clen stara hodnota teploty jako odhad pro nelinearni reseni rovnice
     double rho = data.density();
-    double T = implicitTFromRhoE(rho, data.internalEnergy(), data.temperature());
+    double T = tFromRhoE(rho, data.internalEnergy(), data.temperature());
 
     return Vars<3>({T, p(rho, T), a(rho, T)});
 }
@@ -75,7 +75,7 @@ Compressible Iawps95::primitiveToConservative(const Vars<5>& primitive) const
     double rho = primitive[0];
     double p = primitive[4];
     //odhad T pomoci idealniho plynu
-    double T = implicitTFromRhoP(rho, p, p/(specGasConst*rho));
+    double T = tFromRhoP(rho, p, p/(specGasConst*rho));
     double E = e(rho, T) + 0.5*(primitive[1]*primitive[1] + primitive[2]*primitive[2] + primitive[3]*primitive[3]);
 
     return Compressible({rho,
@@ -86,26 +86,23 @@ Compressible Iawps95::primitiveToConservative(const Vars<5>& primitive) const
                          {T, p, a(rho, T)});
 }
 
-Compressible Iawps95::isentropicInlet(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
+Compressible Iawps95::isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
 {
-    double rhoTot = implicitRhoFromTP(TTot, pTot, stateIn.temperature());
     double pIn = stateIn.pressure();
 
     //newton method for 2 equations
     double guessRho = 0.0;
     double guessT = 0.0;
 
-
     double deltaOld = guessRho/critRho;
     double tauOld = critT/guessT;
     double delta = 0.0;
     double tau = 0.0;
 
-
     double change = 10000000.0;
     int i = 0;
 
-    // Newton method
+    // Newton method loop
     while (change > numericalTolerance)
     {
         double auxPhird = phird(deltaOld, tauOld);
@@ -142,6 +139,22 @@ Compressible Iawps95::isentropicInlet(double pTot, double TTot, Vars<3> velocity
                          rho*absU*velocityDirection[2],
                          0.5*rho*absU2 + e(rho, T)},
                          {T, pIn, a(rho, T)});
+}
+
+Compressible Iawps95::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
+{
+    //ideal gas as guess
+    double rhoTot = rhoFromTP(TTot, pTot, pTot/(specGasConst*TTot));
+
+    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn);
+}
+
+Compressible Iawps95::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
+{
+    //ideal gas as guess
+    double TTot = tFromRhoP(rhoTot, pTot, pTot/(specGasConst*rhoTot));
+
+    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn);
 }
 
 double Iawps95::p(double rho, double T) const
@@ -191,7 +204,7 @@ double Iawps95::a(double rho, double T) const
     return std::sqrt(a2(rho, T));
 }
 
-double Iawps95::implicitTFromRhoE(double rho, double e, double guessT) const
+double Iawps95::tFromRhoE(double rho, double e, double guessT) const
 {
     double delta = rho/critRho;
     double tauOld = critT/guessT;
@@ -216,7 +229,7 @@ double Iawps95::implicitTFromRhoE(double rho, double e, double guessT) const
     return critT/tau;
 }
 
-double Iawps95::implicitTFromRhoP(double rho, double p, double guessT) const
+double Iawps95::tFromRhoP(double rho, double p, double guessT) const
 {
     double delta = rho/critRho;
     double tauOld = critT/guessT;
@@ -243,7 +256,7 @@ double Iawps95::implicitTFromRhoP(double rho, double p, double guessT) const
     return critT/tau;
 }
 
-double Iawps95::implicitTFromRhoS(double rho, double s, double guessT) const
+double Iawps95::tFromRhoS(double rho, double s, double guessT) const
 {
     double delta = rho/critRho;
     double tauOld = critT/guessT;
@@ -268,32 +281,7 @@ double Iawps95::implicitTFromRhoS(double rho, double s, double guessT) const
     return critT/tau;
 }
 
-double Iawps95::implicitRhoFromTS(double T, double s, double guessRho) const
-{
-    double deltaOld = guessRho/critRho;
-    double tau = critT/T;
-    double delta = 0.0;
-
-    double change = 100000;
-    int i = 0;
-
-    // Newton method
-    while (change > numericalTolerance)
-    {
-        delta = deltaOld - (s/specGasConst - tau*(phi0t(deltaOld, tau) + phirt(deltaOld, tau)) + phi0(deltaOld, tau) + phir(deltaOld, tau))/(-tau*(phi0dt(deltaOld, tau) + phirdt(deltaOld, tau)) + phi0d(deltaOld, tau) + phird(deltaOld, tau));
-        
-        change = fabs(delta - deltaOld);
-
-        deltaOld = delta;
-        i++;
-    }
-
-    std::cout << i << std::endl;
-    
-    return delta*critRho;
-}
-
-double Iawps95::implicitRhoFromTP(double T, double p, double guessRho) const
+double Iawps95::rhoFromTP(double T, double p, double guessRho) const
 {
     //TODO
     return 0.0;

@@ -117,11 +117,10 @@ void FVMScheme::updateTimeStep()
     for (int i = 0; i < w.size(); i++)
     {
         double soundSpeed = w[i].soundSpeed();
-        Vars<3> ssVector({soundSpeed, soundSpeed, soundSpeed});
-        //timeStep = std::min(cfl*((cells[i]->volume)/sum((abs(w[i].velocity()) + ssVector)*vector3toVars(cells[i]->projectedArea))), timeStep);
         
         timeStep = std::min(cfl*((cells[i].volume)/(cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) + cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) + cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed))), timeStep);
     }
+    time += timeStep;
 }
 
 void FVMScheme::calculateFluxes()

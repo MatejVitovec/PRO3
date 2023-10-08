@@ -29,9 +29,10 @@ class Iawps95 : public Thermo
 
         Iawps95();
 
-        virtual Vars<3> updateThermo(const Compressible& data) const;
-        virtual Compressible primitiveToConservative(const Vars<5>& primitive) const;
-        virtual Compressible isentropicInlet(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const;
+        Vars<3> updateThermo(const Compressible& data) const;
+        Compressible primitiveToConservative(const Vars<5>& primitive) const;
+        Compressible isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const;
+        Compressible isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const;
 
         double p(double rho, double T) const;
         double e(double rho, double T) const;
@@ -40,11 +41,12 @@ class Iawps95 : public Thermo
         double a2(double rho, double T) const;
         double a(double rho, double T) const;
 
-        double implicitTFromRhoE(double rho, double e, double guessT) const;
-        double implicitTFromRhoP(double rho, double p, double guessT) const;
-        double implicitTFromRhoS(double rho, double s, double guessT) const;
-        double implicitRhoFromTS(double T, double s, double guessRho) const; //asi nepotrebuju
-        double implicitRhoFromTP(double T, double p, double guessRho) const;
+        double tFromRhoE(double rho, double e, double guessT) const;
+        double tFromRhoP(double rho, double p, double guessT) const;
+        double tFromRhoS(double rho, double s, double guessT) const;
+        double rhoFromTP(double T, double p, double guessRho) const; //TODO
+
+        Compressible isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const;
 
 
     private:

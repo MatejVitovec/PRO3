@@ -14,7 +14,6 @@ void ExplicitEuler::solve()
 
     int iter = 0;
 
-    double time = 0;
     bool exitLoop = false;
 
     while (iter < maxIter && !exitLoop)
@@ -22,7 +21,7 @@ void ExplicitEuler::solve()
         iter++;
 
         updateTimeStep();
-        time += timeStep;
+        //time += timeStep;
 
         applyBoundaryConditions();
 

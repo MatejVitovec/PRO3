@@ -69,15 +69,8 @@ void outputVTK(std::string filename, const Mesh& mesh, const Field<Compressible>
 		f << roundToZero(w[i].density()) << "\n";
 	}
 
- 	//f << "SCALARS |u| float\n"; 
-	//f << "LOOKUP_TABLE default\n";
-
-    //for (int i=0; i<m.nc; i++) {
-	//	f << u[i].u().norm() << "\n";
-	//}		
-
 	//f << "VECTORS u float\n"; 
- 	f << "SCALARS u float 3\n"; 
+ 	f << "SCALARS U float 3\n"; 
 	f << "LOOKUP_TABLE default\n";
 
     for (int i = 0; i < cellSize; i++)
@@ -85,13 +78,13 @@ void outputVTK(std::string filename, const Mesh& mesh, const Field<Compressible>
 		f << roundToZero(w[i].velocityU()) << " " << roundToZero(w[i].velocityV()) << " " << roundToZero(w[i].velocityW()) << "\n";
 	}	
 
- 	/*f << "SCALARS e float\n"; 
+ 	f << "SCALARS e float\n"; 
 	f << "LOOKUP_TABLE default\n";
 
     for (int i = 0; i < cellSize; i++)
     {
 		f << roundToZero(w[i].internalEnergy()) << "\n";
-	}*/
+	}
 	
 	f << "SCALARS p float\n"; 
 	f << "LOOKUP_TABLE default\n";

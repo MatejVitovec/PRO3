@@ -25,16 +25,7 @@ int main(int argc, char** argv)
     myMesh.loadGmsh2("../meshes/GAMM.msh");
 
     /*auto stop2 = std::chrono::high_resolution_clock::now();
-	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";
-
-    const std::vector<std::shared_ptr<Cell>>& cellList = myMesh.getCellList();
-    double vol = 0;
-    for (int i = 0; i < myMesh.getCellsSize(); i++)
-    {
-        vol += cellList[i]->volume;
-    }
-    
-    std::cout << "Volume: " << vol << std::endl;*/
+	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";*/
 
 
     std::unique_ptr<FluxSolver> myFluxSolver = std::make_unique<Hllc>();

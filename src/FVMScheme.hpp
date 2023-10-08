@@ -17,7 +17,7 @@ class FVMScheme
 
         //vznikne obraz meshe - neprekopiruje se
         //FVMScheme() : mesh(Mesh()), w(Field<Compressible>()), wl(Field<Compressible>()), wr(Field<Compressible>()) {}
-        FVMScheme(Mesh&& mesh_, std::unique_ptr<FluxSolver> fluxSolver_, std::unique_ptr<Thermo> thermo_) : mesh(std::move(mesh_)), fluxSolver(std::move(fluxSolver_)), thermo(std::move(thermo_)), w(Field<Compressible>()), wl(Field<Compressible>()), wr(Field<Compressible>()) {}
+        FVMScheme(Mesh&& mesh_, std::unique_ptr<FluxSolver> fluxSolver_, std::unique_ptr<Thermo> thermo_) : mesh(std::move(mesh_)), fluxSolver(std::move(fluxSolver_)), thermo(std::move(thermo_)), w(Field<Compressible>()), wl(Field<Compressible>()), wr(Field<Compressible>()), time(0.0) {}
 
 
         virtual ~FVMScheme() {}
@@ -59,6 +59,8 @@ class FVMScheme
         int maxIter;
         double targetError;
         //bool localTimeStep;
+
+        double time;
 
         void updateTimeStep();
         void applyBoundaryConditions();
