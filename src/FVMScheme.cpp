@@ -16,6 +16,11 @@ void FVMScheme::setTargetError(double targetError_)
     targetError = targetError_;
 }
 
+void FVMScheme::setLocalTimeStep(bool localTimeStep_)
+{
+    localTimeStep = localTimeStep_;
+}
+
 double FVMScheme::getCfl() const
 {
     return cfl;
@@ -29,6 +34,11 @@ int FVMScheme::getMaxIter() const
 double FVMScheme::getTargetError() const
 {
     return targetError;
+}
+
+bool FVMScheme::getLocalTimestepSettings() const
+{
+    return localTimeStep;
 }
 
 const Mesh& FVMScheme::getMesh() const
@@ -114,13 +124,25 @@ void FVMScheme::updateTimeStep()
 
     timeStep = 1000000;
 
-    for (int i = 0; i < w.size(); i++)
+    if (localTimeStep)
     {
-        double soundSpeed = w[i].soundSpeed();
-        
-        timeStep = std::min(cfl*((cells[i].volume)/(cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) + cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) + cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed))), timeStep);
+        for (int i = 0; i < w.size(); i++)
+        {
+            double soundSpeed = w[i].soundSpeed();
+            
+            localTimeSteps[i] = cfl*((cells[i].volume)/(cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) + cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) + cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed)));
+        }
     }
-    time += timeStep;
+    else
+    {
+        for (int i = 0; i < w.size(); i++)
+        {
+            double soundSpeed = w[i].soundSpeed();
+            
+            timeStep = std::min(cfl*((cells[i].volume)/(cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) + cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) + cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed))), timeStep);
+        }
+        time += timeStep;
+    }
 }
 
 void FVMScheme::calculateFluxes()

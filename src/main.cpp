@@ -36,6 +36,7 @@ int main(int argc, char** argv)
     mySolver.setCfl(0.8);
     mySolver.setMaxIter(5000000);
     mySolver.setTargetError(0.0000005);
+    mySolver.setLocalTimeStep(true);
 
     std::vector<std::unique_ptr<BoundaryCondition>> bc = createBoundaryCondition(mySolver.getMesh());
 

@@ -10,6 +10,8 @@ void ExplicitEuler::solve()
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
 
+    localTimeSteps = std::vector<double>(mesh.getFacesSize()); //docasne
+
     w = thermo->updateField(w);
 
     int iter = 0;
@@ -21,7 +23,6 @@ void ExplicitEuler::solve()
         iter++;
 
         updateTimeStep();
-        //time += timeStep;
 
         applyBoundaryConditions();
 
@@ -86,9 +87,19 @@ Field<Compressible> ExplicitEuler::explicitIntegration(const Field<Vars<5>>& res
 {
     Field<Compressible>wn(w.size());
 
-    for (int i = 0; i < w.size(); i++)
+    if(localTimeStep)
     {
-        wn[i] = w[i] + timeStep*res[i];        
+        for (int i = 0; i < w.size(); i++)
+        {
+            wn[i] = w[i] + localTimeSteps[i]*res[i];        
+        }
+    }
+    else
+    {
+        for (int i = 0; i < w.size(); i++)
+        {
+            wn[i] = w[i] + timeStep*res[i];        
+        }
     }
     
     return wn;
