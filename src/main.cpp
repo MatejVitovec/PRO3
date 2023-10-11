@@ -11,6 +11,7 @@
 #include "FluxSolver/Hll.hpp"
 #include "FluxSolver/Hllc.hpp"
 #include "Thermo/IdealGas.hpp"
+#include "Thermo/Iapws95.hpp"
 #include "outputCFD.hpp"
 #include "setCFD.hpp"
 
@@ -22,7 +23,8 @@ int main(int argc, char** argv)
 
     //auto stop1 = std::chrono::high_resolution_clock::now();
 
-    myMesh.loadGmsh2("../meshes/GAMM.msh");
+    //myMesh.loadGmsh2("../meshes/GAMM.msh");
+    myMesh.loadGmsh2("../meshes/nozzle.msh");
 
     /*auto stop2 = std::chrono::high_resolution_clock::now();
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";*/
@@ -36,13 +38,13 @@ int main(int argc, char** argv)
     mySolver.setCfl(0.8);
     mySolver.setMaxIter(5000000);
     mySolver.setTargetError(0.0000005);
-    mySolver.setLocalTimeStep(true);
+    mySolver.setLocalTimeStep(false);
 
     std::vector<std::unique_ptr<BoundaryCondition>> bc = createBoundaryCondition(mySolver.getMesh());
 
     mySolver.setBoundaryConditions(std::move(bc));
 
-    mySolver.setInitialConditionsPrimitive(Vars<5>({1.0, 0.0, 0.0, 0.0, 0.7143}));
+    mySolver.setInitialConditionsPrimitive(Vars<5>({0.5, 0.0, 0.0, 0.0, 80000.0}));
 
     outputVTK("../results/results.0.vtk", mySolver.getMesh(), mySolver.getResults());
 

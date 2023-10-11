@@ -2,12 +2,12 @@
 
 #include "Thermo.hpp"
 
-Field<Compressible> Thermo::updateField(Field<Compressible> w) const
+Field<Compressible> Thermo::updateField(Field<Compressible> wn, const Field<Compressible>& w) const
 {
-    for (int i = 0; i < w.size(); i++)
+    for (int i = 0; i < wn.size(); i++)
     {
-        w[i].setThermoVar(updateThermo(w[i]));
+        wn[i].setThermoVar(updateThermo(wn[i], w[i]));
     }
 
-    return w;
+    return wn;
 }

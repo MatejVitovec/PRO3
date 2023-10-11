@@ -42,7 +42,7 @@ double IdealGas::temperature(const Compressible& data) const
     return pressure(data)/(R*data[Compressible::RHO]);
 }
 
-Vars<3> IdealGas::updateThermo(const Compressible& data) const
+Vars<3> IdealGas::updateThermo(const Compressible& data, const Compressible& dataOld) const
 {
     return Vars<3>({temperature(data), pressure(data), soundSpeed(data)});
 }

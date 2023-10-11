@@ -12,7 +12,7 @@ void ExplicitEuler::solve()
 
     localTimeSteps = std::vector<double>(mesh.getFacesSize()); //docasne
 
-    w = thermo->updateField(w);
+    w = thermo->updateField(w, w);
 
     int iter = 0;
 
@@ -34,7 +34,7 @@ void ExplicitEuler::solve()
         
         Field<Compressible> wn = explicitIntegration(res);
 
-        wn = thermo->updateField(wn);
+        wn = thermo->updateField(wn, w);
 
         Vars<5> resNorm = (wn - w).norm();
         saveResidual("../results/residuals.txt", resNorm);
@@ -51,6 +51,9 @@ void ExplicitEuler::solve()
             std::cout << "iter: " << iter << std::endl;
         }
     }
+
+    outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
+    std::cout << "iter: " << iter << std::endl;
 
     std::cout << "time: " << time << std::endl;
     

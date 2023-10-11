@@ -430,7 +430,7 @@ double Iawps95::psiFunc(double delta, double tau, int i) const
 
 double Iawps95::deltaFuncd(double delta, double tau, int i) const
 {
-    return (delta - 1.0)*(coeffs.A[i]*thetaFunc(delta, tau, i)*(2.0/coeffs.beta[i])*pow(pow(delta - 1.0, 2), 1/(2.0*coeffs.beta[i]) - 1.0) + 2.0*coeffs.B[i]*coeffs.a[i]*pow(delta - 1.0, coeffs.a[i] - 1.0));
+    return (delta - 1.0)*(coeffs.A[i]*thetaFunc(delta, tau, i)*(2.0/coeffs.beta[i])*pow(pow(delta - 1.0, 2), 1/(2.0*coeffs.beta[i]) - 1.0) + 2.0*coeffs.B[i]*coeffs.a[i]*pow(delta - 1.0, coeffs.a[i] - 1.0));//pow(pow(delta - 1.0, 2.0), coeffs.a[i] - 1.0)
 }
 
 double Iawps95::deltaFuncdd(double delta, double tau, int i) const

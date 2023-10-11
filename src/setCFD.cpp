@@ -25,7 +25,7 @@ std::vector<std::unique_ptr<BoundaryCondition>> createBoundaryCondition(const Me
 	boundaryNames.push_back("front");
 	boundaryNames.push_back("back");
 
-	boundaryTypes.push_back(BoundaryCondition::PRESSUREDENSITYINLET);
+	boundaryTypes.push_back(BoundaryCondition::PRESSURETEMPERATUREINLET);
 	boundaryTypes.push_back(BoundaryCondition::PRESSUREOUTLET);
 	boundaryTypes.push_back(BoundaryCondition::WALL);
 	boundaryTypes.push_back(BoundaryCondition::WALL);
@@ -56,7 +56,7 @@ std::vector<std::unique_ptr<BoundaryCondition>> createBoundaryCondition(const Me
 
 		if(boundaryTypes[i] == BoundaryCondition::PRESSURETEMPERATUREINLET)
 		{
-			out.push_back(std::make_unique<PressureTemperatureInlet>(aux, 1.0/1.4, 0.5102, Vars<3>({1.0, 0.0, 0.0})));
+			out.push_back(std::make_unique<PressureTemperatureInlet>(aux, 99980.0, 422.65, Vars<3>({1.0, 0.0, 0.0})));
 		}
 		else if(boundaryTypes[i] == BoundaryCondition::PRESSUREDENSITYINLET)
 		{
@@ -64,7 +64,7 @@ std::vector<std::unique_ptr<BoundaryCondition>> createBoundaryCondition(const Me
 		}
 		else if(boundaryTypes[i] == BoundaryCondition::PRESSUREOUTLET)
 		{
-			out.push_back(std::make_unique<PressureOutlet>(aux, 0.5264));
+			out.push_back(std::make_unique<PressureOutlet>(aux, /*0.5264*/80000.0));
 		}
 		else if(boundaryTypes[i] == BoundaryCondition::FREEBOUNDARY)
 		{
