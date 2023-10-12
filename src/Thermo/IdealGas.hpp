@@ -8,7 +8,7 @@ class IdealGas : public Thermo
     public:
 
         IdealGas() : Thermo(), gamma(1.4), R(287.05) {}
-        IdealGas(double gamma_, double R_, double cp_) : Thermo(), gamma(gamma_), R(R_) {}
+        IdealGas(double gamma_, double R_) : Thermo(), gamma(gamma_), R(R_) {}
 
         void setGamma(double gamma_);
         void setR(double R_);

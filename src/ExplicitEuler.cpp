@@ -18,6 +18,8 @@ void ExplicitEuler::solve()
 
     bool exitLoop = false;
 
+    Vars<5> resNorm;
+
     while (iter < maxIter && !exitLoop)
     {
         iter++;
@@ -36,7 +38,7 @@ void ExplicitEuler::solve()
 
         wn = thermo->updateField(wn, w);
 
-        Vars<5> resNorm = (wn - w).norm();
+        resNorm = (wn - w).norm();
         saveResidual("../results/residuals.txt", resNorm);
 
         if(resNorm[0] < targetError) exitLoop = true;
@@ -45,10 +47,10 @@ void ExplicitEuler::solve()
         //w = std::move(wn); //mozna to bude fungovat
         w = wn;
 
-        if(iter % 500 == 0)
+        if(iter % 10 == 0)
         {
             outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
-            std::cout << "iter: " << iter << std::endl;
+            std::cout << "iter: " << iter << " density res: " << resNorm[0] << std::endl;
         }
     }
 

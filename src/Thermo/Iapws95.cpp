@@ -76,7 +76,6 @@ Compressible Iapws95::primitiveToConservative(const Vars<5>& primitive) const
     double p = primitive[4];
     //odhad T pomoci idealniho plynu
     double T = tFromRhoP(rho, p, p/(specGasConst*rho));
-    double E = e(rho, T) + 0.5*(primitive[1]*primitive[1] + primitive[2]*primitive[2] + primitive[3]*primitive[3]);
 
     return Compressible({rho,
                          rho*primitive[1],
@@ -88,8 +87,8 @@ Compressible Iapws95::primitiveToConservative(const Vars<5>& primitive) const
 
 Compressible Iapws95::isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
 {
-    double pIn = stateIn.pressure();
-    double p = std::min(pIn, pTot);
+    double pIn = std::min(stateIn.pressure(), pTot);
+
     double sTot = s(rhoTot, TTot);
 
     //newton method for 2 equations
@@ -112,7 +111,7 @@ Compressible Iapws95::isentropicInlet(double pTot, double TTot, double rhoTot, V
         double auxConst = specGasConst*critRho*critT*(deltaOld/tauOld);
 
         double f = sTot - specGasConst*(tauOld*(phi0t(deltaOld, tauOld) + phirt(deltaOld, tauOld)) - phi0(deltaOld, tauOld) - phir(deltaOld, tauOld));
-        double g = p - auxConst - auxConst*deltaOld*auxPhird;
+        double g = pIn - auxConst - auxConst*deltaOld*auxPhird;
         double fd = -specGasConst*(tauOld*(phi0dt(deltaOld, tauOld) + auxPhirdt) - phi0d(deltaOld, tauOld) - auxPhird);
         double ft = -specGasConst*tauOld*(phi0tt(deltaOld, tauOld) + phirtt(deltaOld, tauOld));
         double gd = -specGasConst*critRho*(critT/tauOld) - 2.0*auxConst*auxPhird - auxConst*deltaOld*phirdd(deltaOld, tauOld);
@@ -121,7 +120,7 @@ Compressible Iapws95::isentropicInlet(double pTot, double TTot, double rhoTot, V
         delta = deltaOld - (f*gt - g*ft)/(fd*gt - ft*gd);
         tau = tauOld - (g*fd - f*gd)/(fd*gt - ft*gd);
     
-        change = std::max(fabs(delta - deltaOld), fabs(tau - tauOld));
+        change = std::max(fabs((delta - deltaOld)/delta), fabs((tau - tauOld)/tau));
 
         deltaOld = delta;
         tauOld = tau;
@@ -139,8 +138,8 @@ Compressible Iapws95::isentropicInlet(double pTot, double TTot, double rhoTot, V
                          rho*absU*velocityDirection[0],
                          rho*absU*velocityDirection[1],
                          rho*absU*velocityDirection[2],
-                         0.5*rho*absU2 + e(rho, T)},
-                         {T, p, a(rho, T)});
+                         rho*(0.5*absU2 + e(rho, T))},
+                         {T, pIn, a(rho, T)});
 }
 
 Compressible Iapws95::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
@@ -220,7 +219,7 @@ double Iapws95::tFromRhoE(double rho, double e, double guessT) const
     {
         tau = tauOld - (e - specGasConst*critT*(phi0t(delta, tauOld) + phirt(delta, tauOld)))/(-specGasConst*critT*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
     
-        change = fabs(tau - tauOld);
+        change = fabs((tau - tauOld)/*/tau*/);
 
         tauOld = tau;
         i++;
@@ -245,7 +244,7 @@ double Iapws95::tFromRhoP(double rho, double p, double guessT) const
         double auxVar = specGasConst*critRho*critT*(delta/tauOld);
         tau = tauOld - (p - auxVar*(1.0 + delta*phirdAux))/(auxVar*(1.0/tauOld + (delta/tauOld)*phirdAux - delta*phirdt(delta, tauOld)));
         
-        change = fabs(tau - tauOld);
+        change = fabs((tau - tauOld)/*/tau*/);
 
         tauOld = tau;
         i++;
@@ -268,7 +267,7 @@ double Iapws95::tFromRhoP(double rho, double p, double guessT) const
     {
         tau = tauOld - (s/specGasConst - tauOld*(phi0t(delta, tauOld) + phirt(delta, tauOld)) + phi0(delta, tauOld) + phir(delta, tauOld))/(-tauOld*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
         
-        change = fabs(tau - tauOld);
+        change = fabs((tau - tauOld)/tau);
 
         tauOld = tau;
         i++;
@@ -293,7 +292,7 @@ double Iapws95::rhoFromTP(double T, double p, double guessRho) const
         double phirdAux = phird(deltaOld, tau);
         delta = deltaOld - (p - auxVar*(deltaOld + deltaOld*deltaOld*phirdAux))/(auxVar*(1.0 + 2.0*deltaOld*phirdAux + deltaOld*deltaOld*phirdt(deltaOld, tau)));
         
-        change = fabs(delta - deltaOld);
+        change = fabs((delta - deltaOld)/*/delta*/);
 
         deltaOld = delta;
         i++;

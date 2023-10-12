@@ -79,7 +79,6 @@ double Compressible::machNumber() const
 Vars<5> Compressible::flux(const Vars<3>& normalVector) const
 {
     Vars<3> velocity = this->velocity();
-    double enthalpy = data[RHO_E]+ thermoVar[P];
 
     double normalVelocity = dot(velocity, normalVector);
 
