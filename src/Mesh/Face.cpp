@@ -47,22 +47,16 @@ void Face::reverseOrientation()
 Vector3 Face::calculateNormalVector(const std::vector<Vector3>& nodeList)
 {
     Vector3 surface = Vector3();
-    //Vector3 center = Vector3();
 
     int i;
     for (i = 0; i < nodesIndex.size() - 1; i++)
     {
         Vector3 auxSurface = cross(nodeList[nodesIndex[i+1]] - nodeList[nodesIndex[i]], (midpoint - nodeList[nodesIndex[i]])/2.0);
         surface = surface + auxSurface;
-        //center = center + norm2(auxSurface)*((nodeList[nodesIndex[i+1]] + nodeList[nodesIndex[i]] + midpoint)/3.0);
     }
-    //i++;
+    
     Vector3 auxSurface = cross(nodeList[nodesIndex[0]] - nodeList[nodesIndex[i]], (midpoint - nodeList[nodesIndex[i]])/2.0);
     surface = surface + auxSurface;
-    //center = center + norm2((nodeList[nodesIndex[0]] + nodeList[nodesIndex[i]] + midpoint)/3.0)*auxSurface;
-
-    //neni midpoint predelat na faceCenter
-    //midpoint = center/norm2(surface);
 
     return surface;
 }

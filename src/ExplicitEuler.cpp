@@ -47,7 +47,7 @@ void ExplicitEuler::solve()
         //w = std::move(wn); //mozna to bude fungovat
         w = wn;
 
-        if(iter % 10 == 0)
+        if(iter % 50 == 0)
         {
             outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
             std::cout << "iter: " << iter << " density res: " << resNorm[0] << std::endl;

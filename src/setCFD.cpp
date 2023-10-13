@@ -8,6 +8,7 @@
 #include "BoundaryCondition/PressureOutlet.hpp"
 #include "BoundaryCondition/FreeBoundary.hpp"
 #include "BoundaryCondition/Wall.hpp"
+#include "BoundaryCondition/Periodicity.hpp"
 
 
 
@@ -73,6 +74,10 @@ std::vector<std::unique_ptr<BoundaryCondition>> createBoundaryCondition(const Me
 		else if(boundaryTypes[i] == BoundaryCondition::WALL)
 		{
 			out.push_back(std::make_unique<Wall>(aux));
+		}
+		else if(boundaryTypes[i] == BoundaryCondition::PERIODICITY)
+		{
+			out.push_back(std::make_unique<Periodicity>(aux, Vector3(0.0, 1.0, 0.0)));
 		}
 	}
 

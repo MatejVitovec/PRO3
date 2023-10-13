@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <chrono>
+#include <fenv.h>
 
 #include "Mesh/Mesh.hpp"
 #include "ExplicitEuler.hpp"
@@ -19,6 +20,7 @@
 
 int main(int argc, char** argv)
 {
+    //feenableexcept(FE_INVALID | FE_OVERFLOW);
     Mesh myMesh = Mesh();
 
     //auto stop1 = std::chrono::high_resolution_clock::now();

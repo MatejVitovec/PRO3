@@ -130,7 +130,7 @@ Compressible Iapws95::isentropicInlet(double pTot, double TTot, double rhoTot, V
     double rho = delta*critRho;
     double T = critT/tau;
 
-    double absU2 = 2.0*h(rhoTot, TTot) - 2.0*h(rho, T);
+    double absU2 = std::max(2.0*h(rhoTot, TTot) - 2.0*h(rho, T), 0.0);
     double absU = std::sqrt(absU2);
 
 
