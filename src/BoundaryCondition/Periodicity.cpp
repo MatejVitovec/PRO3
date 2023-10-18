@@ -2,23 +2,40 @@
 #include "Periodicity.hpp"
 
 
+Periodicity::Periodicity(Boundary meshBoundary, Vector3 faceMidpointShift_, std::string associatedBoundaryName_, const Mesh& mesh) : BoundaryCondition(meshBoundary), faceMidpointShift(faceMidpointShift_), associatedBoundaryName(associatedBoundaryName_)
+{
+    init(mesh);
+}
+
 void Periodicity::init(const Mesh& mesh)
 {
     const std::vector<Face>& faceList = mesh.getFaceList();
     const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
+
+    double minFaceSize = 100000.0;
+    for (int i = 0; i < faceList.size(); i++)
+    {
+        if (minFaceSize > faceList[i].area)
+        {
+            minFaceSize = faceList[i].area;
+        }        
+    }
+
+    double numTol = minFaceSize/2.0;
+    
     
     periodicityFacesIndex.clear();
     periodicityFacesOwnersIndexes.clear();
 
     for (int i = 0; i < boundary.facesIndex.size(); i++)
     {
-        Vector3 associatedFaceMidpoint = faceList[boundary.facesIndex[i]].midpoint;
+        Vector3 associatedFaceMidpoint = faceList[boundary.facesIndex[i]].midpoint + faceMidpointShift;
 
         int j;
         bool isFound = false;
-        for (j = 0; j < boundary.facesIndex.size(); j++)
+        for (j = 0; j < faceList.size(); j++)
         {
-            if(associatedFaceMidpoint == (faceList[boundary.facesIndex[j]].midpoint + faceMidpointShift))
+            if(norm2(associatedFaceMidpoint - faceList[j].midpoint) < numTol)
             {
                 isFound = true;
                 break;
@@ -27,8 +44,8 @@ void Periodicity::init(const Mesh& mesh)
         
         if(isFound)
         {
-            periodicityFacesIndex.push_back(boundary.facesIndex[j]);
-            periodicityFacesOwnersIndexes.push_back(ownerIndexList[boundary.facesIndex[j]]);
+            periodicityFacesIndex.push_back(j);
+            periodicityFacesOwnersIndexes.push_back(ownerIndexList[j]);
         }
         else
         {
@@ -49,6 +66,7 @@ void Periodicity::apply(const std::vector<int>& ownerIndexList,const std::vector
 {
     for (int i = 0; i < boundary.facesIndex.size(); i++)
     {
-        wr[boundary.facesIndex[i]] = w[ownerIndexList[i]];
+        //wr[boundary.facesIndex[i]] = w[ownerIndexList[i]];
+        wr[boundary.facesIndex[i]] = w[periodicityFacesOwnersIndexes[i]];        
     }   
 }

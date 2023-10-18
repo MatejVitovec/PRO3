@@ -9,6 +9,11 @@ struct Vector3
     Vector3() : x(0.0), y(0.0), z(0.0) {};
     Vector3(double xx, double yy, double zz) : x(xx), y(yy), z(zz) {};
 
+    bool operator== (const Vector3& v)
+    {
+        return (x == v.x && y == v.y && z == v.z);
+    }
+
     double x;
     double y;
     double z;
@@ -45,10 +50,10 @@ inline Vector3 operator/ (const Vector3& u, double a)
 }
 
 //comparison operator
-bool operator== (const Vector3& u, const Vector3& v)
+/*bool operator== (const Vector3& u, const Vector3& v)
 {
     return (u.x == v.x && u.y == v.y && u.z == v.z);
-}
+}*/
 
 //dot product
 inline double dot(const Vector3& u, const Vector3& v)
@@ -73,6 +78,16 @@ inline Vector3 unit(const Vector3& u)
 {
     double norm = sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
     return Vector3(u.x/norm, u.y/norm, u.z/norm);
+}
+
+//xy xz angle to unit vector
+inline Vector3 angleAngleToUnit(double xy, double xz)
+{
+    double x = 1.0;
+    double y = std::atan(xy*(M_PI/180.0));
+    double z = std::atan(xz*(M_PI/180.0));
+
+    return unit(Vector3(x, y, z));
 }
 
 //absolut value of x, y, z

@@ -1,0 +1,32 @@
+LocalTimeStep:		true
+
+TargetError:		0.00001
+
+MaxIter:		1000000
+
+SaveEvery:		100
+
+RiemannSolver:		hllc
+
+ThermoModel:		iapws95
+
+InitialCondition
+{
+	type: primitive
+	val: [1.0, 2.0, 3.0, 4.0, 0.01]
+}
+
+BoundaryCondition
+{
+	inlet
+	{
+		type: totalPressureDensityInlet
+		val: [1.0, 2.0, 3.0]
+	}
+
+	outlet
+	{
+		type: pressureOutlet
+		val: [1.0, 2.0, 3.0]
+	}
+}
