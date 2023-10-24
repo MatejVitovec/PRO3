@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
     //myMesh.loadGmsh2("../meshes/GAMM.msh");
     //myMesh.loadGmsh2("../meshes/nozzle.msh");
-    myMesh.loadGmsh2("../meshes/se1050_coarse.msh");
+    myMesh.loadGmsh2("../meshes/se1050_veryCoarse.msh");
 
     /*auto stop2 = std::chrono::high_resolution_clock::now();
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";*/
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     ExplicitEuler mySolver(std::move(myMesh), std::move(myFluxSolver), std::move(myThermoModel));
 
     mySolver.setCfl(0.6);
-    mySolver.setMaxIter(5000000);
+    mySolver.setMaxIter(1000000);
     mySolver.setTargetError(0.0000005);
     mySolver.setLocalTimeStep(false);
 

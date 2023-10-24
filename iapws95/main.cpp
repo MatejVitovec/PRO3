@@ -22,8 +22,8 @@ int main(int argc, char** argv)
     //double rho = 1080;
     //double e = 768.08;
     
-    double p = 1.0/1.4;
-    double T = 1.0;
+    double p = 98071.7;
+    double T = 298.65;
 
     //double T = termo.temperatureFromRhoE(rho, e, 300.0);
     //double T = termo.temperatureFromRhoP(rho, p, 300.0);

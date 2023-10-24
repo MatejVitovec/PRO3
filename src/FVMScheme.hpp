@@ -26,6 +26,8 @@ class FVMScheme
         void setMaxIter(int maxIter_);
         void setTargetError(double targetError_);
         void setLocalTimeStep(bool localTimeStep_);
+
+        void setThermoModel(std::unique_ptr<Thermo> thermo_) {thermo = std::move(thermo_);}
         
         double getCfl() const;
         int getMaxIter() const;
