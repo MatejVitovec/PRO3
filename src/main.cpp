@@ -13,6 +13,7 @@
 #include "FluxSolver/Hllc.hpp"
 #include "Thermo/IdealGas.hpp"
 #include "Thermo/Iapws95.hpp"
+#include "Thermo/Iapws95SpecialGas.hpp"
 #include "outputCFD.hpp"
 #include "setCFD.hpp"
 
@@ -34,8 +35,9 @@ int main(int argc, char** argv)
 
 
     std::unique_ptr<FluxSolver> myFluxSolver = std::make_unique<Hllc>();
-    std::unique_ptr<Thermo> myThermoModel = std::make_unique<IdealGas>(1.4, 461.51805);
+    //std::unique_ptr<Thermo> myThermoModel = std::make_unique<IdealGas>(1.4, 461.51805);
     //std::unique_ptr<Thermo> myThermoModel = std::make_unique<Iapws95>();
+    std::unique_ptr<Thermo> myThermoModel = std::make_unique<Iapws95SpecialGas>();
 
     ExplicitEuler mySolver(std::move(myMesh), std::move(myFluxSolver), std::move(myThermoModel));
 

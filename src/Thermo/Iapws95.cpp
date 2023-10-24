@@ -7,7 +7,7 @@
 
 Iapws95::Iapws95(): Thermo()
 {
-    loadCoeffs("Thermo/coeffs/");
+    loadCoeffs("Thermo/iapws95Coeffs/");
 }
 
 std::vector<double> Iapws95::loadCoeffFile(std::string name, std::string dirName, int size) const
