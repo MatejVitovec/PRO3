@@ -7,54 +7,51 @@
 #include <chrono>
 #include <fenv.h>
 
-#include "Mesh/Mesh.hpp"
+/*#include "Mesh/Mesh.hpp"
 #include "ExplicitEuler.hpp"
 #include "FluxSolver/Hll.hpp"
 #include "FluxSolver/Hllc.hpp"
 #include "Thermo/IdealGas.hpp"
 #include "Thermo/Iapws95.hpp"
-#include "Thermo/Iapws95SpecialGas.hpp"
+#include "Thermo/Iapws95SpecialGas.hpp"*/
+
 #include "outputCFD.hpp"
-#include "setCFD.hpp"
+#include "CaseSetter.hpp"
 
 
 
 int main(int argc, char** argv)
 {
-    feenableexcept(FE_INVALID | FE_OVERFLOW);
-    Mesh myMesh = Mesh();
+    //feenableexcept(FE_INVALID | FE_OVERFLOW);
+
+    CaseSetter setter = CaseSetter();
+    setter.loadSettingFile("../case/setup.txt");
+
+    Mesh myMesh = setter.createMesh();
+    std::unique_ptr<FluxSolver> myFluxSolver = setter.createFluxSolver();
+    std::unique_ptr<Thermo> myThermoModel = setter.createThermoModel();
+
+    std::unique_ptr<FVMScheme> mySolver = setter.createSolver(std::move(myMesh), std::move(myFluxSolver), std::move(myThermoModel));
+
+    mySolver->setCfl(setter.getCfl());
+    mySolver->setMaxIter(setter.getMaxIter());
+    mySolver->setTargetError(setter.getTargetError());
+    mySolver->setLocalTimeStep(setter.getLocalTimeStepSetting());
+
+    std::vector<std::unique_ptr<BoundaryCondition>> bc = setter.createBoundaryCondition(mySolver->getMesh());
+    mySolver->setBoundaryConditions(std::move(bc));
+
+    mySolver->setInitialConditions(setter.getInitialCondition());
+
+    outputVTK("../results/results.0.vtk", mySolver->getMesh(), mySolver->getResults());
+
+    mySolver->solve();
+
 
     //auto stop1 = std::chrono::high_resolution_clock::now();
 
-    //myMesh.loadGmsh2("../meshes/GAMM.msh");
-    //myMesh.loadGmsh2("../meshes/nozzle.msh");
-    myMesh.loadGmsh2("../meshes/se1050_veryCoarse.msh");
-
     /*auto stop2 = std::chrono::high_resolution_clock::now();
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";*/
-
-
-    std::unique_ptr<FluxSolver> myFluxSolver = std::make_unique<Hllc>();
-    //std::unique_ptr<Thermo> myThermoModel = std::make_unique<IdealGas>(1.4, 461.51805);
-    //std::unique_ptr<Thermo> myThermoModel = std::make_unique<Iapws95>();
-    std::unique_ptr<Thermo> myThermoModel = std::make_unique<Iapws95SpecialGas>();
-
-    ExplicitEuler mySolver(std::move(myMesh), std::move(myFluxSolver), std::move(myThermoModel));
-
-    mySolver.setCfl(0.6);
-    mySolver.setMaxIter(1000000);
-    mySolver.setTargetError(0.0000005);
-    mySolver.setLocalTimeStep(false);
-
-    std::vector<std::unique_ptr<BoundaryCondition>> bc = createBoundaryCondition(mySolver.getMesh());
-
-    mySolver.setBoundaryConditions(std::move(bc));
-
-    mySolver.setInitialConditionsPrimitive(Vars<5>({0.5977, 0.0, 0.0, 0.0, 80000.0}));
-
-    outputVTK("../results/results.0.vtk", mySolver.getMesh(), mySolver.getResults());
-
-    mySolver.solve();
 
     int a = 5;
 

@@ -1,32 +1,71 @@
-LocalTimeStep:		true
+Solver:                 ExplicitEuler
 
-TargetError:		0.00001
+LocalTimeStep:          true
 
-MaxIter:		1000000
+TargetError:            0.00001
 
-SaveEvery:		100
+MaxIter:                1000000
 
-RiemannSolver:		hllc
+cfl:                    0.5
 
-ThermoModel:		iapws95
+SaveEveryIter:          100
+
+RiemannSolver:          hllc
+
+Mesh
+{
+	type:           gmsh2
+	fileName:       ../meshes/se1050_veryCoarse.msh
+}
+
+ThermoModel
+{
+        name:           idealGas
+        kappa:		1.4
+}
 
 InitialCondition
 {
-	type: primitive
-	val: [1.0, 2.0, 3.0, 4.0, 0.01]
+        type: primitive
+        val: [0.5977, 0.0, 0.0, 0.0, 80000.0]
 }
 
 BoundaryCondition
 {
-	inlet
-	{
-		type: totalPressureDensityInlet
-		val: [1.0, 2.0, 3.0]
-	}
+        inlet
+        {
+                type:                   pressureTemperatureInlet
+                totalPressure:          98071.7
+                totalTemperature:       298.65
+                xyAngle:                19.3
+                xzAngle:                0.0
+        }
 
-	outlet
-	{
-		type: pressureOutlet
-		val: [1.0, 2.0, 3.0]
-	}
+        outlet
+        {
+                type:           pressureOutlet
+                pressure:       40548.109
+        }
+
+        wall
+        {
+                type:   wall
+        }
+
+        wall2
+        {
+                type:   wall
+        }
+
+        periodbeg
+        {
+                type:   periodicity
+                shift:  [0.0, 0.0551168, 0.0]
+        }
+
+        periodend
+        {
+                type:   periodicity
+                shift:  [0.0, -0.0551168, 0.0]
+        }
 }

@@ -1,0 +1,11 @@
+inlet
+{
+	type: totalPressureDensityInlet
+	val: [1.0, 2.0, 3.0]
+}
+
+outlet
+{
+	type: pressureOutlet
+	val: [1.0, 2.0, 3.0]
+}
