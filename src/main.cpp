@@ -43,10 +43,11 @@ int main(int argc, char** argv)
 
     mySolver->setInitialConditions(setter.getInitialCondition());
 
-    outputVTK("../results/results.0.vtk", mySolver->getMesh(), mySolver->getResults());
+    outputCFD::outputVTK("../results/results.0.vtk", mySolver->getMesh(), mySolver->getResults());
 
     mySolver->solve();
 
+    outputCFD::saveFieldOnBoundary("../results/pressure.txt", "wall", mySolver->getMesh(), mySolver->getResults());
 
     //auto stop1 = std::chrono::high_resolution_clock::now();
 

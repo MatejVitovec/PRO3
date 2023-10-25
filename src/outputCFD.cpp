@@ -1,5 +1,6 @@
 #include "outputCFD.hpp"
 #include <fstream>
+#include <iostream>
 #include <iomanip>
 
 int calculateCellNodeSize(const Mesh& mesh)
@@ -24,7 +25,7 @@ double roundToZero(double in)
 	return in;
 }
 
-void outputVTK(std::string filename, const Mesh& mesh, const Field<Compressible>& w)
+void outputCFD::outputVTK(std::string fileName, const Mesh& mesh, const Field<Compressible>& w)
 {
     const std::vector<Vector3>& nodeList = mesh.getNodeList();
     const std::vector<Cell>& cellList = mesh.getCellList();
@@ -32,7 +33,7 @@ void outputVTK(std::string filename, const Mesh& mesh, const Field<Compressible>
     int cellSize = mesh.getCellsSize();
 
 	std::ofstream f;
-	f.open(filename, std::ios::out);
+	f.open(fileName, std::ios::out);
 	
 	f << "# vtk DataFile Version 1.0\n";
 	f << "unstructured grid\n";
@@ -101,28 +102,65 @@ void outputVTK(std::string filename, const Mesh& mesh, const Field<Compressible>
     {
 		f << roundToZero(w[i].machNumber()) << "\n";
 	}
-	
- 	/*f << "SCALARS x float 3\n"; 
+
+	f << "SCALARS T float\n"; 
 	f << "LOOKUP_TABLE default\n";
 
     for (int i = 0; i < cellSize; i++)
     {
-		f << cellList[i].center << "\n";
-	}*/
+		f << roundToZero(w[i].temperature()) << "\n";
+	}
+	
 	f << std::endl;
 
 	f.close();
 }
 
 
-void saveResidual(std::string filename, Vars<5> res)
+void outputCFD::saveResidual(std::string fileName, Vars<5> res)
 {
 
 	std::ofstream f;
-	f.open(filename, std::ios_base::app);
+	f.open(fileName, std::ios_base::app);
 
 	//f << res[0] << " " << res[1] << " " << res[2] << " " << res[3] << " " << res[4] << std::endl;
 	f << res[0] <<std::endl;
 
 	f.close();
+}
+
+void outputCFD::saveFieldOnBoundary(std::string fileName, std::string boundaryName, const Mesh& mesh, const Field<Compressible>& w)
+{
+	const std::vector<Boundary>& boundary = mesh.getBoundaryList();
+	const std::vector<Face>& faces = mesh.getFaceList();
+	const std::vector<int>& owners = mesh.getOwnerIndexList();
+
+	int boundaryIndex = 0;
+	bool found = false;
+
+	for (boundaryIndex = 0; boundaryIndex < boundary.size(); boundaryIndex++)
+	{
+		if (boundary[boundaryIndex].boundaryConditionName == boundaryName)
+		{
+			found = true;
+			break;
+		}		
+	}
+	if(!found)
+	{
+		std::cout << "Error: spatne zadany nazev BC pro vypsani hodnot" << std::endl;
+	}
+	
+	std::ofstream f;
+	f.open(fileName, std::ios::out);
+	//f << "#x y z p\n";
+
+	for (int i = 0; i < boundary[boundaryIndex].facesIndex.size(); i++)
+	{
+		int faceIndex = boundary[boundaryIndex].facesIndex[i];
+
+		//f << faces[faceIndex].midpoint.x << " " << faces[faceIndex].midpoint.y << " " << faces[faceIndex].midpoint.z << " " << w[owners[faceIndex]].pressure() << "\n";
+		f << faces[faceIndex].midpoint.x << " " << w[owners[faceIndex]].pressure() << "\n";
+	}
+	
 }

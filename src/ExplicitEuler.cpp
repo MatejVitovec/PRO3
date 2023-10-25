@@ -39,7 +39,7 @@ void ExplicitEuler::solve()
         wn = thermo->updateField(wn, w);
 
         resNorm = (wn - w).norm();
-        saveResidual("../results/residuals.txt", resNorm);
+        outputCFD::saveResidual("../results/residuals.txt", resNorm);
 
         if(resNorm[0] < targetError) exitLoop = true;
         
@@ -49,12 +49,12 @@ void ExplicitEuler::solve()
 
         if(iter % 200 == 0)
         {
-            outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
+            outputCFD::outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
             std::cout << "iter: " << iter << " density res: " << resNorm[0] << std::endl;
         }
     }
 
-    outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
+    outputCFD::outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
     std::cout << "iter: " << iter << std::endl;
 
     std::cout << "time: " << time << std::endl;

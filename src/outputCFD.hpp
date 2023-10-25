@@ -6,8 +6,13 @@
 #include "Compressible.hpp"
 #include <string>
 
-void outputVTK(std::string filename, const Mesh& m, const Field<Compressible>& u);
+namespace outputCFD
+{
+    void outputVTK(std::string fileName, const Mesh& m, const Field<Compressible>& u);
 
-void saveResidual(std::string filename, Vars<5> res);
+    void saveResidual(std::string fileName, Vars<5> res);
+
+    void saveFieldOnBoundary(std::string fileName, std::string boundaryName, const Mesh& mesh, const Field<Compressible>& w);
+}
 
 #endif //OUTPUTCFD_HPP
