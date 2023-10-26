@@ -91,7 +91,7 @@ Vars<N> operator* (const Vars<N>& u, const Vars<N>& v)
 
 // a * u
 template <int N>
-Vars<N> operator* (const double& a, const Vars<N>& u)
+Vars<N> operator* (double a, const Vars<N>& u)
 {
     Vars<N> out;
     for (int i = 0; i < N; i++)
@@ -103,7 +103,7 @@ Vars<N> operator* (const double& a, const Vars<N>& u)
 
 // u * a
 template <int N>
-Vars<N> operator* (const Vars<N>& u, const double& a)
+Vars<N> operator* (const Vars<N>& u, double a)
 {
     Vars<N> out;
     for (int i = 0; i < N; i++)
@@ -115,7 +115,7 @@ Vars<N> operator* (const Vars<N>& u, const double& a)
 
 // u / a
 template <int N>
-Vars<N> operator/ (const Vars<N>& u, const double& a)
+Vars<N> operator/ (const Vars<N>& u, double a)
 {
     Vars<N> out;
     for (int i = 0; i < N; i++)
