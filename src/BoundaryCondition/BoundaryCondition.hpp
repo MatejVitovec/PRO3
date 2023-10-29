@@ -14,8 +14,11 @@ class BoundaryCondition
     public:
         enum BoundaryConditionType{PRESSURETEMPERATUREINLET, PRESSUREDENSITYINLET, PRESSUREOUTLET, FREEBOUNDARY, WALL, PERIODICITY};
 
-        BoundaryCondition() {}
-        BoundaryCondition(Boundary meshBoundary) : boundary(meshBoundary) {}
+        BoundaryCondition(BoundaryConditionType type_) : type(type_) {}
+        BoundaryCondition(Boundary meshBoundary, BoundaryConditionType type_) : boundary(meshBoundary), type(type_) {}
+
+        BoundaryConditionType getType() const;
+        Boundary getBoundary() const;
 
         virtual void apply(const std::vector<int>& ownerIndexList,const std::vector<Face>& faces, const Field<Compressible>& w, Field<Compressible>& wr, const Thermo * const thermoModel) const;
 
@@ -23,6 +26,7 @@ class BoundaryCondition
         
     protected:
         Boundary boundary;
+        BoundaryConditionType type;
 };
 
 #endif // BOUNDARYCONDITION_HPP

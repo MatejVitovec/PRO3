@@ -18,10 +18,6 @@ class LeastSquare : public GradientScheme
     private:
         Field<std::array<Vars<3>, 3>> MInv;
 
-        Field<Vars<3>> delta;
-
-        void calculatesDeltas(const Mesh& mesh);
-
         void calculateInverseM(Field<std::array<Vars<3>, 3>> M);        
         double det3by3(std::array<Vars<3>, 3> M) const;
         std::array<Vars<3>, 3> adjoint3by3(std::array<Vars<3>, 3> M) const;

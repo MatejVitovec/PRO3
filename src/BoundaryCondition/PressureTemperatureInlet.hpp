@@ -7,8 +7,7 @@ class PressureTemperatureInlet : public BoundaryCondition
 {
     public:
 
-        PressureTemperatureInlet() {}
-        PressureTemperatureInlet(Boundary meshBoundary, double totalPressure_, double totalTemperature_, Vars<3> velocityDirection_) : BoundaryCondition(meshBoundary),
+        PressureTemperatureInlet(Boundary meshBoundary, double totalPressure_, double totalTemperature_, Vars<3> velocityDirection_) : BoundaryCondition(meshBoundary, PRESSURETEMPERATUREINLET),
                     totalPressure(totalPressure_),
                     totalTemperature(totalTemperature_),
                     velocityDirection(velocityDirection_) {}

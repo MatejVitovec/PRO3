@@ -2,7 +2,7 @@
 #include "Periodicity.hpp"
 
 
-Periodicity::Periodicity(Boundary meshBoundary, Vector3 faceMidpointShift_, std::string associatedBoundaryName_, const Mesh& mesh) : BoundaryCondition(meshBoundary), faceMidpointShift(faceMidpointShift_), associatedBoundaryName(associatedBoundaryName_)
+Periodicity::Periodicity(Boundary meshBoundary, Vector3 faceMidpointShift_, std::string associatedBoundaryName_, const Mesh& mesh) : BoundaryCondition(meshBoundary, PERIODICITY), faceMidpointShift(faceMidpointShift_), associatedBoundaryName(associatedBoundaryName_)
 {
     init(mesh);
 }
@@ -52,6 +52,11 @@ void Periodicity::init(const Mesh& mesh)
             std::cout << "Periodicity face not found" << std::endl;
         }        
     }    
+}
+
+std::vector<int> Periodicity::getPeriodicityFacesIndex() const
+{
+    return periodicityFacesIndex;
 }
 
 

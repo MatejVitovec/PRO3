@@ -17,7 +17,7 @@ class Cell
 
         void update(const std::vector<Face>& faceList);
 
-        std::vector<Face> createFaces();
+        std::vector<Face> createFaces(); //for GMSH
 
         int getVtkType() const;
 

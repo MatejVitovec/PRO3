@@ -40,6 +40,8 @@ class FVMScheme
         void setInitialConditionsRiemann(Compressible initialConditionL, Compressible initialConditionR);
         void setBoundaryConditions(std::vector<std::unique_ptr<BoundaryCondition>> boundaryConditions);
 
+        void burnBoundaryToMesh();
+
         virtual void solve() = 0;
 
         Field<Compressible> getResults() const;

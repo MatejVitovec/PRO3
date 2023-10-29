@@ -53,31 +53,6 @@ void LeastSquare::init(const Mesh& mesh)
 }
 
 
-void LeastSquare::calculatesDeltas(const Mesh& mesh)
-{
-    const std::vector<Cell>& cells = mesh.getCellList();
-    const std::vector<Face>& faces = mesh.getFaceList();
-    const std::vector<int>& neighbours = mesh.getNeighborIndexList();
-    const std::vector<int>& owners = mesh.getOwnerIndexList();
-
-    for (int i = 0; i < faces.size(); i++)
-    {
-        if (neighbours[i] == -1)
-        {
-            delta[i][0] = 2*(faces[i].midpoint.x - cells[owners[i]].center.x);
-            delta[i][1] = 2*(faces[i].midpoint.y - cells[owners[i]].center.y);
-            delta[i][2] = 2*(faces[i].midpoint.z - cells[owners[i]].center.z);
-        }
-        else
-        {
-            delta[i][0] = cells[neighbours[i]].center.x - cells[owners[i]].center.x;
-            delta[i][1] = cells[neighbours[i]].center.y - cells[owners[i]].center.y;
-            delta[i][2] = cells[neighbours[i]].center.z - cells[owners[i]].center.z;
-        }
-    }
-}
-
-
 void LeastSquare::calculateInverseM(Field<std::array<Vars<3>, 3>> M)
 {
     for (int i = 0; i < MInv.size(); i++)
@@ -123,10 +98,7 @@ Field<std::array<Vars<5>, 3>> LeastSquare::calculateGradient(const Field<Compres
     const std::vector<int>& neighbours = mesh.getNeighborIndexList();
     const std::vector<int>& owners = mesh.getOwnerIndexList();
 
-    const std::vector<Cell>& cells = mesh.getCellList();
-    const std::vector<Face>& faces = mesh.getFaceList();
-    const std::vector<int>& neighbours = mesh.getNeighborIndexList();
-    const std::vector<int>& owners = mesh.getOwnerIndexList();
+    const std::vector<Vector3>& cellToCellDelta = mesh.getCellToCellVector();
 
     Field<std::array<Vars<3>, 5>> b = Field<std::array<Vars<3>, 5>>();
 
@@ -139,7 +111,7 @@ Field<std::array<Vars<5>, 3>> LeastSquare::calculateGradient(const Field<Compres
 
             for (int k = 0; k < 5; k++)
             {
-                b[i][k] += (wr[idx][k] - wl[idx][k])*delta[idx];
+                b[i][k] += (wr[idx][k] - wl[idx][k])*vector3toVars(cellToCellDelta[idx]);
             }
         }
 
@@ -149,7 +121,7 @@ Field<std::array<Vars<5>, 3>> LeastSquare::calculateGradient(const Field<Compres
 
             for (int k = 0; k < 5; k++)
             {
-                b[i][k] += (wl[idx][k] - wr[idx][k])*delta[idx];
+                b[i][k] += (wl[idx][k] - wr[idx][k])*vector3toVars(cellToCellDelta[idx]);
             }
         }
     }

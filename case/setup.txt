@@ -15,7 +15,7 @@ RiemannSolver:          hllc
 Mesh
 {
 	type:           gmsh2
-	fileName:       ../meshes/se1050_coarse.msh
+	fileName:       ../meshes/se1050_veryCoarse.msh
 }
 
 ThermoModel

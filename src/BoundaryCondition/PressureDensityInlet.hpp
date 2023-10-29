@@ -7,8 +7,7 @@ class PressureDensityInlet : public BoundaryCondition
 {
     public:
 
-        PressureDensityInlet() {}
-        PressureDensityInlet(Boundary meshBoundary, double totalPressure_, double totalDensity, Vars<3> velocityDirection_) : BoundaryCondition(meshBoundary),
+        PressureDensityInlet(Boundary meshBoundary, double totalPressure_, double totalDensity, Vars<3> velocityDirection_) : BoundaryCondition(meshBoundary, PRESSUREDENSITYINLET),
                     totalPressure(totalPressure_),
                     totalDensity(totalDensity),
                     velocityDirection(velocityDirection_) {}
