@@ -40,6 +40,11 @@ const std::vector<int>& Mesh::getNeighborIndexList() const
     return neighborIndexList;
 }
 
+const std::vector<Vector3>& Mesh::getCellToCellVector() const
+{
+    return cellToCellVector;
+}
+
 int Mesh::getNodesSize() const
 {
     return nodeList.size();
@@ -62,6 +67,10 @@ void Mesh::update()
 
     calculateCellToCellVector();
 }
+
+
+
+//nejde pouzit, bunka by mela vice sten, neslo by prez ni integrovat
 
 /*void Mesh::updateTopology()
 {

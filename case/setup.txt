@@ -4,7 +4,7 @@ LocalTimeStep:          false
 
 TargetError:            0.00001
 
-MaxIter:                100000
+MaxIter:                1000
 
 cfl:                    0.5
 

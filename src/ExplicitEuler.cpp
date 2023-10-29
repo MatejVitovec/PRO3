@@ -2,6 +2,8 @@
 #include <iostream>
 #include "outputCFD.hpp"
 
+//test
+#include "GradientScheme/LeastSquare.hpp"
 
 void ExplicitEuler::solve()
 {
@@ -9,6 +11,14 @@ void ExplicitEuler::solve()
     //mozna presun do konstruktoru
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
+
+    //TEST
+    std::unique_ptr<GradientScheme> grad = std::make_unique<LeastSquare>();
+
+    grad->init(mesh);
+    //TEST
+
+
 
     localTimeSteps = std::vector<double>(mesh.getFacesSize()); //docasne
 
@@ -53,6 +63,9 @@ void ExplicitEuler::solve()
             std::cout << "iter: " << iter << " density res: " << resNorm[0] << std::endl;
         }
     }
+
+    //TEST
+    Field<std::array<Vars<5>, 3>> g = grad->calculateGradient(wl, wr, mesh);
 
     outputCFD::outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
     std::cout << "iter: " << iter << std::endl;

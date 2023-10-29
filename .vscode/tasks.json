@@ -8,12 +8,13 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"-O2",
+				//"-O2",
 				"*.cpp",
 				"Mesh/*.cpp",
 				"FluxSolver/*.cpp",
 				"BoundaryCondition/*.cpp",
 				"Thermo/*.cpp",
+				"GradientScheme/*.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}"
 			],

@@ -11,9 +11,11 @@ class GradientScheme
 
         GradientScheme() {}
 
+        virtual ~GradientScheme() {}
+
         virtual void init(const Mesh& mesh);
 
-        virtual Field<std::array<Vars<5>, 3>> calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const;
+        virtual Field<std::array<Vars<5>, 3>> calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const = 0;
 
 
     protected:

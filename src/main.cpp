@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 
     mySolver->setInitialConditions(setter.getInitialCondition());
 
-    mySolver->burnBoundaryToMesh();
+    mySolver->burnBoundaryToMesh(); //optional - necessary for reconstruction
 
     outputCFD::outputVTK("../results/results.0.vtk", mySolver->getMesh(), mySolver->getResults());
 
