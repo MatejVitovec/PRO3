@@ -11,7 +11,9 @@ class Limiter
 
         Limiter() {}
 
-        virtual Field<double> calculateLimiter(const Mesh& mesh) const;
+        virtual ~Limiter() {}
+
+        virtual Field<Vars<5>> calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, Field<std::array<Vars<3>, 5>> grad, const Mesh& mesh) const;
 
 
     protected:

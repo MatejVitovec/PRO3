@@ -40,11 +40,6 @@ const std::vector<int>& Mesh::getNeighborIndexList() const
     return neighborIndexList;
 }
 
-const std::vector<Vector3>& Mesh::getCellToCellVector() const
-{
-    return cellToCellVector;
-}
-
 int Mesh::getNodesSize() const
 {
     return nodeList.size();
@@ -64,61 +59,8 @@ void Mesh::update()
 {
     updateFaces();
     updateCells();
-
-    calculateCellToCellVector();
 }
 
-
-
-//nejde pouzit, bunka by mela vice sten, neslo by prez ni integrovat
-
-/*void Mesh::updateTopology()
-{
-    for (int i = 0; i < ownerIndexList.size(); i++)
-    {
-        bool isComplete = true;
-
-        for (int j = 0; j < cellList[ownerIndexList[i]].ownFaceIndex.size(); j++)
-        {
-            if (cellList[ownerIndexList[i]].ownFaceIndex[j] == i)
-            {
-                isComplete = false;
-            }
-           
-        }
-
-        if(isComplete)
-        {
-            cellList[ownerIndexList[i]].ownFaceIndex.push_back(i);
-        }
-    }
-
-    for (int i = 0; i < neighborIndexList.size(); i++)
-    {
-        if (neighborIndexList[i] == -1)
-        {
-            continue;
-        }
-
-        bool isComplete = true;
-
-        for (int j = 0; j < cellList[neighborIndexList[i]].neighborFaceIndex.size(); j++)
-        {
-            if (cellList[neighborIndexList[i]].neighborFaceIndex[j] == i)
-            {
-                isComplete = false;
-            }
-           
-        }
-
-        if(isComplete)
-        {
-            cellList[neighborIndexList[i]].neighborFaceIndex.push_back(i);
-        }
-    }
-
-    update();
-}*/
 
 void Mesh::createFaces()
 {
@@ -297,36 +239,6 @@ void Mesh::updateFaces()
     }
 }
 
-void Mesh::calculateCellToCellVector()
-{
-    cellToCellVector = std::vector<Vector3>(getFacesSize());
-
-    for (int i = 0; i < faceList.size(); i++)
-    {
-        if (neighborIndexList[i] == -1)
-        {
-            cellToCellVector[i] = 2*(faceList[i].midpoint - cellList[ownerIndexList[i]].center);
-        }
-        else
-        {
-            cellToCellVector[i] = cellList[neighborIndexList[i]].center - cellList[ownerIndexList[i]].center;
-        }
-    }
-
-    //burned periodic boundary
-    for (int i = 0; i < faceList.size(); i++)
-    {
-        for (int j = i + 1; j < faceList.size(); j++)
-        {
-            if(ownerIndexList[i] == neighborIndexList[j] && ownerIndexList[j] == neighborIndexList[i])
-            {
-                Vector3 shift = faceList[i].midpoint - faceList[j].midpoint;
-                cellToCellVector[i] = cellList[ownerIndexList[i]].center - cellList[neighborIndexList[i]].center - shift;
-            }
-        }
-    }
-}
-
 bool Mesh::checkFaces() const
 {
     bool fail = false;
@@ -359,17 +271,6 @@ bool Mesh::checkFaces() const
 
     return fail;
 }
-
-void Mesh::burnPeriodicBoundary(const std::vector<int>& facesIndex, const std::vector<int>& associatedFacesIndex)
-{
-    //update cell to cell vector
-    for (int i = 0; i < facesIndex.size(); i++)
-    {
-        neighborIndexList[facesIndex[i]] = ownerIndexList[associatedFacesIndex[i]];
-    }
-}
-
-
 
 void Mesh::loadGmsh2(std::string fileName)
 {

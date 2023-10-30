@@ -1,18 +1,11 @@
 #include "LeastSquare.hpp"
 
 
-void LeastSquare::init(const Mesh& mesh)
+void LeastSquare::init(const Mesh& mesh, const std::vector<std::shared_ptr<BoundaryCondition>>& boundaryConditionList)
 {
+    calculateCellToCellDelta(mesh, boundaryConditionList);
+
     Field<std::array<Vars<3>, 3>> M(mesh.getCellsSize());
-
-    const std::vector<Vector3>& cellToCell = mesh.getCellToCellVector();
-
-    Field<Vars<3>> delta = Field<Vars<3>>(cellToCell.size());
-    for (int i = 0; i < cellToCell.size(); i++)
-    {
-        delta[i] = vector3toVars(cellToCell[i]);
-    }
-    
 
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
@@ -37,7 +30,7 @@ void LeastSquare::init(const Mesh& mesh)
             {
                 for (int kk = 0; kk < 3; kk++)
                 {
-                    M[i][k][kk] += delta[idx][k]*delta[idx][kk];
+                    M[i][k][kk] += cellToCellDelta[idx][k]*cellToCellDelta[idx][kk];
                 }                
             }
         }
@@ -50,7 +43,7 @@ void LeastSquare::init(const Mesh& mesh)
             {
                 for (int kk = 0; kk < 3; kk++)
                 {
-                    M[i][k][kk] -= delta[idx][k]*delta[idx][kk];
+                    M[i][k][kk] -= cellToCellDelta[idx][k]*cellToCellDelta[idx][kk];
                 }                
             }
         }
@@ -58,6 +51,7 @@ void LeastSquare::init(const Mesh& mesh)
 
     calculateInverseM(M);
 }
+
 
 
 void LeastSquare::calculateInverseM(Field<std::array<Vars<3>, 3>> M)
@@ -97,24 +91,14 @@ std::array<Vars<3>, 3> LeastSquare::adjoint3by3(std::array<Vars<3>, 3> M) const
 }
 
 
-Field<std::array<Vars<5>, 3>> LeastSquare::calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const
+Field<std::array<Vars<3>, 5>> LeastSquare::calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const
 {
-    Field<std::array<Vars<5>, 3>> grad(wl.size());
+    Field<std::array<Vars<3>, 5>> grad(wl.size());
     
-
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
     const std::vector<int>& neighbours = mesh.getNeighborIndexList();
     const std::vector<int>& owners = mesh.getOwnerIndexList();
-
-    const std::vector<Vector3>& cellToCell = mesh.getCellToCellVector();
-
-    Field<Vars<3>> delta = Field<Vars<3>>(cellToCell.size());
-    for (int i = 0; i < cellToCell.size(); i++)
-    {
-        delta[i] = vector3toVars(cellToCell[i]);
-    }
-    
 
     Field<std::array<Vars<3>, 5>> b = Field<std::array<Vars<3>, 5>>(MInv.size());
 
@@ -128,7 +112,7 @@ Field<std::array<Vars<5>, 3>> LeastSquare::calculateGradient(const Field<Compres
 
             for (int k = 0; k < 5; k++)
             {
-                b[i][k] += aux[k]*delta[idx];
+                b[i][k] += aux[k]*cellToCellDelta[idx];
             }
         }
 
@@ -140,14 +124,14 @@ Field<std::array<Vars<5>, 3>> LeastSquare::calculateGradient(const Field<Compres
 
             for (int k = 0; k < 5; k++)
             {
-                b[i][k] += aux[k]*delta[idx];
+                b[i][k] -= aux[k]*cellToCellDelta[idx];
             }
         }
     }
 
     for (int i = 0; i < cells.size(); i++)
     {
-        for (int k = 0; k < 3; k++)
+        /*for (int k = 0; k < 3; k++)
         {
             Vars<5> aux;
             for (int j = 0; j < 5; j++)
@@ -155,7 +139,16 @@ Field<std::array<Vars<5>, 3>> LeastSquare::calculateGradient(const Field<Compres
                 aux[j] = dot(MInv[i][k], b[i][j]);
             }
             grad[i][k] = aux;
-        }     
+        }*/
+
+        for (int j = 0; j < 5; j++)
+        {
+            for (int k = 0; k < 3; k++)
+            {
+                 grad[i][j][k] = dot(MInv[i][k], b[i][j]);
+            }
+        }
+        
     }
 
     return grad;

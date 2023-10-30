@@ -7,7 +7,7 @@
 #include "BoundaryCondition/BoundaryCondition.hpp"
 
 
-std::vector<std::unique_ptr<BoundaryCondition>> createBoundaryCondition(const Mesh& mesh);
+std::vector<std::shared_ptr<BoundaryCondition>> createBoundaryCondition(const Mesh& mesh);
 
 
 #endif //SETCFD_HPP

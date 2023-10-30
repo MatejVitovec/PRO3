@@ -9,6 +9,7 @@ class Field
     public:
         Field() : data() {}
         Field(int n) : data(n) {}
+        Field(int n, T def) : data(n, def) {}
 
         int size() const;
         T norm() const;

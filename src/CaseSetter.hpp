@@ -40,7 +40,7 @@ class CaseSetter
         Mesh createMesh();
         std::unique_ptr<FluxSolver> createFluxSolver();
         std::unique_ptr<Thermo> createThermoModel();
-        std::vector<std::unique_ptr<BoundaryCondition>> createBoundaryCondition(const Mesh& mesh);
+        std::vector<std::shared_ptr<BoundaryCondition>> createBoundaryCondition(const Mesh& mesh);
 
     private:
         std::vector<std::string> data_;

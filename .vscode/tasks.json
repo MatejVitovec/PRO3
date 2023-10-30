@@ -15,6 +15,7 @@
 				"BoundaryCondition/*.cpp",
 				"Thermo/*.cpp",
 				"GradientScheme/*.cpp",
+				"Limiter/*.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}"
 			],

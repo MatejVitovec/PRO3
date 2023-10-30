@@ -38,12 +38,10 @@ int main(int argc, char** argv)
     mySolver->setTargetError(setter.getTargetError());
     mySolver->setLocalTimeStep(setter.getLocalTimeStepSetting());
 
-    std::vector<std::unique_ptr<BoundaryCondition>> bc = setter.createBoundaryCondition(mySolver->getMesh());
+    std::vector<std::shared_ptr<BoundaryCondition>> bc = setter.createBoundaryCondition(mySolver->getMesh());
     mySolver->setBoundaryConditions(std::move(bc));
 
     mySolver->setInitialConditions(setter.getInitialCondition());
-
-    mySolver->burnBoundaryToMesh(); //optional - necessary for reconstruction
 
     outputCFD::outputVTK("../results/results.0.vtk", mySolver->getMesh(), mySolver->getResults());
 

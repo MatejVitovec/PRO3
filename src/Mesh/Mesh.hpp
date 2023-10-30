@@ -22,7 +22,6 @@ class Mesh
         const std::vector<Boundary>& getBoundaryList() const;
         const std::vector<int>& getOwnerIndexList() const;
         const std::vector<int>& getNeighborIndexList() const;
-        const std::vector<Vector3>& getCellToCellVector() const;
 
         int getNodesSize() const;
         int getFacesSize() const;
@@ -31,15 +30,11 @@ class Mesh
         void update();
         void loadGmsh2(std::string fileName);
 
-        void burnPeriodicBoundary(const std::vector<int>& firstFacesIndex, const std::vector<int>& secondFacesIndex);
-
     private:
         void createFaces();
 
         void updateCells();
         void updateFaces();
-
-        void calculateCellToCellVector();
 
         bool checkFaces() const;
 
@@ -47,8 +42,6 @@ class Mesh
         std::vector<Cell> cellList;
         std::vector<Face> faceList;
         std::vector<Boundary> boundaryList;
-
-        std::vector<Vector3> cellToCellVector;
         
         std::vector<int> ownerIndexList;
         std::vector<int> neighborIndexList;

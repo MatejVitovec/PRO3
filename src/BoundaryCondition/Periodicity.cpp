@@ -59,6 +59,11 @@ std::vector<int> Periodicity::getPeriodicityFacesIndex() const
     return periodicityFacesIndex;
 }
 
+Vector3 Periodicity::getFaceShift() const
+{
+    return faceMidpointShift;
+}
+
 
 Compressible Periodicity::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
 {

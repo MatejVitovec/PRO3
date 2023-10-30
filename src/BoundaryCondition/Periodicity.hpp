@@ -12,6 +12,7 @@ class Periodicity : public BoundaryCondition
         void init(const Mesh& mesh);
 
         std::vector<int> getPeriodicityFacesIndex() const;
+        Vector3 getFaceShift() const;
 
         Compressible calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const;
         void apply(const std::vector<int>& ownerIndexList,const std::vector<Face>& faces, const Field<Compressible>& w, Field<Compressible>& wr, const Thermo * const thermoModel) const;

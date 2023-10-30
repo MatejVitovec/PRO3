@@ -12,14 +12,6 @@ void ExplicitEuler::solve()
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
 
-    //TEST
-    std::unique_ptr<GradientScheme> grad = std::make_unique<LeastSquare>();
-
-    grad->init(mesh);
-    //TEST
-
-
-
     localTimeSteps = std::vector<double>(mesh.getFacesSize()); //docasne
 
     w = thermo->updateField(w, w);
@@ -64,8 +56,10 @@ void ExplicitEuler::solve()
         }
     }
 
-    //TEST
-    Field<std::array<Vars<5>, 3>> g = grad->calculateGradient(wl, wr, mesh);
+    gradientScheme->init(mesh, boundaryConditionList);
+
+    reconstruct();
+    
 
     outputCFD::outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
     std::cout << "iter: " << iter << std::endl;

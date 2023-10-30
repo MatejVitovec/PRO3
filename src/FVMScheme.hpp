@@ -7,6 +7,10 @@
 #include "Mesh/Mesh.hpp"
 #include "FluxSolver/FluxSolver.hpp"
 #include "Thermo/Thermo.hpp"
+#include "GradientScheme/GradientScheme.hpp"
+#include "GradientScheme/LeastSquare.hpp"
+#include "Limiter/Limiter.hpp"
+#include "Limiter/BarthJespersen.hpp"
 #include "Compressible.hpp"
 #include "Field.hpp"
 #include "BoundaryCondition/BoundaryCondition.hpp"
@@ -17,7 +21,18 @@ class FVMScheme
 
         //vznikne obraz meshe - neprekopiruje se
         //FVMScheme() : mesh(Mesh()), w(Field<Compressible>()), wl(Field<Compressible>()), wr(Field<Compressible>()) {}
-        FVMScheme(Mesh&& mesh_, std::unique_ptr<FluxSolver> fluxSolver_, std::unique_ptr<Thermo> thermo_) : mesh(std::move(mesh_)), fluxSolver(std::move(fluxSolver_)), thermo(std::move(thermo_)), w(Field<Compressible>()), wl(Field<Compressible>()), wr(Field<Compressible>()), cfl(0.8), maxIter(10000000), targetError(0000005), localTimeStep(false), time(0.0) {}
+        FVMScheme(Mesh&& mesh_, std::unique_ptr<FluxSolver> fluxSolver_, std::unique_ptr<Thermo> thermo_) : mesh(std::move(mesh_)),
+                                                                                                            fluxSolver(std::move(fluxSolver_)),
+                                                                                                            thermo(std::move(thermo_)),
+                                                                                                            w(Field<Compressible>()),
+                                                                                                            wl(Field<Compressible>()),
+                                                                                                            wr(Field<Compressible>()),
+                                                                                                            cfl(0.8), maxIter(10000000),
+                                                                                                            targetError(0000005),
+                                                                                                            localTimeStep(false),
+                                                                                                            time(0.0),
+                                                                                                            gradientScheme(std::make_unique<LeastSquare>()),
+                                                                                                            limiter(std::make_unique<BarthJespersen>()) {}
 
 
         virtual ~FVMScheme() {}
@@ -38,9 +53,7 @@ class FVMScheme
         void setInitialConditions(Compressible initialCondition);
         void setInitialConditionsPrimitive(Vars<5> initialCondition);
         void setInitialConditionsRiemann(Compressible initialConditionL, Compressible initialConditionR);
-        void setBoundaryConditions(std::vector<std::unique_ptr<BoundaryCondition>> boundaryConditions);
-
-        void burnBoundaryToMesh();
+        void setBoundaryConditions(std::vector<std::shared_ptr<BoundaryCondition>> boundaryConditions);
 
         virtual void solve() = 0;
 
@@ -51,8 +64,11 @@ class FVMScheme
         std::unique_ptr<FluxSolver> fluxSolver;
         std::unique_ptr<Thermo> thermo;
 
+        std::unique_ptr<GradientScheme> gradientScheme;
+        std::unique_ptr<Limiter> limiter;
+
         Mesh mesh;
-        std::vector<std::unique_ptr<BoundaryCondition>> boundaryConditionList;
+        std::vector<std::shared_ptr<BoundaryCondition>> boundaryConditionList;
 
         Field<Compressible> w; //cell size
 
@@ -75,6 +91,7 @@ class FVMScheme
         void applyBoundaryConditions();
         void calculateWlWr();
         void calculateFluxes();
+        void reconstruct();
 
     private:
 

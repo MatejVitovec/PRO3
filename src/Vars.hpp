@@ -172,6 +172,28 @@ double sum(const Vars<N>& u)
     return out;
 }
 
+template <int N>
+Vars<N> max(const Vars<N>& u, const Vars<N>& v)
+{
+    Vars<N> out;
+    for (int i = 0; i < N; i++)
+    {
+        out[i] = std::max(u[i], v[i]);
+    }
+    return out;
+}
+
+template <int N>
+Vars<N> min(const Vars<N>& u, const Vars<N>& v)
+{
+    Vars<N> out;
+    for (int i = 0; i < N; i++)
+    {
+        out[i] = std::min(u[i], v[i]);
+    }
+    return out;
+}
+
 Vars<3> vector3toVars(const Vector3& vec);
 
 

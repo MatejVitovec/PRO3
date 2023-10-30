@@ -45,7 +45,10 @@ std::unique_ptr<FVMScheme> CaseSetter::createSolver()
         return std::make_unique<ExplicitEuler>(std::move(tempMesh), std::move(tempFluxSolver), std::move(tempThermo));
     }
 
-    std::cout << "Error: neznamy solver" << std::endl;
+    errorMessage("Error: neznamy solver");
+    
+    std::cout << "nastaven defaultni solver ExplicitEuler" << std::endl;
+    return std::make_unique<ExplicitEuler>(std::move(tempMesh), std::move(tempFluxSolver), std::move(tempThermo));
 }
 
 
@@ -58,7 +61,10 @@ std::unique_ptr<FVMScheme> CaseSetter::createSolver(Mesh&& mesh_, std::unique_pt
         return std::make_unique<ExplicitEuler>(std::move(mesh_), std::move(fluxSolver_), std::move(thermo_));
     }
 
-    std::cout << "Error: neznamy solver" << std::endl;
+    errorMessage("Error: neznamy solver");
+
+    std::cout << "nastaven defaultni solver ExplicitEuler" << std::endl;
+    return std::make_unique<ExplicitEuler>(std::move(mesh_), std::move(fluxSolver_), std::move(thermo_));
 }
 
 
@@ -101,7 +107,10 @@ std::unique_ptr<FluxSolver> CaseSetter::createFluxSolver()
         return std::make_unique<Hllc>(); //TODO
     }
 
-    std::cout << "Error: neznamy rieman solver" << std::endl;
+    errorMessage("neznamy Rieman solver");
+
+    std::cout << "Nastaven defaultni Rieman solver HLLC" << std::endl;
+    return std::make_unique<Hllc>();
 }
 
 
@@ -134,7 +143,10 @@ std::unique_ptr<Thermo> CaseSetter::createThermoModel()
         return std::make_unique<Iapws95SpecialGas>();
     }
 
-    std::cout << "Error: neznamy termo solver" << std::endl;
+    errorMessage("neznamy termo solver");
+
+    std::cout << "Nastaven defaultni thermo model idealGas(gamma = 1.4, R = 287.05)" << std::endl;
+    return std::make_unique<IdealGas>();
 }
 
 
@@ -194,11 +206,11 @@ Compressible CaseSetter::getInitialCondition()
 }
 
 
-std::vector<std::unique_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondition(const Mesh& mesh)
+std::vector<std::shared_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondition(const Mesh& mesh)
 {
     const std::vector<Boundary>& meshBoundaryList = mesh.getBoundaryList();
 
-    std::vector<std::unique_ptr<BoundaryCondition>> out;
+    std::vector<std::shared_ptr<BoundaryCondition>> out;
 
     std::vector<std::string> boundarydata = findParametersByKey("BoundaryCondition", data_);
     std::vector<std::string> boundaryNames = findObjectNamesInGroup(boundarydata);
@@ -234,7 +246,7 @@ std::vector<std::unique_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondit
 
             if(totalPressure != "" && totalTemperature != "" && xyAngle != "" && xzAngle != "")
             {
-                out.push_back(std::make_unique<PressureTemperatureInlet>(auxBoundary,
+                out.push_back(std::make_shared<PressureTemperatureInlet>(auxBoundary,
                                                                          std::stod(totalPressure),
                                                                          std::stod(totalTemperature),
                                                                          vector3toVars(angleAngleToUnit(std::stod(xyAngle), std::stod(xzAngle)))));
@@ -250,7 +262,7 @@ std::vector<std::unique_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondit
 
             if(totalPressure != "" && totalDensity != "" && xyAngle != "" && xzAngle != "")
             {
-                out.push_back(std::make_unique<PressureDensityInlet>(auxBoundary,
+                out.push_back(std::make_shared<PressureDensityInlet>(auxBoundary,
                                                                      std::stod(totalPressure),
                                                                      std::stod(totalDensity),
                                                                      vector3toVars(angleAngleToUnit(std::stod(xyAngle), std::stod(xzAngle)))));
@@ -263,13 +275,13 @@ std::vector<std::unique_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondit
 
             if(pressure != "")
             {
-                out.push_back(std::make_unique<PressureOutlet>(auxBoundary, std::stod(pressure)));
+                out.push_back(std::make_shared<PressureOutlet>(auxBoundary, std::stod(pressure)));
             }
             else { errorMessage("spatne zadane parametry BC"); }
         }
         else if (type == "wall")
         {
-            out.push_back(std::make_unique<Wall>(auxBoundary));
+            out.push_back(std::make_shared<Wall>(auxBoundary));
         }
         else if (type == "periodicity")
         {
@@ -277,22 +289,22 @@ std::vector<std::unique_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondit
 
             if(shiftArray.size() == 3)
             {
-                out.push_back(std::make_unique<Periodicity>(auxBoundary, Vector3(shiftArray[0], shiftArray[1], shiftArray[2]), "000", mesh));
+                out.push_back(std::make_shared<Periodicity>(auxBoundary, Vector3(shiftArray[0], shiftArray[1], shiftArray[2]), "000", mesh));
             }
             else { errorMessage("spatne zadane parametry BC"); }
         }
         else if (type == "symmetry")
         {
-            out.push_back(std::make_unique<Wall>(auxBoundary));
+            out.push_back(std::make_shared<Wall>(auxBoundary));
         }
         else if (type == "free")
         {
-            out.push_back(std::make_unique<FreeBoundary>(auxBoundary));
+            out.push_back(std::make_shared<FreeBoundary>(auxBoundary));
         }
         else
         {
             errorMessage("chyba v zadani okrajove podmink");
-            out.push_back(std::make_unique<FreeBoundary>(auxBoundary));
+            out.push_back(std::make_shared<FreeBoundary>(auxBoundary));
         }        
     }
 

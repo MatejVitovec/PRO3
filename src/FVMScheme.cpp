@@ -97,74 +97,9 @@ void FVMScheme::applyBoundaryConditions()
     }
 }
 
-void FVMScheme::setBoundaryConditions(std::vector<std::unique_ptr<BoundaryCondition>> boundaryConditions)
+void FVMScheme::setBoundaryConditions(std::vector<std::shared_ptr<BoundaryCondition>> boundaryConditions)
 {
     boundaryConditionList = std::move(boundaryConditions);
-}
-
-void FVMScheme::burnBoundaryToMesh()
-{
-    const std::vector<Face>& faces = mesh.getFaceList();
-
-    int i = 0;
-    int j = 0;
-
-    bool error = false;
-
-    for (i = 0; i < boundaryConditionList.size() - 1; i++)
-    {
-        if (boundaryConditionList[i]->getType() == BoundaryCondition::PERIODICITY)
-        {
-            std::vector<int> facesInFirstBoundary = boundaryConditionList[i]->getBoundary().facesIndex;
-            std::vector<int> firstAssociatedFacesList = static_cast<Periodicity*>(boundaryConditionList[i].get())->getPeriodicityFacesIndex();
-
-            for (j = i + 1; j < boundaryConditionList.size(); j++)
-            {
-                if (boundaryConditionList[i]->getType() == BoundaryCondition::PERIODICITY)
-                {
-                    std::vector<int> facesInSecondBoundary = boundaryConditionList[j]->getBoundary().facesIndex;
-                    std::vector<int> secondAssociatedFacesList = static_cast<Periodicity*>(boundaryConditionList[j].get())->getPeriodicityFacesIndex();
-
-                    std::set<int> s1;
-                    std::set<int> s2;
-                    s1.insert(facesInFirstBoundary.begin(), facesInFirstBoundary.end());                    
-                    s2.insert(secondAssociatedFacesList.begin(), secondAssociatedFacesList.end());
-
-                    if (s1 != s2)
-                    {
-                        std::cout << "ERROR: nenalezena zdruzena okrajova podminka, 1" << std::endl;
-                        error = true;
-                        break;
-                    }
-
-                    s1.insert(facesInSecondBoundary.begin(), facesInSecondBoundary.end());
-                    s2.insert(firstAssociatedFacesList.begin(), firstAssociatedFacesList.end());
-
-                    if (s1 != s2)
-                    {
-                        std::cout << "ERROR: nenalezena zdruzena okrajova podminka, 2" << std::endl;
-                        error = true;
-                        break;
-                    }
-                    
-                    mesh.burnPeriodicBoundary(facesInFirstBoundary, firstAssociatedFacesList);
-                    mesh.burnPeriodicBoundary(facesInSecondBoundary, secondAssociatedFacesList);
-
-
-                    boundaryConditionList.erase(boundaryConditionList.begin() + j);
-                    boundaryConditionList.erase(boundaryConditionList.begin() + i);
-                }
-            }
-        }
-
-        if (error)
-        {
-            break;
-        }
-        
-    }
-
-    mesh.update();
 }
 
 void FVMScheme::calculateWlWr()
@@ -185,6 +120,17 @@ void FVMScheme::calculateWlWr()
             wr[i] = w[neighbour];
         }
     }    
+}
+
+void FVMScheme::reconstruct()
+{
+    Field<std::array<Vars<3>, 5>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
+
+    Field<Vars<5>> phi = limiter->calculateLimiter(wl, wr, grad, mesh);
+
+
+    int a = 5;
+
 }
 
 void FVMScheme::updateTimeStep()
