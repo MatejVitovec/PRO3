@@ -128,9 +128,44 @@ void FVMScheme::reconstruct()
 
     Field<Vars<5>> phi = limiter->calculateLimiter(wl, wr, grad, mesh);
 
+    Field<Compressible> wln(wl.size());
+    Field<Compressible> wrn(wr.size());
 
-    int a = 5;
+    const std::vector<Cell>& cells = mesh.getCellList();
+    const std::vector<Face>& faces = mesh.getFaceList();
+    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
+    const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
 
+    for (int i = 0; i < faces.size(); i++)
+    {
+        if(i==570)
+        {
+            int a = 5;
+        }
+
+        int neighbour = neighborIndexList[i];
+        if(neighbour >= 0)
+        {
+            Vars<5> wlDiff;
+            Vars<5> wrDiff;
+            for (int j = 0; j < 5; j++)
+            {
+                wlDiff[j] = dot(grad[ownerIndexList[i]][j], vector3toVars(faces[i].midpoint - cells[ownerIndexList[i]].center));
+                wrDiff[j] = dot(grad[neighborIndexList[i]][j], vector3toVars(faces[i].midpoint - cells[neighborIndexList[i]].center));
+            }
+
+            wln[i] = w[ownerIndexList[i]] + phi[ownerIndexList[i]]*wlDiff;
+            wrn[i] = w[neighborIndexList[i]] + phi[neighborIndexList[i]]*wrDiff;
+        }
+        else
+        {
+            wln[i] = wl[i];
+            wrn[i] = wr[i];
+        }
+    }
+
+    wl = thermo->updateField(wln, wl);
+    wr = thermo->updateField(wrn, wr);
 }
 
 void FVMScheme::updateTimeStep()

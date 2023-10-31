@@ -11,6 +11,8 @@ class Field
         Field(int n) : data(n) {}
         Field(int n, T def) : data(n, def) {}
 
+        virtual ~Field() {}
+
         int size() const;
         T norm() const;
 

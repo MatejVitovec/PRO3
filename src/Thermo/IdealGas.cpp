@@ -34,7 +34,7 @@ double IdealGas::internalEnergy(const Compressible& data) const
 
 double IdealGas::soundSpeed(const Compressible& data) const
 {
-    return std::sqrt((gamma*pressure(data))/data.density());
+    return std::sqrt((gamma*std::max(0.0, pressure(data)))/data.density());
 }
 
 double IdealGas::temperature(const Compressible& data) const

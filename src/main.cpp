@@ -19,10 +19,9 @@
 #include "CaseSetter.hpp"
 
 
-
 int main(int argc, char** argv)
 {
-    //feenableexcept(FE_INVALID | FE_OVERFLOW);
+    feenableexcept(FE_INVALID | FE_OVERFLOW);
 
     CaseSetter setter = CaseSetter();
     setter.loadSettingFile("../case/setup.txt");
@@ -54,7 +53,7 @@ int main(int argc, char** argv)
     /*auto stop2 = std::chrono::high_resolution_clock::now();
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";*/
 
-    int a = 5;
+    int g = 5;
 
     return 0;
 }

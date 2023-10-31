@@ -1,27 +1,33 @@
 #include "BarthJespersen.hpp"
 
 
-Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, Field<std::array<Vars<3>, 5>> grad, const Mesh& mesh) const
+Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<std::array<Vars<3>, 5>>& grad, const Mesh& mesh) const
 {
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
     const std::vector<int>& neighbours = mesh.getNeighborIndexList();
     const std::vector<int>& owners = mesh.getOwnerIndexList();
 
-    Field<Vars<5>> out = Field<Vars<5>>(cells.size());
+    Field<Vars<5>> out(cells.size());
 
-    Field<Vars<5>> wCmax = Field<Vars<5>>(cells.size(), std::array<double, 5>({0.0, 0.0, 0.0, 0.0, 0.0}));
-    Field<Vars<5>> wCmin = Field<Vars<5>>(cells.size(), std::array<double, 5>({0.0, 0.0, 0.0, 0.0, 0.0}));
+    Field<Vars<5>> wCmax(cells.size());
+    Field<Vars<5>> wCmin(cells.size());
+    //Field<Vars<5>> wCmax(cells.size(), std::array<double, 5>({0.0, 0.0, 0.0, 0.0, 0.0}));
+    //Field<Vars<5>> wCmin(cells.size(), std::array<double, 5>({0.0, 0.0, 0.0, 0.0, 0.0}));
 
     for (int i = 0; i < faces.size(); i++)
     {
-        int ownerIndex = owners[i];
+        int ownerIndex = owners[i];  
+
         wCmax[ownerIndex] = max(wCmax[ownerIndex], wr[i]);
         wCmin[ownerIndex] = min(wCmin[ownerIndex], wr[i]);
 
         int neighbourIndex = neighbours[i];
-        wCmax[neighbourIndex] = max(wCmax[neighbourIndex], wl[i]);
-        wCmin[neighbourIndex] = min(wCmin[neighbourIndex], wl[i]);
+        if (neighbourIndex >= 0)
+        {
+            wCmax[neighbourIndex] = max(wCmax[neighbourIndex], wl[i]);
+            wCmin[neighbourIndex] = min(wCmin[neighbourIndex], wl[i]);
+        }
     }
 
     for (int i = 0; i < cells.size(); i++)
@@ -36,7 +42,7 @@ Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, c
 
         for (int j = 0; j < cells[i].ownFaceIndex.size(); j++)
         {
-            Vars<5> phiCn({0.0, 0.0, 0.0, 0.0, 0.0});
+            Vars<5> phiCn;
             Vars<5> denominator;            
 
             Vars<3> cellToFaceDist = vector3toVars(faces[cells[i].ownFaceIndex[j]].midpoint - cells[i].center);
@@ -50,11 +56,11 @@ Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, c
             {
                 if (denominator[k] > 0.0)
                 {
-                    phiCn[k] = std::min(1.0, (wCmax[i][k] - wC[k])/denominator[k]);
+                    phiCn[k] = std::min(1.0, std::max(0.0, (wCmax[i][k] - wC[k])/denominator[k]));
                 }
                 else if (denominator[k] < 0.0)
                 {
-                    phiCn[k] = std::min(1.0, (wCmin[i][k] - wC[k])/denominator[k]);
+                    phiCn[k] = std::min(1.0, std::max(0.0, (wCmin[i][k] - wC[k])/denominator[k]));
                 }
                 else
                 {
@@ -67,7 +73,7 @@ Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, c
 
         for (int j = 0; j < cells[i].neighborFaceIndex.size(); j++)
         {
-            Vars<5> phiCn({0.0, 0.0, 0.0, 0.0, 0.0});
+            Vars<5> phiCn;
             Vars<5> denominator;
 
             Vars<3> cellToFaceDist = vector3toVars(faces[cells[i].neighborFaceIndex[j]].midpoint - cells[i].center);
@@ -81,16 +87,16 @@ Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, c
             {
                 if (denominator[k] > 0.0)
                 {
-                    phiCn[k] = std::min(1.0, (wCmax[i][k] - wC[k])/denominator[k]);
+                    phiCn[k] = std::min(1.0, std::max(0.0, (wCmax[i][k] - wC[k])/denominator[k]));
                 }
                 else if (denominator[k] < 0.0)
                 {
-                    phiCn[k] = std::min(1.0, (wCmin[i][k] - wC[k])/denominator[k]);
+                    phiCn[k] = std::min(1.0, std::max(0.0, (wCmin[i][k] - wC[k])/denominator[k]));
                 }
                 else
                 {
                     phiCn[k] = 1.0;
-                }                
+                }
             }
 
             phiC = min(phiC, phiCn);
@@ -98,6 +104,6 @@ Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, c
 
         out[i] = phiC;
     }
-    
+
     return out;
 }

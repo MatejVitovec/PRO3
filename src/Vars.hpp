@@ -11,8 +11,8 @@ template <int N>
 class Vars
 {
     public:
+        //Vars() : data({0}) {}
         Vars() : data() {}
-
         Vars(const std::array<double, N>& in) : data(in) {}
 
         virtual ~Vars() {}

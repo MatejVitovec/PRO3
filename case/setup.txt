@@ -4,9 +4,9 @@ LocalTimeStep:          false
 
 TargetError:            0.00001
 
-MaxIter:                1000
+MaxIter:                10000
 
-cfl:                    0.5
+cfl:                    0.3
 
 SaveEveryIter:          100
 
@@ -21,7 +21,6 @@ Mesh
 ThermoModel
 {
         name:           idealGas
-        kappa:		1.4
 }
 
 InitialCondition
@@ -36,7 +35,7 @@ BoundaryCondition
         {
                 type:                   pressureTemperatureInlet
                 totalPressure:          98071.7
-                totalTemperature:       298.65
+                totalTemperature:       372.21
                 xyAngle:                19.3
                 xzAngle:                0.0
         }
@@ -44,7 +43,7 @@ BoundaryCondition
         outlet
         {
                 type:           pressureOutlet
-                pressure:       40548.109
+                pressure:       42207.157
         }
 
         wall

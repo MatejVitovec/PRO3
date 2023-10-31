@@ -8,6 +8,8 @@
 void ExplicitEuler::solve()
 {
 
+    gradientScheme->init(mesh, boundaryConditionList);
+
     //mozna presun do konstruktoru
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
@@ -31,6 +33,8 @@ void ExplicitEuler::solve()
         applyBoundaryConditions();
 
         calculateWlWr();
+
+        reconstruct();
 
         calculateFluxes();
 
@@ -56,9 +60,8 @@ void ExplicitEuler::solve()
         }
     }
 
-    gradientScheme->init(mesh, boundaryConditionList);
+    
 
-    reconstruct();
     
 
     outputCFD::outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
