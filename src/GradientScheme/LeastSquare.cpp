@@ -131,15 +131,6 @@ Field<std::array<Vars<3>, 5>> LeastSquare::calculateGradient(const Field<Compres
 
     for (int i = 0; i < cells.size(); i++)
     {
-        /*for (int k = 0; k < 3; k++)
-        {
-            Vars<5> aux;
-            for (int j = 0; j < 5; j++)
-            {            
-                aux[j] = dot(MInv[i][k], b[i][j]);
-            }
-            grad[i][k] = aux;
-        }*/
 
         for (int j = 0; j < 5; j++)
         {

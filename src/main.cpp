@@ -48,6 +48,8 @@ int main(int argc, char** argv)
 
     outputCFD::saveFieldOnBoundary("../results/pressure.txt", "wall", mySolver->getMesh(), mySolver->getResults());
 
+    outputCFD::outputVTKPeriodicBoundary("../results/periodicResult.vtk", mySolver->getMesh(), mySolver->getResults(), Vector3(0.0, 0.0551168, 0.0));
+
     //auto stop1 = std::chrono::high_resolution_clock::now();
 
     /*auto stop2 = std::chrono::high_resolution_clock::now();

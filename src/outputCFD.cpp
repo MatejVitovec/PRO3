@@ -116,6 +116,25 @@ void outputCFD::outputVTK(std::string fileName, const Mesh& mesh, const Field<Co
 	f.close();
 }
 
+void outputCFD::saveData(std::string fileName, const Field<Compressible>& w)
+{
+	std::ofstream f;
+	f.open(fileName, std::ios::out);
+
+	for (int i = 0; i < w.size(); i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			f << roundToZero(w[i][j]) << " ";
+		}
+		f << "\n";
+	}
+
+	f << std::endl;
+
+	f.close();
+}
+
 
 void outputCFD::saveResidual(std::string fileName, Vars<5> res)
 {
@@ -163,4 +182,192 @@ void outputCFD::saveFieldOnBoundary(std::string fileName, std::string boundaryNa
 		f << faces[faceIndex].midpoint.x << " " << w[owners[faceIndex]].pressure() << "\n";
 	}
 	
+}
+
+
+/////////////////////////
+
+void outputCFD::outputVTKPeriodicBoundary(std::string fileName, const Mesh& mesh, const Field<Compressible>& w, Vector3 shift)
+{
+    const std::vector<Vector3>& nodeList = mesh.getNodeList();
+    const std::vector<Cell>& cellList = mesh.getCellList();
+
+    int cellSize = mesh.getCellsSize();
+
+	std::vector<Cell> shiftedCells = cellList;
+	int nodesListSize = nodeList.size();
+	for (int i = 0; i < cellList.size(); i++)
+	{
+		for (int j = 0; j < cellList[i].nodesIndex.size(); j++)
+		{
+			shiftedCells[i].nodesIndex[j] = cellList[i].nodesIndex[j] + nodesListSize;
+		}
+	}
+
+
+	const std::vector<Face>& faceList = mesh.getFaceList();
+    double minFaceSize = 100000.0;
+    for (int i = 0; i < faceList.size(); i++)
+    {
+        if (minFaceSize > faceList[i].area)
+        {
+            minFaceSize = faceList[i].area;
+        }        
+    }
+    double numTol = minFaceSize/2.0;
+
+
+	std::vector<int> duplicityNodes;
+	std::vector<int> duplicityNodesNew;
+
+	for (int i = 0; i < nodeList.size(); i++)
+	{
+		Vector3  node = nodeList[i] - shift;
+
+		for (int j = 0; j < nodeList.size(); j++)
+		{
+			if (norm2(node - nodeList[j]) < numTol)
+			{
+				duplicityNodes.push_back(j);
+				duplicityNodesNew.push_back(i);
+				break;
+			}
+		}
+	}
+	
+	for (int i = duplicityNodes.size() - 1; i >= 0; i--)
+	{
+		for (int j = 0; j < shiftedCells.size(); j++)
+		{
+			for (int k = 0; k < shiftedCells[j].nodesIndex.size(); k++)
+			{
+				if ((duplicityNodes[i] + nodesListSize) == shiftedCells[j].nodesIndex[k])
+				{
+					shiftedCells[j].nodesIndex[k] = duplicityNodesNew[i];
+					duplicityNodes.pop_back();
+					duplicityNodesNew.pop_back();
+				}
+			}
+		}
+	}
+
+	std::ofstream f;
+	f.open(fileName, std::ios::out);
+	
+	f << "# vtk DataFile Version 1.0\n";
+	f << "unstructured grid\n";
+	f << "ascii\n";
+	f << "DATASET UNSTRUCTURED_GRID\n";
+	
+	f << "points " << 2*mesh.getNodesSize() << " float\n";
+	
+	for (int i = 0; i < mesh.getNodesSize(); i++)
+    {
+		f << nodeList[i] << "\n";
+	}
+	for (int i = 0; i < mesh.getNodesSize(); i++)
+    {
+		f << (nodeList[i] + shift) << "\n";
+	}
+	
+	f << "cells " << 2*cellSize << " " << 2*calculateCellNodeSize(mesh) << "\n";
+	
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << cellList[i] << "\n";
+	}	
+
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << shiftedCells[i] << "\n";
+	}
+	
+	f << "cell_types " << 2*cellSize << "\n";
+	
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << cellList[i].getVtkType() << "\n";
+	}
+
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << cellList[i].getVtkType() << "\n";
+	}
+	
+	f << "CELL_DATA " << 2*cellSize << "\n";
+ 	f << "SCALARS rho float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].density()) << "\n";
+	}
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].density()) << "\n";
+	}
+
+ 	f << "SCALARS U float 3\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].velocityU()) << " " << roundToZero(w[i].velocityV()) << " " << roundToZero(w[i].velocityW()) << "\n";
+	}
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].velocityU()) << " " << roundToZero(w[i].velocityV()) << " " << roundToZero(w[i].velocityW()) << "\n";
+	}	
+
+ 	f << "SCALARS e float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].internalEnergy()) << "\n";
+	}
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].internalEnergy()) << "\n";
+	}
+	
+	f << "SCALARS p float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].pressure()) << "\n";
+	}
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].pressure()) << "\n";
+	}
+
+	f << "SCALARS M float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].machNumber()) << "\n";
+	}
+	for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].machNumber()) << "\n";
+	}
+
+	f << "SCALARS T float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].temperature()) << "\n";
+	}
+    for (int i = 0; i < cellSize; i++)
+    {
+		f << roundToZero(w[i].temperature()) << "\n";
+	}
+	
+	f << std::endl;
+
+	f.close();
 }

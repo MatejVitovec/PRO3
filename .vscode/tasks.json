@@ -8,7 +8,7 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"-O2",
+				"-O3",
 				"*.cpp",
 				"Mesh/*.cpp",
 				"FluxSolver/*.cpp",
