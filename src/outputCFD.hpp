@@ -17,6 +17,8 @@ namespace outputCFD
     void saveResidual(std::string fileName, Vars<5> res);
 
     void saveFieldOnBoundary(std::string fileName, std::string boundaryName, const Mesh& mesh, const Field<Compressible>& w);
+
+    void saveLimiters(Field<Vars<5>> phi, const Mesh& mesh);
 }
 
 #endif //OUTPUTCFD_HPP

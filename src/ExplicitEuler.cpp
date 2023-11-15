@@ -34,6 +34,7 @@ void ExplicitEuler::solve()
 
         calculateWlWr();
 
+        
         //reconstruct();
 
         calculateFluxes();

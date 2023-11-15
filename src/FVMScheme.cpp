@@ -4,6 +4,7 @@
 
 #include "BoundaryCondition/Periodicity.hpp"
 
+#include "outputCFD.hpp"
 
 void FVMScheme::setCfl(double cfl_)
 {
@@ -124,6 +125,8 @@ void FVMScheme::calculateWlWr()
 
 void FVMScheme::reconstruct()
 {
+    //Field<Mat<3,5>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
+
     Field<std::array<Vars<3>, 5>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
 
     Field<Vars<5>> phi = limiter->calculateLimiter(wl, wr, grad, mesh);
@@ -138,10 +141,6 @@ void FVMScheme::reconstruct()
 
     for (int i = 0; i < faces.size(); i++)
     {
-        if(i==570)
-        {
-            int a = 5;
-        }
 
         int neighbour = neighborIndexList[i];
         if(neighbour >= 0)
@@ -163,6 +162,8 @@ void FVMScheme::reconstruct()
             wrn[i] = wr[i];
         }
     }
+
+    outputCFD::saveLimiters(phi, mesh);
 
     wl = thermo->updateField(wln, wl);
     wr = thermo->updateField(wrn, wr);

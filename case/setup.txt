@@ -4,7 +4,7 @@ LocalTimeStep:          false
 
 TargetError:            0.00001
 
-MaxIter:                50000
+MaxIter:                21000
 
 cfl:                    0.6
 
@@ -15,12 +15,14 @@ RiemannSolver:          hllc
 Mesh
 {
 	type:           gmsh2
-	fileName:       ../meshes/se1050_coarse.msh
+	fileName:       ../meshes/se1050_veryCoarse.msh
 }
 
 ThermoModel
 {
-        name:           specialgasequation
+        name:           idealGas
+        gamma:          1.4
+        specificGasConstant: 461
 }
 
 InitialCondition

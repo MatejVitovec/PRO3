@@ -371,3 +371,56 @@ void outputCFD::outputVTKPeriodicBoundary(std::string fileName, const Mesh& mesh
 
 	f.close();
 }
+
+void outputCFD::saveLimiters(Field<Vars<5>> phi, const Mesh& mesh)
+{
+	const std::vector<Cell>& cellList = mesh.getCellList();
+
+	std::ofstream f;
+	f.open("limiters.txt", std::ios::out);
+
+	f << "SCALARS phiRho float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(phi[i][0]) << "\n";
+	}
+
+	f << "SCALARS phiU float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(phi[i][1]) << "\n";
+	}
+
+	f << "SCALARS phiV float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(phi[i][2]) << "\n";
+	}
+
+	f << "SCALARS phiW float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(phi[i][3]) << "\n";
+	}
+
+	f << "SCALARS phiE float\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(phi[i][4]) << "\n";
+	}
+
+
+	f << std::endl;
+
+	f.close();
+}

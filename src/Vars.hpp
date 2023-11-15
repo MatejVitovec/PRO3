@@ -29,6 +29,8 @@ class Vars
 
         void operator+=(const Vars<N>& v);
         void operator-=(const Vars<N>& v);
+
+        Vars<N> operator-();
         
     protected:
         std::array<double, N> data;
@@ -50,6 +52,18 @@ void Vars<N>::operator-= (const Vars<N>& v)
     {
         data[i] -= v[i];
     }
+}
+
+template <int N>
+Vars<N> Vars<N>::operator-()
+{
+    Vars<N> out;
+    for (int i = 0; i < N; i++)
+    {
+        out[i] = -data[i];
+    }
+    
+    return out;
 }
 
 //////////////Non member operators///////////////////
@@ -85,6 +99,18 @@ Vars<N> operator* (const Vars<N>& u, const Vars<N>& v)
     for (int i = 0; i < N; i++)
     {
         out[i] = u[i]*v[i];
+    }
+    return out;
+}
+
+// w / u (po slozkach)
+template <int N>
+Vars<N> operator/ (const Vars<N>& u, const Vars<N>& v)
+{
+    Vars<N> out;
+    for (int i = 0; i < N; i++)
+    {
+        out[i] = u[i]/v[i];
     }
     return out;
 }
