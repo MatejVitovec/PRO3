@@ -41,7 +41,7 @@ double FVMScheme::getTargetError() const
     return targetError;
 }
 
-bool FVMScheme::getLocalTimestepSettings() const
+bool FVMScheme::getTimeStepsettings() const
 {
     return localTimeStep;
 }
@@ -80,7 +80,8 @@ void FVMScheme::init()
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
 
-    timeSteps = Field<double>(mesh.getFacesSize());
+    
+    timeSteps = Field<double>(mesh.getCellsSize());
 }
 
 void FVMScheme::applyBoundaryConditions()
@@ -168,47 +169,17 @@ void FVMScheme::updateTimeStep()
 
     for (int i = 0; i < w.size(); i++)
     {
-        double soundSpeed = w[i].soundSpeed();
-
         Vars<3> projectedArea = vector3toVars(cells[i].projectedArea);
         timeSteps[i] = cfl*(cells[i].volume/sum(projectedArea*(w[i].velocity() + Vars<3>(w[i].soundSpeed()))));
     }
 
     if (!localTimeStep)
     {
-        //predelat Field min() na "<" operator
-        timeStep = min(timeSteps);
+        double timeStep = min(timeSteps);
         timeSteps = Field<double>(timeSteps.size(), timeStep);
+
         time += timeStep;
     }
-    
-
-
-    /*if (localTimeStep)
-    {
-        for (int i = 0; i < w.size(); i++)
-        {
-            double soundSpeed = w[i].soundSpeed();
-            
-            localTimeSteps[i] = cfl*((cells[i].volume)/
-                                     (cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) +
-                                      cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) +
-                                      cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed)));
-
-            Vars<3> projectedArea = vector3toVars(cells[i].projectedArea);
-            localTimeSteps[i] = cfl*(cells[i].volume/sum(projectedArea*(w[i].velocity() + Vars<3>(w[i].soundSpeed()))));
-        }
-    }
-    else
-    {
-        for (int i = 0; i < w.size(); i++)
-        {
-            double soundSpeed = w[i].soundSpeed();
-            
-            timeStep = std::min(cfl*((cells[i].volume)/(cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) + cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) + cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed))), timeStep);
-        }
-        time += timeStep;
-    }*/
 }
 
 void FVMScheme::calculateFluxes()

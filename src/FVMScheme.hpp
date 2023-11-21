@@ -48,7 +48,7 @@ class FVMScheme
         double getCfl() const;
         int getMaxIter() const;
         double getTargetError() const;
-        bool getLocalTimestepSettings() const;
+        bool getTimeStepsettings() const;
         const Mesh& getMesh() const;
 
         void setInitialConditions(Compressible initialCondition);
@@ -77,8 +77,6 @@ class FVMScheme
         Field<Compressible> wl; //faces size
         Field<Compressible> wr;
         Field<Vars<5>> fluxes;
-
-        double timeStep;
 
         double cfl;
         int maxIter;

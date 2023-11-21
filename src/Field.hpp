@@ -130,6 +130,32 @@ Field<T> operator- (const Field<T>& u, const T& a)
 }
 
 template <typename T, typename D>
+Field<T> operator* (const Field<T>& u, const Field<D>& v)
+{
+    Field<T> out(u.size());
+
+    for (int i = 0; i < u.size(); i++)
+    {
+        out[i] = u[i]*v[i];
+    }
+
+    return out;
+}
+
+template <typename T, typename D>
+Field<T> operator/ (const Field<T>& u, const Field<D>& v)
+{
+    Field<T> out(u.size());
+
+    for (int i = 0; i < u.size(); i++)
+    {
+        out[i] = u[i]/v[i];
+    }
+
+    return out;
+}
+
+template <typename T, typename D>
 Field<T> operator* (const Field<T>& u, const D& a)
 {
     Field<T> out(u.size());
@@ -161,9 +187,9 @@ template <typename T>
 T min(const Field<T>& u)
 {
     T out = u[0];
-    for (int i = 1; i < u.size(); i++)
+    for (int i = 1; i < u.size()-1; i++)
     {
-        out = min(out, u[i]);
+        out = (out < u[i]) ? out : u[i];
     }
     
     return out;
@@ -175,7 +201,7 @@ T max(const Field<T>& u)
     T out = u[0];
     for (int i = 1; i < u.size(); i++)
     {
-        out = max(out, u[i]);
+        out = (out < u[i]) ? u[i] : out;
     }
     
     return out;

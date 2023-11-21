@@ -44,6 +44,10 @@ std::unique_ptr<FVMScheme> CaseSetter::createSolver()
     {
         return std::make_unique<ExplicitEuler>(std::move(tempMesh), std::move(tempFluxSolver), std::move(tempThermo));
     }
+    else if(solverName == "heunscheme")
+    {
+        return std::make_unique<HeunScheme>(std::move(tempMesh), std::move(tempFluxSolver), std::move(tempThermo));
+    }
 
     errorMessage("Error: neznamy solver");
     
@@ -59,6 +63,10 @@ std::unique_ptr<FVMScheme> CaseSetter::createSolver(Mesh&& mesh_, std::unique_pt
     if(solverName == "expliciteuler")
     {
         return std::make_unique<ExplicitEuler>(std::move(mesh_), std::move(fluxSolver_), std::move(thermo_));
+    }
+    else if(solverName == "heunscheme")
+    {
+        return std::make_unique<HeunScheme>(std::move(mesh_), std::move(fluxSolver_), std::move(thermo_));
     }
 
     errorMessage("Error: neznamy solver");

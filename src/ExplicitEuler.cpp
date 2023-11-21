@@ -2,8 +2,6 @@
 #include <iostream>
 #include "outputCFD.hpp"
 
-//test
-#include "GradientScheme/LeastSquare.hpp"
 
 void ExplicitEuler::solve()
 {
@@ -15,6 +13,7 @@ void ExplicitEuler::solve()
 
     bool exitLoop = false;
 
+    Field<Compressible> wn = Field<Compressible>(w.size());
     Vars<5> resNorm;
 
     while (iter < maxIter && !exitLoop)
@@ -27,14 +26,14 @@ void ExplicitEuler::solve()
 
         calculateWlWr();
 
-        if(iter > 15000)
+        if(iter > 40000)
             reconstruct();
 
         calculateFluxes();
 
         Field<Vars<5>> res = calculateResidual();
         
-        Field<Compressible> wn = explicitIntegration(res);
+        wn = w + (res*timeSteps);
 
         wn = thermo->updateField(wn, w);
 
@@ -90,26 +89,4 @@ Field<Vars<5>> ExplicitEuler::calculateResidual()
     }    
     
     return res;
-}
-
-Field<Compressible> ExplicitEuler::explicitIntegration(const Field<Vars<5>>& res)
-{
-    Field<Compressible>wn(w.size());
-
-    if(localTimeStep)
-    {
-        for (int i = 0; i < w.size(); i++)
-        {
-            wn[i] = w[i] + timeSteps[i]*res[i];        
-        }
-    }
-    else
-    {
-        for (int i = 0; i < w.size(); i++)
-        {
-            wn[i] = w[i] + timeStep*res[i];        
-        }
-    }
-    
-    return wn;
 }

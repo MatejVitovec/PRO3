@@ -12,6 +12,7 @@
 #include "BoundaryCondition/BoundaryCondition.hpp"
 
 #include "ExplicitEuler.hpp"
+#include "HeunScheme.hpp"
 #include "FluxSolver/Hll.hpp"
 #include "FluxSolver/Hllc.hpp"
 #include "Thermo/IdealGas.hpp"
