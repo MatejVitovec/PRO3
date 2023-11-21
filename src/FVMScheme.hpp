@@ -33,7 +33,7 @@ class FVMScheme
                                                                                                             localTimeStep(false),
                                                                                                             time(0.0),
                                                                                                             gradientScheme(std::make_unique<LeastSquare>()),
-                                                                                                            limiter(std::make_unique<BarthJespersen>()) {}
+                                                                                                            limiter(std::make_unique<Venkatakrishnan>()) {}
 
 
         virtual ~FVMScheme() {}
@@ -53,9 +53,10 @@ class FVMScheme
 
         void setInitialConditions(Compressible initialCondition);
         void setInitialConditionsPrimitive(Vars<5> initialCondition);
-        void setInitialConditionsRiemann(Compressible initialConditionL, Compressible initialConditionR);
+
         void setBoundaryConditions(std::vector<std::shared_ptr<BoundaryCondition>> boundaryConditions);
 
+        void init();
         virtual void solve() = 0;
 
         Field<Compressible> getResults() const;
@@ -84,7 +85,7 @@ class FVMScheme
         double targetError;
         bool localTimeStep;
 
-        std::vector<double> localTimeSteps;
+        Field<double> timeSteps;
 
         double time;
 

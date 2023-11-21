@@ -73,18 +73,14 @@ void FVMScheme::setInitialConditionsPrimitive(Vars<5> initialCondition)
     }  
 }
 
-void FVMScheme::setInitialConditionsRiemann(Compressible initialConditionL, Compressible initialConditionR)
+void FVMScheme::init()
 {
-    w = Field<Compressible>(mesh.getCellsSize());
-    int i = 0;
-    for (i; i < 30; i++)
-    {
-        w[i] = initialConditionL;
-    }
-    for (i; i < mesh.getCellsSize(); i++)
-    {
-        w[i] = initialConditionR;
-    }
+    gradientScheme->init(mesh, boundaryConditionList);
+
+    wl = Field<Compressible>(mesh.getFacesSize());
+    wr = Field<Compressible>(mesh.getFacesSize());
+
+    timeSteps = Field<double>(mesh.getFacesSize());
 }
 
 void FVMScheme::applyBoundaryConditions()
@@ -125,11 +121,13 @@ void FVMScheme::calculateWlWr()
 
 void FVMScheme::reconstruct()
 {
-    //Field<Mat<3,5>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
+    Field<Mat<5,3>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
 
-    Field<std::array<Vars<3>, 5>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
+    //outputCFD::saveGradients(grad, mesh);
 
     Field<Vars<5>> phi = limiter->calculateLimiter(wl, wr, grad, mesh);
+
+    //outputCFD::saveLimiters(phi, mesh);
 
     Field<Compressible> wln(wl.size());
     Field<Compressible> wrn(wr.size());
@@ -145,13 +143,8 @@ void FVMScheme::reconstruct()
         int neighbour = neighborIndexList[i];
         if(neighbour >= 0)
         {
-            Vars<5> wlDiff;
-            Vars<5> wrDiff;
-            for (int j = 0; j < 5; j++)
-            {
-                wlDiff[j] = dot(grad[ownerIndexList[i]][j], vector3toVars(faces[i].midpoint - cells[ownerIndexList[i]].center));
-                wrDiff[j] = dot(grad[neighborIndexList[i]][j], vector3toVars(faces[i].midpoint - cells[neighborIndexList[i]].center));
-            }
+            Vars<5> wlDiff = dot(grad[ownerIndexList[i]], vector3toVars(faces[i].midpoint - cells[ownerIndexList[i]].center));
+            Vars<5> wrDiff = dot(grad[neighborIndexList[i]], vector3toVars(faces[i].midpoint - cells[neighborIndexList[i]].center));
 
             wln[i] = w[ownerIndexList[i]] + phi[ownerIndexList[i]]*wlDiff;
             wrn[i] = w[neighborIndexList[i]] + phi[neighborIndexList[i]]*wrDiff;
@@ -163,7 +156,7 @@ void FVMScheme::reconstruct()
         }
     }
 
-    outputCFD::saveLimiters(phi, mesh);
+    int a = 5;
 
     wl = thermo->updateField(wln, wl);
     wr = thermo->updateField(wrn, wr);
@@ -173,15 +166,37 @@ void FVMScheme::updateTimeStep()
 {
     const std::vector<Cell>& cells = mesh.getCellList();
 
-    timeStep = 1000000;
+    for (int i = 0; i < w.size(); i++)
+    {
+        double soundSpeed = w[i].soundSpeed();
 
-    if (localTimeStep)
+        Vars<3> projectedArea = vector3toVars(cells[i].projectedArea);
+        timeSteps[i] = cfl*(cells[i].volume/sum(projectedArea*(w[i].velocity() + Vars<3>(w[i].soundSpeed()))));
+    }
+
+    if (!localTimeStep)
+    {
+        //predelat Field min() na "<" operator
+        timeStep = min(timeSteps);
+        timeSteps = Field<double>(timeSteps.size(), timeStep);
+        time += timeStep;
+    }
+    
+
+
+    /*if (localTimeStep)
     {
         for (int i = 0; i < w.size(); i++)
         {
             double soundSpeed = w[i].soundSpeed();
             
-            localTimeSteps[i] = cfl*((cells[i].volume)/(cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) + cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) + cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed)));
+            localTimeSteps[i] = cfl*((cells[i].volume)/
+                                     (cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) +
+                                      cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) +
+                                      cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed)));
+
+            Vars<3> projectedArea = vector3toVars(cells[i].projectedArea);
+            localTimeSteps[i] = cfl*(cells[i].volume/sum(projectedArea*(w[i].velocity() + Vars<3>(w[i].soundSpeed()))));
         }
     }
     else
@@ -193,7 +208,7 @@ void FVMScheme::updateTimeStep()
             timeStep = std::min(cfl*((cells[i].volume)/(cells[i].projectedArea.x*(w[i].velocityU() + soundSpeed) + cells[i].projectedArea.y*(w[i].velocityV() + soundSpeed) + cells[i].projectedArea.z*(w[i].velocityW() + soundSpeed))), timeStep);
         }
         time += timeStep;
-    }
+    }*/
 }
 
 void FVMScheme::calculateFluxes()

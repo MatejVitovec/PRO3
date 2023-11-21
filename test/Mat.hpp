@@ -25,10 +25,10 @@ class Mat
             return data_.data() + row*N;
         }
 
-        /*double* data()
+        double* data()
         {
             return data_.data();
-        }*/
+        }
 
         void operator+=(const Mat<M, N>& v);
         void operator-=(const Mat<M, N>& v);
@@ -42,7 +42,7 @@ void Mat<M, N>::operator+= (const Mat<M, N>& v)
 {
     for (int i = 0; i < M*N; i++)
     {
-        data_[i] += v.data_[i];
+        data_[i] += v.data()[i];
     }
 }
 
@@ -51,7 +51,7 @@ void Mat<M, N>::operator-= (const Mat<M, N>& v)
 {
     for (int i = 0; i < M*N; i++)
     {
-        data_[i] -= v.data_[i];
+        data_[i] -= v.data()[i];
     }
 }
 //////////////Non member operators///////////////////
@@ -228,12 +228,34 @@ Mat<M, N> transpose(const Mat<N, M>& u)
     return out;
 }
 
+
 ///////// 3X3
 
-Mat<3,3> adj(const Mat<3,3>& u);
+Mat<3,3> adj(const Mat<3,3>& u)
+{
+    Mat<3,3> out;
 
-double det(const Mat<3,3>& u);
+    out[0][0] = u[1][1]*u[2][2] - u[1][2]*u[2][1];        
+    out[0][1] = -(u[1][0]*u[2][2] - u[1][2]*u[2][0]);
+    out[0][2] = u[1][0]*u[2][1] - u[1][1]*u[2][0];
+    out[1][0] = -(u[0][1]*u[2][2] - u[0][2]*u[2][1]);
+    out[1][1] = u[0][0]*u[2][2] - u[0][2]*u[2][0];
+    out[1][2] = -(u[0][0]*u[2][1] - u[0][1]*u[2][0]);
+    out[2][0] = u[0][1]*u[1][2] - u[0][2]*u[1][1];
+    out[2][1] = -(u[0][0]*u[1][2] - u[0][2]*u[1][0]);
+    out[2][2] = u[0][0]*u[1][1] - u[0][1]*u[1][0];
 
-Mat<3, 3> inv(const Mat<3, 3>& u);
+    return out;
+}
+
+double det(const Mat<3,3>& u)
+{
+    return u[0][0]*u[1][1]*u[2][2] + u[0][1]*u[1][2]*u[2][0] + u[0][2]*u[1][0]*u[2][1] - u[0][0]*u[1][2]*u[2][1] - u[0][1]*u[1][0]*u[2][2] - u[0][2]*u[1][1]*u[2][0];
+}
+
+Mat<3, 3> inv(const Mat<3, 3>& u)
+{
+    return adj(u)/det(u);
+}
 
 #endif // MAT_HPPX

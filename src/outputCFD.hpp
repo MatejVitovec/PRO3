@@ -4,6 +4,7 @@
 #include "Mesh/Mesh.hpp"
 #include "Field.hpp"
 #include "Compressible.hpp"
+#include "Mat.hpp"
 #include <string>
 
 namespace outputCFD
@@ -19,6 +20,7 @@ namespace outputCFD
     void saveFieldOnBoundary(std::string fileName, std::string boundaryName, const Mesh& mesh, const Field<Compressible>& w);
 
     void saveLimiters(Field<Vars<5>> phi, const Mesh& mesh);
+    void saveGradients(Field<Mat<5,3>> grad, const Mesh& mesh);
 }
 
 #endif //OUTPUTCFD_HPP

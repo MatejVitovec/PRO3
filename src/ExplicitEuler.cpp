@@ -7,14 +7,7 @@
 
 void ExplicitEuler::solve()
 {
-
-    gradientScheme->init(mesh, boundaryConditionList);
-
-    //mozna presun do konstruktoru
-    wl = Field<Compressible>(mesh.getFacesSize());
-    wr = Field<Compressible>(mesh.getFacesSize());
-
-    localTimeSteps = std::vector<double>(mesh.getFacesSize()); //docasne
+    init();
 
     w = thermo->updateField(w, w);
 
@@ -34,8 +27,8 @@ void ExplicitEuler::solve()
 
         calculateWlWr();
 
-        
-        //reconstruct();
+        if(iter > 15000)
+            reconstruct();
 
         calculateFluxes();
 
@@ -107,7 +100,7 @@ Field<Compressible> ExplicitEuler::explicitIntegration(const Field<Vars<5>>& res
     {
         for (int i = 0; i < w.size(); i++)
         {
-            wn[i] = w[i] + localTimeSteps[i]*res[i];        
+            wn[i] = w[i] + timeSteps[i]*res[i];        
         }
     }
     else

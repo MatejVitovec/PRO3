@@ -4,6 +4,7 @@
 #include "../Mesh/Mesh.hpp"
 #include "../Field.hpp"
 #include "../Compressible.hpp"
+#include "../Mat.hpp"
 
 class Limiter
 {
@@ -13,7 +14,7 @@ class Limiter
 
         virtual ~Limiter() {}
 
-        virtual Field<Vars<5>> calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<std::array<Vars<3>, 5>>& grad, const Mesh& mesh) const;
+        virtual Field<Vars<5>> calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Mesh& mesh) const;
 
 
     protected:

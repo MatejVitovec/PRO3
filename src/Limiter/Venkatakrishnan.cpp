@@ -1,7 +1,7 @@
 #include "Venkatakrishnan.hpp"
 
 
-Field<Vars<5>> Venkatakrishnan::calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<std::array<Vars<3>, 5>>& grad, const Mesh& mesh) const
+Field<Vars<5>> Venkatakrishnan::calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Mesh& mesh) const
 {
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
@@ -38,17 +38,16 @@ Field<Vars<5>> Venkatakrishnan::calculateLimiter(const Field<Compressible>& wl, 
         else
             wC = wr[cells[i].neighborFaceIndex[0]];
 
-        for (int j = 0; j < cells[i].ownFaceIndex.size(); j++)
+        std::vector<int> cellFacesIndexes = cells[i].ownFaceIndex;
+        cellFacesIndexes.insert(cellFacesIndexes.end(), cells[i].neighborFaceIndex.begin(), cells[i].neighborFaceIndex.end());
+
+        for (int j = 0; j < cellFacesIndexes.size(); j++)
         {
             Vars<5> phiCn;
-            Vars<5> denominator;            
 
-            Vars<3> cellToFaceDist = vector3toVars(faces[cells[i].ownFaceIndex[j]].midpoint - cells[i].center);
+            Vars<3> cellToFaceDist = vector3toVars(faces[cellFacesIndexes[j]].midpoint - cells[i].center);
 
-            for (int k = 0; k < 5; k++)
-            {
-                denominator[k] = dot(grad[i][k], cellToFaceDist);
-            }
+            Vars<5>denominator = dot(grad[i], cellToFaceDist);
 
             for (int k = 0; k < 5; k++)
             {
@@ -67,40 +66,6 @@ Field<Vars<5>> Venkatakrishnan::calculateLimiter(const Field<Compressible>& wl, 
                 {
                     phiCn[k] = 1.0;
                 }                
-            }
-
-            phiC = min(phiC, phiCn);
-        }
-
-        for (int j = 0; j < cells[i].neighborFaceIndex.size(); j++)
-        {
-            Vars<5> phiCn;
-            Vars<5> denominator;
-
-            Vars<3> cellToFaceDist = vector3toVars(faces[cells[i].neighborFaceIndex[j]].midpoint - cells[i].center);
-
-            for (int k = 0; k < 5; k++)
-            {
-                denominator[k] = dot(grad[i][k], cellToFaceDist);
-            }
-
-            for (int k = 0; k < 5; k++)
-            {
-                double y;
-                if (denominator[k] > 0.0)
-                {
-                    y = std::max(0.0, (wCmax[i][k] - wC[k])/denominator[k]);
-                    phiCn[k] = (y*y + 2*y)/(y*y + y + 2);
-                }
-                else if (denominator[k] < 0.0)
-                {
-                    y = std::max(0.0, (wCmin[i][k] - wC[k])/denominator[k]);
-                    phiCn[k] = (y*y + 2*y)/(y*y + y + 2);
-                }
-                else
-                {
-                    phiCn[k] = 1.0;
-                }
             }
 
             phiC = min(phiC, phiCn);

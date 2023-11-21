@@ -5,15 +5,14 @@
 #include <memory>
 #include <cmath>
 
-#include "Mesh/Vector3.hpp"
 
 template <int N>
 class Vars
 {
     public:
+        //Vars() : data({0}) {}
         Vars() : data() {}
         Vars(const std::array<double, N>& in) : data(in) {}
-        Vars(double in) : data() { for (size_t i = 0; i < N; i++) data[i] = in; }
 
         virtual ~Vars() {}
 
@@ -219,8 +218,6 @@ Vars<N> min(const Vars<N>& u, const Vars<N>& v)
     }
     return out;
 }
-
-Vars<3> vector3toVars(const Vector3& vec);
 
 
 #endif // VARS_HPP

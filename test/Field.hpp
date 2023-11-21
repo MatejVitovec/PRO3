@@ -155,29 +155,16 @@ Field<T> operator/ (const Field<T>& u, const D& a)
     return out;
 }
 
-//non member
-
-template <typename T>
-T min(const Field<T>& u)
+template <typename T, typename U>
+auto fdot(const Field<T>& u, const Field<U>& v)
 {
-    T out = u[0];
-    for (int i = 1; i < u.size(); i++)
-    {
-        out = min(out, u[i]);
-    }
-    
-    return out;
-}
+    Field<decltype(dot(u[0], v[0]))> out(u.size());
 
-template <typename T>
-T max(const Field<T>& u)
-{
-    T out = u[0];
-    for (int i = 1; i < u.size(); i++)
+    for (int i = 0; i < u.size(); i++)
     {
-        out = max(out, u[i]);
+        out[i] = dot(u[i], v[i]);
     }
-    
+
     return out;
 }
 

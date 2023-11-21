@@ -11,7 +11,7 @@ class BarthJespersen : public Limiter
 
         virtual ~BarthJespersen() {}
 
-        Field<Vars<5>> calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<std::array<Vars<3>, 5>>& grad, const Mesh& mesh) const;
+        Field<Vars<5>> calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Mesh& mesh) const;
 
 
     private:

@@ -7,8 +7,6 @@
 #include "../Field.hpp"
 #include "../Compressible.hpp"
 
-#include "../Mat.hpp"
-
 class GradientScheme
 {
     public:
@@ -19,12 +17,12 @@ class GradientScheme
 
         virtual void init(const Mesh& mesh, const std::vector<std::shared_ptr<BoundaryCondition>>& boundaryConditionList);
 
-        virtual Field<Mat<3,5>> calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const;
+        virtual Field<std::array<Vars<3>, 5>> calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const;
         
 
     protected:
 
-        Field<Vars<3>> cellToCellDelta;
+        std::vector<Vars<3>> cellToCellDelta;
 
         void calculateCellToCellDelta(const Mesh& mesh, const std::vector<std::shared_ptr<BoundaryCondition>>& boundaryConditionList);
 };

@@ -7,11 +7,11 @@ void GradientScheme::init(const Mesh& mesh, const std::vector<std::shared_ptr<Bo
 
 }
 
-Field<Mat<3,5>> GradientScheme::calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const
+Field<std::array<Vars<3>, 5>> GradientScheme::calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const
 {
-    Field<Mat<3,5>> grad(wl.size());
+    Field<std::array<Vars<3>, 5>> grad(wl.size());
 
-    return grad;
+    return grad;    
 }
 
 void GradientScheme::calculateCellToCellDelta(const Mesh& mesh, const std::vector<std::shared_ptr<BoundaryCondition>>& boundaryConditionList)
@@ -21,7 +21,7 @@ void GradientScheme::calculateCellToCellDelta(const Mesh& mesh, const std::vecto
     const std::vector<int>& neighbours = mesh.getNeighborIndexList();
     const std::vector<int>& owners = mesh.getOwnerIndexList();
 
-    cellToCellDelta = Field<Vars<3>>(faces.size());
+    cellToCellDelta = std::vector<Vars<3>>(faces.size());
 
     for (int i = 0; i < faces.size(); i++)
     {

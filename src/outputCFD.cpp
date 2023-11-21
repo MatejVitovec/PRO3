@@ -377,7 +377,7 @@ void outputCFD::saveLimiters(Field<Vars<5>> phi, const Mesh& mesh)
 	const std::vector<Cell>& cellList = mesh.getCellList();
 
 	std::ofstream f;
-	f.open("limiters.txt", std::ios::out);
+	f.open("../results/limiters.txt", std::ios::out);
 
 	f << "SCALARS phiRho float\n"; 
 	f << "LOOKUP_TABLE default\n";
@@ -419,6 +419,26 @@ void outputCFD::saveLimiters(Field<Vars<5>> phi, const Mesh& mesh)
 		f << roundToZero(phi[i][4]) << "\n";
 	}
 
+
+	f << std::endl;
+
+	f.close();
+}
+
+void outputCFD::saveGradients(Field<Mat<5,3>> grad, const Mesh& mesh)
+{
+	const std::vector<Cell>& cellList = mesh.getCellList();
+
+	std::ofstream f;
+	f.open("../results/rhoGrad.txt", std::ios::out);
+
+ 	f << "SCALARS rhoGrad float 3\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(grad[i][0][0]) << " " << roundToZero(grad[i][0][1]) << " " << roundToZero(grad[i][0][2]) << "\n";
+	}
 
 	f << std::endl;
 
