@@ -31,7 +31,9 @@ Vars<3> PressureTemperatureInlet::getVelocityDirection() const
     return velocityDirection;
 }
 
-Compressible PressureTemperatureInlet::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
+Compressible PressureTemperatureInlet::calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const
 {
-    return thermoModel->isentropicInletPressureTemperature(totalPressure, totalTemperature, velocityDirection, wl);
+    Compressible wlWithThermoGuess = wl;
+    wlWithThermoGuess.setThermoVar(wr.thermo());
+    return thermoModel->isentropicInletPressureTemperature(totalPressure, totalTemperature, velocityDirection, wlWithThermoGuess);
 }

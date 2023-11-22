@@ -1,6 +1,6 @@
 #include "Wall.hpp"
 
-Compressible Wall::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
+Compressible Wall::calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const
 {
     Compressible out = wl;
 
@@ -11,6 +11,8 @@ Compressible Wall::calculateState(const Compressible& wl, const Face& f, const T
     out[Compressible::RHO_U] = density*ghostVelocity[0];
     out[Compressible::RHO_V] = density*ghostVelocity[1];
     out[Compressible::RHO_W] = density*ghostVelocity[2];
+
+    out.setThermoVar(thermoModel->updateThermo(out, wr));
 
     return out;
 }

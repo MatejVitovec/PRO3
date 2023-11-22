@@ -20,7 +20,9 @@ Mesh
 
 ThermoModel
 {
-        name:           iapws95
+        name:           idealGas
+        gamma:          1.4
+        specificGasConstant: 461
 }
 
 InitialCondition
@@ -35,7 +37,7 @@ BoundaryCondition
         {
                 type:                   pressureTemperatureInlet
                 totalPressure:          98071.7
-                totalTemperature:       372.21
+                totalTemperature:       298.65
                 xyAngle:                19.3
                 xzAngle:                0.0
         }
@@ -43,7 +45,7 @@ BoundaryCondition
         outlet
         {
                 type:           pressureOutlet
-                pressure:       42207.157
+                pressure:       40548.109
         }
 
         wall

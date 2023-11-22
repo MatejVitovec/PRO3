@@ -39,8 +39,7 @@ class Compressible : public Vars<5>
         double pressure() const;        
         double soundSpeed() const;
         double machNumber() const;
-
-        //static Compressible primitiveToConservative(const Vars<5>& primitive);
+        Vars<3> thermo() const;
 
         Vars<5> flux(const Vars<3>& normalVector) const;
         Vars<5> primitive() const;

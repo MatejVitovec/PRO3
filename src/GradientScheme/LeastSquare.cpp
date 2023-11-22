@@ -8,42 +8,23 @@ void LeastSquare::init(const Mesh& mesh, const std::vector<std::shared_ptr<Bound
     Field<Mat<3,3>> M(mesh.getCellsSize());
 
     const std::vector<Cell>& cells = mesh.getCellList();
-    const std::vector<Face>& faces = mesh.getFaceList();
+    /*const std::vector<Face>& faces = mesh.getFaceList();
     const std::vector<int>& neighbours = mesh.getNeighborIndexList();
-    const std::vector<int>& owners = mesh.getOwnerIndexList();
+    const std::vector<int>& owners = mesh.getOwnerIndexList();*/
 
     for (int i = 0; i < cells.size(); i++)
     {
-        for (int j = 0; j < cells[i].ownFaceIndex.size(); j++)
+        std::vector<int> cellFacesIndexes = cells[i].ownFaceIndex;
+        cellFacesIndexes.insert(cellFacesIndexes.end(), cells[i].neighborFaceIndex.begin(), cells[i].neighborFaceIndex.end());
+
+        for (int j = 0; j < cellFacesIndexes.size(); j++)
         {
-            int idx = cells[i].ownFaceIndex[j];
-
-            for (int k = 0; k < 3; k++)
-            {
-                for (int kk = 0; kk < 3; kk++)
-                {
-                    M[i][k][kk] += cellToCellDelta[idx][kk]*cellToCellDelta[idx][k];
-                }                
-            }
-        }
-
-        for (int j = 0; j < cells[i].neighborFaceIndex.size(); j++)
-        {
-            int idx = cells[i].neighborFaceIndex[j];
-
-            for (int k = 0; k < 3; k++)
-            {
-                for (int kk = 0; kk < 3; kk++)
-                {
-                    M[i][k][kk] += (-cellToCellDelta[idx][kk])*(-cellToCellDelta[idx][k]);
-                }                
-            }
+            M[i] += outerProd(cellToCellDelta[cellFacesIndexes[j]], cellToCellDelta[cellFacesIndexes[j]]);
         }
     }
 
     calculateInverseM(M);
 }
-
 
 
 void LeastSquare::calculateInverseM(Field<Mat<3,3>> M)
@@ -70,7 +51,16 @@ Field<Mat<5,3>> LeastSquare::calculateGradient(const Field<Compressible>& wl, co
 
     for (int i = 0; i < cells.size(); i++)
     {
-        for (int j = 0; j < cells[i].ownFaceIndex.size(); j++)
+        std::vector<int> cellFacesIndexes = cells[i].ownFaceIndex;
+        cellFacesIndexes.insert(cellFacesIndexes.end(), cells[i].neighborFaceIndex.begin(), cells[i].neighborFaceIndex.end());
+
+        for (int j = 0; j < cellFacesIndexes.size(); j++)
+        {
+            b[i] += outerProd(cellToCellDelta[cellFacesIndexes[j]], wr[cellFacesIndexes[j]] - wl[cellFacesIndexes[j]]);
+        }
+        
+
+        /*for (int j = 0; j < cells[i].ownFaceIndex.size(); j++)
         {
             int idx = cells[i].ownFaceIndex[j];
 
@@ -81,8 +71,9 @@ Field<Mat<5,3>> LeastSquare::calculateGradient(const Field<Compressible>& wl, co
         {
             int idx = cells[i].neighborFaceIndex[j];
 
-            b[i] += outerProd(-cellToCellDelta[idx], wl[idx] - wr[idx]);
-        }
+            //b[i] += outerProd(-cellToCellDelta[idx], wl[idx] - wr[idx]);
+            b[i] += outerProd(cellToCellDelta[idx], wr[idx] - wl[idx]);
+        }*/
     }
 
     for (int i = 0; i < cells.size(); i++)

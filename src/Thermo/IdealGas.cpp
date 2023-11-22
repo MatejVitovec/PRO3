@@ -64,7 +64,7 @@ Compressible IdealGas::primitiveToConservative(const Vars<5>& primitive) const
 
 Compressible IdealGas::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
 {
-    double p = std::min(stateIn.pressure(), pTot);
+    double p = std::min(pressure(stateIn), pTot);
     double M2 = (2.0/(gamma - 1.0))*(std::pow((pTot/p), ((gamma - 1.0)/gamma)) - 1.0);
     double T = TTot/(1.0 + ((gamma - 1.0)/2)*M2);
     double rho = p/(R*T);

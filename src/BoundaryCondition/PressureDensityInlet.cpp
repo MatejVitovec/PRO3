@@ -31,8 +31,10 @@ Vars<3> PressureDensityInlet::getVelocityDirection() const
     return velocityDirection;
 }
 
-Compressible PressureDensityInlet::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
+Compressible PressureDensityInlet::calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const
 {
+    //TODO
+
     double pressure = std::min(wl.pressure(), totalPressure); //interpolate from domain
     double gamma = 1.4;
     double machNumber2 = (2.0/(gamma - 1.0))*(std::pow((pressure/totalPressure), ((1.0 - gamma)/gamma)) - 1.0);

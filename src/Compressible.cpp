@@ -76,6 +76,11 @@ double Compressible::machNumber() const
     return absVelocity()/soundSpeed();
 }
 
+Vars<3> Compressible::thermo() const
+{
+    return thermoVar;
+}
+
 Vars<5> Compressible::flux(const Vars<3>& normalVector) const
 {
     Vars<3> velocity = this->velocity();

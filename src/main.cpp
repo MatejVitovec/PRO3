@@ -7,14 +7,6 @@
 #include <chrono>
 #include <fenv.h>
 
-/*#include "Mesh/Mesh.hpp"
-#include "ExplicitEuler.hpp"
-#include "FluxSolver/Hll.hpp"
-#include "FluxSolver/Hllc.hpp"
-#include "Thermo/IdealGas.hpp"
-#include "Thermo/Iapws95.hpp"
-#include "Thermo/Iapws95SpecialGas.hpp"*/
-
 #include "outputCFD.hpp"
 #include "CaseSetter.hpp"
 

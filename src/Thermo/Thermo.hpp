@@ -3,6 +3,7 @@
 
 #include "../Compressible.hpp"
 #include "../Field.hpp"
+#include "../Mesh/Mesh.hpp"
 
 
 class Thermo
@@ -12,6 +13,7 @@ class Thermo
         Thermo() {}
 
         Field<Compressible> updateField(Field<Compressible> wn, const Field<Compressible>& w) const;
+        Field<Compressible> updateInetrnalFieldFaces(Field<Compressible> wn, const Field<Compressible>& w, const Mesh& mesh) const;
 
         virtual Vars<3> updateThermo(const Compressible& data, const Compressible& dataOld) const = 0;
 

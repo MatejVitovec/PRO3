@@ -90,6 +90,7 @@ class FVMScheme
         void updateTimeStep();
         void applyBoundaryConditions();
         void calculateWlWr();
+        void calculateWlWrInit();
         void calculateFluxes();
         void reconstruct();
 

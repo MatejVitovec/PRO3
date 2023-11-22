@@ -9,6 +9,9 @@ void HeunScheme::solve()
     Field<Compressible> wOld = Field<Compressible>(w.size());
 
     w = thermo->updateField(w, w);
+    calculateWlWrInit();
+    wl = thermo->updateField(wl, wl);
+    wr = thermo->updateField(wr, wr);
 
     int iter = 0;
 
@@ -28,8 +31,7 @@ void HeunScheme::solve()
 
         calculateWlWr();
 
-        //if(iter > 5000)
-            reconstruct();
+        reconstruct();
 
         calculateFluxes();
 
@@ -37,14 +39,15 @@ void HeunScheme::solve()
         
         wn = w + (res*timeSteps);
 
-        wn = thermo->updateField(wn, w);
+        //wn = thermo->updateField(wn, w);
 
         w = wn;
 
         applyBoundaryConditions();
+
         calculateWlWr();
-        //if(iter > 5000)
-            reconstruct();
+
+        reconstruct();
 
         calculateFluxes();
 
@@ -52,7 +55,7 @@ void HeunScheme::solve()
 
         wn = w + (res*(timeSteps/2.0));
 
-        wn = thermo->updateField(wn, w);
+        wn = thermo->updateField(wn, wOld);
 
         resNorm = (wn - wOld).norm();
         outputCFD::saveResidual("../results/residuals.txt", resNorm);

@@ -11,13 +11,14 @@ double PressureOutlet::getPressure() const
     return pressure;
 }
 
-Compressible PressureOutlet::calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const
+Compressible PressureOutlet::calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const
 {
-    double referenceSoundSpeed = wl.soundSpeed();
+    Compressible aux = wl;
+    aux.setThermoVar(thermoModel->updateThermo(aux, wr));
 
-    if(wl.absVelocity()/referenceSoundSpeed >= 1.0)
+    if(wl.absVelocity()/aux.soundSpeed() >= 1.0)
     {
-        return wl;
+        return aux;
     }
 
     return thermoModel->primitiveToConservative(Vars<5>({wl.density(),

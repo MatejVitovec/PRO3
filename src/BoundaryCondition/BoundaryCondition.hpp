@@ -22,7 +22,7 @@ class BoundaryCondition
 
         virtual void apply(const std::vector<int>& ownerIndexList,const std::vector<Face>& faces, const Field<Compressible>& w, Field<Compressible>& wr, const Thermo * const thermoModel) const;
 
-        virtual Compressible calculateState(const Compressible& wl, const Face& f, const Thermo * const thermoModel) const = 0;
+        virtual Compressible calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const = 0;
         
     protected:
         Boundary boundary;
