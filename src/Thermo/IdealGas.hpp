@@ -17,9 +17,10 @@ class IdealGas : public Thermo
 
         //overwritten virtual
         Vars<3> updateThermo(const Compressible& data, const Compressible& dataOld) const;
+        Vars<3> updateThermo(const Compressible& data) const;
         Compressible primitiveToConservative(const Vars<5>& primitive) const;
-        Compressible isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const;
-        Compressible isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const;
+        Compressible isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const;
+        Compressible isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const;
 
     private:
         double gamma;

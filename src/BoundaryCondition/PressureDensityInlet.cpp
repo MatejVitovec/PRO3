@@ -31,7 +31,7 @@ Vars<3> PressureDensityInlet::getVelocityDirection() const
     return velocityDirection;
 }
 
-Compressible PressureDensityInlet::calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const
+Compressible PressureDensityInlet::calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const
 {
     //TODO
 

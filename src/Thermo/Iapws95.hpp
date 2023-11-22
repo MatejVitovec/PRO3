@@ -30,9 +30,10 @@ class Iapws95 : public Thermo
         Iapws95();
 
         Vars<3> updateThermo(const Compressible& data, const Compressible& dataOld) const;
+        Vars<3> updateThermo(const Compressible& data) const;
         Compressible primitiveToConservative(const Vars<5>& primitive) const;
-        Compressible isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const;
-        Compressible isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const;
+        Compressible isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const;
+        Compressible isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const;
 
         double p(double rho, double T) const;
         double e(double rho, double T) const;
@@ -46,7 +47,7 @@ class Iapws95 : public Thermo
         //double tFromRhoS(double rho, double s, double guessT) const;
         double rhoFromTP(double T, double p, double guessRho) const; //TODO
 
-        Compressible isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const;
+        Compressible isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const;
 
 
     private:

@@ -76,6 +76,8 @@ class FVMScheme
 
         Field<Compressible> wl; //faces size
         Field<Compressible> wr;
+        Field<Compressible> wlOld; //faces size
+        Field<Compressible> wrOld;
         Field<Vars<5>> fluxes;
 
         double cfl;
@@ -90,7 +92,7 @@ class FVMScheme
         void updateTimeStep();
         void applyBoundaryConditions();
         void calculateWlWr();
-        void calculateWlWrInit();
+        void initWrWlOld();
         void calculateFluxes();
         void reconstruct();
 

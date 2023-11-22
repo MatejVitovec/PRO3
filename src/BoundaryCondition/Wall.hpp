@@ -9,7 +9,7 @@ class Wall : public BoundaryCondition
 
         Wall(Boundary meshBoundary) : BoundaryCondition(meshBoundary, WALL) {}
 
-        Compressible calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const;
+        Compressible calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const;
     
     private:
 

@@ -1,10 +1,10 @@
-Solver:                 heunScheme
+Solver:                 explicitEuler
 
 LocalTimeStep:          false
 
 TargetError:            0.00001
 
-MaxIter:                50000
+MaxIter:                26000
 
 cfl:                    0.6
 

@@ -11,10 +11,10 @@ double PressureOutlet::getPressure() const
     return pressure;
 }
 
-Compressible PressureOutlet::calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const
+Compressible PressureOutlet::calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const
 {
     Compressible aux = wl;
-    aux.setThermoVar(thermoModel->updateThermo(aux, wr));
+    aux.setThermoVar(thermoModel->updateThermo(aux, wrOld));
 
     if(wl.absVelocity()/aux.soundSpeed() >= 1.0)
     {

@@ -48,6 +48,15 @@ Vars<3> Iapws95SpecialGas::updateThermo(const Compressible& data, const Compress
     return Vars<3>({T, p(rho, T), a(rho, T)});
 }
 
+Vars<3> Iapws95SpecialGas::updateThermo(const Compressible& data) const
+{
+    double rho = data.density();
+    double TGuess = ((1.29 - 1.0)*(data.totalEnergy() - 0.5*data.absVelocity2()))/specGasConst; //ideal gas guess
+    double T = tFromRhoE(rho, data.internalEnergy(), TGuess);
+
+    return Vars<3>({T, p(rho, T), a(rho, T)});
+}
+
 Compressible Iapws95SpecialGas::primitiveToConservative(const Vars<5>& primitive) const
 {
     double rho = primitive[0];
@@ -63,7 +72,7 @@ Compressible Iapws95SpecialGas::primitiveToConservative(const Vars<5>& primitive
                          {T, p, a(rho, T)});
 }
 
-Compressible Iapws95SpecialGas::isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
+Compressible Iapws95SpecialGas::isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
 {
     double pIn = std::min(stateIn.pressure(), pTot);
 
@@ -71,7 +80,7 @@ Compressible Iapws95SpecialGas::isentropicInlet(double pTot, double TTot, double
 
     //newton method for 2 equations
     double guessRho = stateIn.density();
-    double guessT = stateIn.temperature();
+    double guessT = wrOld.temperature();
 
     double deltaOld = guessRho/critRho;
     double tauOld = critT/guessT;
@@ -120,20 +129,20 @@ Compressible Iapws95SpecialGas::isentropicInlet(double pTot, double TTot, double
                          {T, pIn, a(rho, T)});
 }
 
-Compressible Iapws95SpecialGas::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
+Compressible Iapws95SpecialGas::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
 {
     //ideal gas as guess
     double rhoTot = rhoFromTP(TTot, pTot, pTot/(specGasConst*TTot));
 
-    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn);
+    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn, wrOld);
 }
 
-Compressible Iapws95SpecialGas::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
+Compressible Iapws95SpecialGas::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
 {
     //ideal gas as guess
     double TTot = tFromRhoP(rhoTot, pTot, pTot/(specGasConst*rhoTot));
 
-    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn);
+    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn, wrOld);
 }
 
 double Iapws95SpecialGas::p(double rho, double T) const

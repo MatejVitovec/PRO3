@@ -65,14 +65,14 @@ Vector3 Periodicity::getFaceShift() const
 }
 
 
-Compressible Periodicity::calculateState(const Compressible& wl, const Compressible& wr, const Face& f, const Thermo * const thermoModel) const
+Compressible Periodicity::calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const
 {
     //je nutne definovat z duvodu abstraktni virtualni funkce - redefinuji celou funkci apply
     std::cout << "ERROR" <<std::endl; 
     return Compressible();
 }
 
-void Periodicity::apply(const std::vector<int>& ownerIndexList,const std::vector<Face>& faces, const Field<Compressible>& w, Field<Compressible>& wr, const Thermo * const thermoModel) const
+void Periodicity::apply(const std::vector<int>& ownerIndexList, const std::vector<Face>& faces, const Field<Compressible>& w, Field<Compressible>& wr,const Field<Compressible>& wrOld, const Thermo * const thermoModel) const
 {
     for (int i = 0; i < boundary.facesIndex.size(); i++)
     {

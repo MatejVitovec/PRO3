@@ -9,9 +9,7 @@ void HeunScheme::solve()
     Field<Compressible> wOld = Field<Compressible>(w.size());
 
     w = thermo->updateField(w, w);
-    calculateWlWrInit();
-    wl = thermo->updateField(wl, wl);
-    wr = thermo->updateField(wr, wr);
+    initWrWlOld();
 
     int iter = 0;
 
@@ -62,8 +60,6 @@ void HeunScheme::solve()
 
         if(resNorm[0] < targetError) exitLoop = true;
         
-
-        //w = std::move(wn); //mozna to bude fungovat
         w = wn;
 
         if(iter % 200 == 0)
@@ -73,13 +69,10 @@ void HeunScheme::solve()
         }
     }
 
-    
-
     outputCFD::outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
     std::cout << "iter: " << iter << std::endl;
 
     std::cout << "time: " << time << std::endl;
-    
 }
 
 Field<Vars<5>> HeunScheme::calculateResidual()
