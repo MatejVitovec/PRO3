@@ -42,10 +42,6 @@ int main(int argc, char** argv)
 
     outputCFD::outputVTKPeriodicBoundary("../results/periodicResult.vtk", mySolver->getMesh(), mySolver->getResults(), Vector3(0.0, 0.0551168, 0.0));
 
-    //auto stop1 = std::chrono::high_resolution_clock::now();
-
-    /*auto stop2 = std::chrono::high_resolution_clock::now();
-	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(stop2 - stop1).count() << " ms\n";*/
 
     int g = 5;
 
