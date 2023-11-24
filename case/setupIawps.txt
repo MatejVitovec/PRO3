@@ -1,4 +1,4 @@
-Solver:                 heunScheme
+Solver:                 explicitEuler
 
 LocalTimeStep:          false
 
@@ -15,14 +15,12 @@ RiemannSolver:          hllc
 Mesh
 {
 	type:           gmsh2
-	fileName:       ../meshes/se1050_veryCoarse.msh
+	fileName:       ../meshes/se1050_coarse.msh
 }
 
 ThermoModel
 {
-        name:           idealGas
-        gamma:          1.4
-        specificGasConstant: 461
+        name:           specialgasequation
 }
 
 InitialCondition
@@ -37,7 +35,7 @@ BoundaryCondition
         {
                 type:                   pressureTemperatureInlet
                 totalPressure:          98071.7
-                totalTemperature:       298.65
+                totalTemperature:       372.21
                 xyAngle:                19.3
                 xzAngle:                0.0
         }
@@ -45,7 +43,7 @@ BoundaryCondition
         outlet
         {
                 type:           pressureOutlet
-                pressure:       40548.109
+                pressure:       42207.157
         }
 
         wall

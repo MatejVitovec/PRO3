@@ -18,3 +18,8 @@ void BoundaryCondition::apply(const std::vector<int>& ownerIndexList, const std:
         wr[faceIndex] = calculateState(w[ownerIndexList[faceIndex]], wrOld[faceIndex], faces[faceIndex], thermoModel);
     }    
 }
+
+void BoundaryCondition::correct(const Field<Compressible>& w, Field<Compressible> wl, Field<Compressible>& wr, const Field<Compressible>& wrOld, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const
+{
+
+}

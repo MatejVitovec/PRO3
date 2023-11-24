@@ -4,23 +4,25 @@ LocalTimeStep:          false
 
 TargetError:            0.00001
 
-MaxIter:                26000
+MaxIter:                50000
 
 cfl:                    0.6
 
-SaveEveryIter:          100
+SaveEveryIter:          200
 
 RiemannSolver:          hllc
 
 Mesh
 {
 	type:           gmsh2
-	fileName:       ../meshes/se1050_veryCoarse.msh
+	fileName:       ../meshes/se1050_coarse.msh
 }
 
 ThermoModel
 {
-        name:           iapws95
+        name:           idealGas
+        gamma:          1.4
+        specificGasConstant: 461
 }
 
 InitialCondition
@@ -35,7 +37,7 @@ BoundaryCondition
         {
                 type:                   pressureTemperatureInlet
                 totalPressure:          98071.7
-                totalTemperature:       372.21
+                totalTemperature:       298.65
                 xyAngle:                19.3
                 xzAngle:                0.0
         }
@@ -43,7 +45,7 @@ BoundaryCondition
         outlet
         {
                 type:           pressureOutlet
-                pressure:       42207.157
+                pressure:       40548.109
         }
 
         wall

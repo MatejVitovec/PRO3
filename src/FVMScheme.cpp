@@ -159,6 +159,29 @@ void FVMScheme::reconstruct()
         }
     }
 
+    //limit na minimalni hodnoty u steny
+    /*for (auto & boundaryCondition : boundaryConditionList)
+    {
+        if (boundaryCondition->getType() == BoundaryCondition::WALL)
+        {
+            std::vector<int> facesIndex = boundaryCondition->getBoundary().facesIndex;
+
+            for (int i = 0; i < facesIndex.size(); i++)
+            {
+                if (wl[facesIndex[i]][Compressible::RHO] < 0.1)
+                {
+                    
+                }
+            }
+        }
+    }*/
+
+    //korekce 2radu u steny
+    for (auto & boundaryCondition : boundaryConditionList)
+    {
+        boundaryCondition->correct(w, wl, wr, wrOld, grad, phi, mesh, thermo.get());
+    }
+
     wr = thermo->updateInetrnalFieldFaces(wr, wrOld, mesh);
 
     for (auto & boundaryCondition : boundaryConditionList)
