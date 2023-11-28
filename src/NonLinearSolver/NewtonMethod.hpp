@@ -3,10 +3,6 @@
 
 #include <functional>
 #include <utility>
-//#include "../Mesh/Mesh.hpp"
-//#include "../Field.hpp"
-//#include "../Compressible.hpp"
-//#include "../Mat.hpp"
 
 class NewtonMethod
 {
@@ -21,7 +17,6 @@ class NewtonMethod
         std::pair<double, double> solve(std::function<double(double, double)> f, std::function<double(double, double)> fd1, std::function<double(double, double)> fd2,
                                         std::function<double(double, double)> g, std::function<double(double, double)> gd1, std::function<double(double, double)> gd2,
                                         double guess1, double guess2) const;
-
 
     private:
         static constexpr double numTol = 0.0001;

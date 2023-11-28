@@ -144,7 +144,8 @@ std::unique_ptr<Thermo> CaseSetter::createThermoModel()
     }
     else if(name == "iapws95")
     {
-        return std::make_unique<Iapws95>();
+        //return std::make_unique<Iapws95>();
+        return std::make_unique<Iapws95Thermo>();
     }
     else if(name == "specialgasequation")
     {

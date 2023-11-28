@@ -8,17 +8,17 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				//"-O2",
-				//"-fopenmp",
+				"-O2",
+				"-fopenmp",
 				"*.cpp",
-				"StateEquations/*.cpp",
-				"NonLinearSolver/*.cpp",
-				/*"Mesh/*.cpp",
+				"Mesh/*.cpp",
 				"FluxSolver/*.cpp",
 				"BoundaryCondition/*.cpp",
 				"Thermo/*.cpp",
+				"Thermo/StateEquations/*.cpp",
+				"NonLinearSolver/*.cpp",
 				"GradientScheme/*.cpp",
-				"Limiter/*.cpp",*/
+				"Limiter/*.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}"
 			],

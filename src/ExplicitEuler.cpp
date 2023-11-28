@@ -46,7 +46,7 @@ void ExplicitEuler::solve()
         
         w = wn;
 
-        if(iter % 200 == 0 || iter > 8300)
+        if(iter % 200 == 0)
         {
             outputCFD::outputVTK("../results/results." + std::to_string(iter) + ".vtk", mesh, w);
             std::cout << "iter: " << iter << " density res: " << resNorm[0] << std::endl;
