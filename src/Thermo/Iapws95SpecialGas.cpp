@@ -72,6 +72,18 @@ Compressible Iapws95SpecialGas::primitiveToConservative(const Vars<5>& primitive
                          {T, p, a(rho, T)});
 }
 
+Compressible Iapws95SpecialGas::stagnationState(double TTot, double pTot) const
+{
+    double rhoTot = rhoFromTP(TTot, pTot, pTot/(specGasConst*TTot));
+
+    return Compressible({rhoTot,
+                         0.0,
+                         0.0,
+                         0.0,
+                         rhoTot*(e(rhoTot, TTot))},
+                         {TTot, pTot, a(rhoTot, TTot)});
+}
+
 Compressible Iapws95SpecialGas::isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
 {
     double pIn = std::min(stateIn.pressure(), pTot);

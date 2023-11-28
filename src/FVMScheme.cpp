@@ -146,6 +146,16 @@ void FVMScheme::reconstruct()
     const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
     const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
 
+    //EOS INTERVAL PRESERVING
+    for (int i = 0; i < cells.size(); i++)
+    {
+        if (w[i][Compressible::RHO] < 0.11 || w[i][Compressible::RHO_E] < 250000.0)
+        {
+            phi[i] = Vars<5>(0.0);
+        }
+    }
+    
+
     for (int i = 0; i < faces.size(); i++)
     {
         int neighbour = neighborIndexList[i];
@@ -156,31 +166,22 @@ void FVMScheme::reconstruct()
 
             wl[i] = w[ownerIndexList[i]] + phi[ownerIndexList[i]]*wlDiff;
             wr[i] = w[neighborIndexList[i]] + phi[neighborIndexList[i]]*wrDiff;
+
+            //EOS INTERVAL PRESERVING
+            /*if (wl[i][Compressible::RHO] < 0.11 || wr[i][Compressible::RHO] < 0.11 || wl[i][Compressible::RHO_E] < 211000.0 || wr[i][Compressible::RHO_E] < 211000.0)
+            {
+                wl[i] = w[ownerIndexList[i]];
+                wr[i] = w[neighborIndexList[i]];
+            }*/
         }
     }
 
-    //limit na minimalni hodnoty u steny
-    /*for (auto & boundaryCondition : boundaryConditionList)
-    {
-        if (boundaryCondition->getType() == BoundaryCondition::WALL)
-        {
-            std::vector<int> facesIndex = boundaryCondition->getBoundary().facesIndex;
-
-            for (int i = 0; i < facesIndex.size(); i++)
-            {
-                if (wl[facesIndex[i]][Compressible::RHO] < 0.1)
-                {
-                    
-                }
-            }
-        }
-    }*/
 
     //korekce 2radu u steny
-    for (auto & boundaryCondition : boundaryConditionList)
+    /*for (auto & boundaryCondition : boundaryConditionList)
     {
         boundaryCondition->correct(w, wl, wr, wrOld, grad, phi, mesh, thermo.get());
-    }
+    }*/
 
     wr = thermo->updateInetrnalFieldFaces(wr, wrOld, mesh);
 

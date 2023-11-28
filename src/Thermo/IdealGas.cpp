@@ -67,6 +67,19 @@ Compressible IdealGas::primitiveToConservative(const Vars<5>& primitive) const
     return out;
 }
 
+Compressible IdealGas::stagnationState(double TTot, double pTot) const
+{
+    Compressible out = Compressible({pTot/(R*TTot),
+                                     0.0,
+                                     0.0,
+                                     0.0,
+                                     pTot/(gamma - 1.0)});
+                                     
+    out.setThermoVar(Vars<3>({temperature(out), pressure(out), soundSpeed(out)}));
+
+    return out;
+}
+
 Compressible IdealGas::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
 {
     double p = std::min(pressure(stateIn), pTot);

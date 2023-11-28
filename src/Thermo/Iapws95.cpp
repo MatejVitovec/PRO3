@@ -83,8 +83,7 @@ Compressible Iapws95::primitiveToConservative(const Vars<5>& primitive) const
 {
     double rho = primitive[0];
     double p = primitive[4];
-    //odhad T pomoci idealniho plynu
-    double T = tFromRhoP(rho, p, p/(specGasConst*rho));
+    double T = tFromRhoP(rho, p, p/(specGasConst*rho)); //odhad T pomoci idealniho plynu
 
     return Compressible({rho,
                          rho*primitive[1],
@@ -92,6 +91,18 @@ Compressible Iapws95::primitiveToConservative(const Vars<5>& primitive) const
                          rho*primitive[3],
                          rho*(e(rho, T) + 0.5*(primitive[1]*primitive[1] + primitive[2]*primitive[2] + primitive[3]*primitive[3]))},
                          {T, p, a(rho, T)});
+}
+
+Compressible Iapws95::stagnationState(double TTot, double pTot) const
+{
+    double rhoTot = rhoFromTP(TTot, pTot, pTot/(specGasConst*TTot));
+
+    return Compressible({rhoTot,
+                         0.0,
+                         0.0,
+                         0.0,
+                         rhoTot*(e(rhoTot, TTot))},
+                         {TTot, pTot, a(rhoTot, TTot)});
 }
 
 Compressible Iapws95::isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
@@ -167,6 +178,9 @@ Compressible Iapws95::isentropicInletPressureDensity(double pTot, double rhoTot,
 
     return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn, wrOld);
 }
+
+
+//IAPWS95 function
 
 double Iapws95::p(double rho, double T) const
 {
@@ -262,29 +276,6 @@ double Iapws95::tFromRhoP(double rho, double p, double guessT) const
     
     return critT/tau;
 }
-
-/*double Iapws95::tFromRhoS(double rho, double s, double guessT) const
-{
-    double delta = rho/critRho;
-    double tauOld = critT/guessT;
-    double tau = 0.0;
-
-    double change = 100000;
-    int i = 0;
-
-    // Newton method
-    while (change > numericalTolerance)
-    {
-        tau = tauOld - (s/specGasConst - tauOld*(phi0t(delta, tauOld) + phirt(delta, tauOld)) + phi0(delta, tauOld) + phir(delta, tauOld))/(-tauOld*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
-        
-        change = fabs((tau - tauOld)/tau);
-
-        tauOld = tau;
-        i++;
-    }
-    
-    return critT/tau;
-}*/
 
 double Iapws95::rhoFromTP(double T, double p, double guessRho) const
 {

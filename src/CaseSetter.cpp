@@ -201,9 +201,10 @@ Compressible CaseSetter::getInitialCondition()
     {
         return Compressible({value[0], value[1], value[2], value[3], value[4]});
     }
-    else if(name == "pressureTemperature")
+    else if(name == "stagnationstate")
     {
-        //TODO
+        std::unique_ptr<Thermo> tempThermo = createThermoModel();
+        return tempThermo->stagnationState(value[0], value[4]);
     }
     else
     {

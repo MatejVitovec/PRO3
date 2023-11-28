@@ -177,57 +177,50 @@ double Iawps95::implicitTFromRhoP(double rho, double p, double guessT) const
     return critT/tau;
 }
 
-double Iawps95::implicitTFromRhoS(double rho, double s, double guessT) const
+double Iawps95::saturatedVaporDensity(double T) const
 {
-    double delta = rho/critRho;
-    double tauOld = critT/guessT;
-    double tau = 0.0;
+    double stauratedCoeffs[6] = {-2.03150240, -2.68302940, -5.38626492, -17.2991605, -44.7586581, -63.9201063};
+    double theta = 1.0 - T/critT;
 
-    double change = 100000;
-    int i = 0;
-
-    // Newton method
-    while (change > numericalTolerance)
-    {
-        tau = tauOld - (s/specGasConst - tauOld*(phi0t(delta, tauOld) + phirt(delta, tauOld)) + phi0(delta, tauOld) + phir(delta, tauOld))/(-tauOld*(phi0tt(delta, tauOld) + phirtt(delta, tauOld)));
-        
-        change = fabs(tau - tauOld);
-
-        tauOld = tau;
-        i++;
-    }
-
-    std::cout << i << std::endl;
-    
-    return critT/tau;
+    return critRho*exp(stauratedCoeffs[0]*pow(theta, 2.0/6.0) + 
+                       stauratedCoeffs[1]*pow(theta, 4.0/6.0) + 
+                       stauratedCoeffs[2]*pow(theta, 8.0/6.0) + 
+                       stauratedCoeffs[3]*pow(theta, 18.0/6.0) + 
+                       stauratedCoeffs[4]*pow(theta, 37.0/6.0) + 
+                       stauratedCoeffs[5]*pow(theta, 71.0/6.0));
 }
 
-double Iawps95::implicitRhoFromTS(double T, double s, double guessRho) const
+void Iawps95::saturatedRhoEData() const
 {
-    double deltaOld = guessRho/critRho;
-    double tau = critT/T;
-    double delta = 0.0;
+    int n = 300;
+    double Tstart = 275;
+    double Tend = 375;
+    double dT = (Tend - Tstart)/n;
 
-    double change = 100000;
-    int i = 0;
+    std::vector<double> temperature = std::vector<double>(n);
+    std::vector<double> density = std::vector<double>(n);
+    std::vector<double> energy = std::vector<double>(n);
 
-    // Newton method
-    while (change > numericalTolerance)
+    for (int i = 0; i < n; i++)
     {
-        delta = deltaOld - (s/specGasConst - tau*(phi0t(deltaOld, tau) + phirt(deltaOld, tau)) + phi0(deltaOld, tau) + phir(deltaOld, tau))/(-tau*(phi0dt(deltaOld, tau) + phirdt(deltaOld, tau)) + phi0d(deltaOld, tau) + phird(deltaOld, tau));
-        
-        change = fabs(delta - deltaOld);
-
-        deltaOld = delta;
-        i++;
+        temperature[i] = Tstart + i*dT;
+        density[i] = saturatedVaporDensity(temperature[i]);
+        energy[i] = e(density[i], temperature[i]);
     }
 
-    std::cout << i << std::endl;
-    
-    return delta*critRho;
+    std::ofstream f;
+	f.open("saturatedCurve.dat", std::ios::out);
+	
+	//f << "T, rho, e\n";
+
+    for (int i = 0; i < temperature.size(); i++)
+    {
+        f << temperature[i] << " " << density[i] << " " << energy[i] << "\n";
+    }
+
+    f << std::endl;
+    f.close();    
 }
-
-
 
 // dimensionless Helmholtz free energy functions
 

@@ -283,6 +283,8 @@ void Mesh::loadGmsh2(std::string fileName)
     createBoundariesGmsh(parseBlockDataGmsh(stringData, "PhysicalNames"), parseBlockDataGmsh(stringData, "Elements"));
 
     update();
+
+    std::cout << "Mesh initialization complete" <<std::endl;
 }
 
 std::vector<std::string> Mesh::readFile(std::string fileName)
