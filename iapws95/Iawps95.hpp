@@ -43,7 +43,9 @@ class Iawps95
         double implicitTFromRhoP(double rho, double p, double guessT) const;
 
         double saturatedVaporDensity(double T) const;
-        void saturatedRhoEData() const;
+        double saturatedLiquidDensity(double T) const;
+        double vaporPressure(double T) const;
+        void saturatedCurve() const;
 
         void test(double rho, double T) const;
 

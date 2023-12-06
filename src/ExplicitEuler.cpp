@@ -7,7 +7,7 @@ void ExplicitEuler::solve()
 {
     init();
 
-    Field<Compressible> wOld = Field<Compressible>(w.size());
+    //Field<Compressible> wOld = Field<Compressible>(w.size());
 
     w = thermo->updateField(w, w);
     initWrWlOld();

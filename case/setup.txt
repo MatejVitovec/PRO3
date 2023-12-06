@@ -4,7 +4,7 @@ LocalTimeStep:          false
 
 TargetError:            0.00001
 
-MaxIter:                20000
+MaxIter:                50000
 
 cfl:                    0.8
 
@@ -15,12 +15,12 @@ RiemannSolver:          hllc
 Mesh
 {
 	type:           gmsh2
-	fileName:       ../meshes/se1050_veryCoarse.msh
+	fileName:       ../meshes/se1050_coarse.msh
 }
 
 ThermoModel
 {
-        name:           iapws95
+        name:           iapws95interpolation
 }
 
 InitialCondition

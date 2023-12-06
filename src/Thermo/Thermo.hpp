@@ -12,6 +12,8 @@ class Thermo
     
         Thermo() {}
 
+        virtual ~Thermo() {}
+
         Field<Compressible> updateField(Field<Compressible> wn, const Field<Compressible>& w) const;
         Field<Compressible> updateInetrnalFieldFaces(Field<Compressible> wn, const Field<Compressible>& w, const Mesh& mesh) const;
 

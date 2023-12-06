@@ -145,7 +145,7 @@ double Iawps95::implicitTFromRhoE(double rho, double e, double guessT) const
         i++;
     }
 
-    std::cout << i << std::endl;
+    //std::cout << i << std::endl;
     
     return critT/tau;
 }
@@ -190,32 +190,67 @@ double Iawps95::saturatedVaporDensity(double T) const
                        stauratedCoeffs[5]*pow(theta, 71.0/6.0));
 }
 
-void Iawps95::saturatedRhoEData() const
+double Iawps95::saturatedLiquidDensity(double T) const
 {
-    int n = 300;
-    double Tstart = 275;
-    double Tend = 375;
+    double stauratedCoeffs[6] = {1.99274064, 1.09965342, -0.510839303, -1.75493479, -45.5170352, -674694.450};
+    double theta = 1.0 - T/critT;
+
+    return critRho*(1.0 +
+                    stauratedCoeffs[0]*pow(theta, 1.0/3.0) + 
+                    stauratedCoeffs[1]*pow(theta, 2.0/3.0) + 
+                    stauratedCoeffs[2]*pow(theta, 5.0/3.0) + 
+                    stauratedCoeffs[3]*pow(theta, 16.0/3.0) + 
+                    stauratedCoeffs[4]*pow(theta, 43.0/3.0) + 
+                    stauratedCoeffs[5]*pow(theta, 110.0/3.0));
+}
+
+double Iawps95::vaporPressure(double T) const
+{
+    double vaporCoeffs[6] = {-7.85951783, 1.84408259, -11.7866497, 22.6807411, -15.9618719, 1.80122502};
+    double critP = 22064000.0;
+    double theta = 1.0 - T/critT;
+
+    return critP*exp(critT/T*(vaporCoeffs[0]*theta + 
+                              vaporCoeffs[1]*pow(theta, 1.5) + 
+                              vaporCoeffs[2]*pow(theta, 3.0) + 
+                              vaporCoeffs[3]*pow(theta, 3.5) + 
+                              vaporCoeffs[4]*pow(theta, 4.0) + 
+                              vaporCoeffs[5]*pow(theta, 7.5)));
+}
+
+void Iawps95::saturatedCurve() const
+{
+    int n = 370;
+    double Tstart = 275.0;
+    double Tend = 645.0;
     double dT = (Tend - Tstart)/n;
 
     std::vector<double> temperature = std::vector<double>(n);
-    std::vector<double> density = std::vector<double>(n);
+    std::vector<double> densityS = std::vector<double>(n);
     std::vector<double> energy = std::vector<double>(n);
+    std::vector<double> pressure = std::vector<double>(n);
 
     for (int i = 0; i < n; i++)
     {
         temperature[i] = Tstart + i*dT;
-        density[i] = saturatedVaporDensity(temperature[i]);
-        energy[i] = e(density[i], temperature[i]);
+        densityS[i] = saturatedVaporDensity(temperature[i]);
+
+        double liquidDensity = saturatedLiquidDensity(temperature[i]);
+
+        energy[i] = e(densityS[i], temperature[i]);
+
+        pressure[i] = vaporPressure(temperature[i]);
     }
 
     std::ofstream f;
 	f.open("saturatedCurve.dat", std::ios::out);
 	
-	//f << "T, rho, e\n";
+	f << "#T, rho, e\n";
 
     for (int i = 0; i < temperature.size(); i++)
     {
-        f << temperature[i] << " " << density[i] << " " << energy[i] << "\n";
+        //f << temperature[i] << " " << densityS[i] << " " << 1.0/densityS[i] << " " << energy[i] << " " << pressure[i] << "\n";
+        f << densityS[i] << " " << energy[i] << " " << temperature[i] <<  "\n";
     }
 
     f << std::endl;
@@ -423,7 +458,7 @@ double Iawps95::psiFunc(double delta, double tau, int i) const
 
 double Iawps95::deltaFuncd(double delta, double tau, int i) const
 {
-    return (delta - 1.0)*(coeffs.A[i]*thetaFunc(delta, tau, i)*(2.0/coeffs.beta[i])*pow(pow(delta - 1.0, 2), 1/(2.0*coeffs.beta[i]) - 1.0) + 2.0*coeffs.B[i]*coeffs.a[i]*pow(delta - 1.0, coeffs.a[i] - 1.0));//pow(pow(delta - 1.0, 2.0), coeffs.a[i] - 1.0)
+    return (delta - 1.0)*(coeffs.A[i]*thetaFunc(delta, tau, i)*(2.0/coeffs.beta[i])*pow(pow(delta - 1.0, 2), 1/(2.0*coeffs.beta[i]) - 1.0) + 2.0*coeffs.B[i]*coeffs.a[i]*pow(pow(delta - 1.0, 2), coeffs.a[i] - 1.0));//pow(delta - 1.0, coeffs.a[i] - 1.0)
 }
 
 double Iawps95::deltaFuncdd(double delta, double tau, int i) const

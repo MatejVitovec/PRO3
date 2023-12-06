@@ -92,13 +92,55 @@ double Helmholtz::rhoFromTP(double T, double p, double guessRho) const
 std::pair<double, double> Helmholtz::RhoTFromSP(double s, double p, double guessRho, double guessT) const
 {
     std::pair<double, double> result = nonLinearSolver.solve([=](double val1, double val2) { return sFunc(val1, val2) - s; },
-                                                             sDDeltaFunc,
-                                                             sDTauFunc,
+                                                             [=](double val1, double val2) { return sDDeltaFunc(val1, val2); },
+                                                             [=](double val1, double val2) { return sDTauFunc(val1, val2); },
                                                              [=](double val1, double val2) { return pFunc(val1, val2) - p; },
-                                                             pDDeltaFunc,
-                                                             pDTauFunc,
+                                                             [=](double val1, double val2) { return pDDeltaFunc(val1, val2); },
+                                                             [=](double val1, double val2) { return pDTauFunc(val1, val2); },
                                                              guessRho/critRho,
                                                              critT/guessT);
 
     return std::make_pair(result.first*critRho, critT/result.second);
+}
+
+
+double Helmholtz::pFunc(double delta, double tau) const
+{
+    return critT*critRho*specGasConst*(delta/tau)*(1.0 + delta*phird(delta, tau));
+
+}
+
+double Helmholtz::eFunc(double delta, double tau) const
+{
+    return specGasConst*critT*(phi0t(delta, tau) + phirt(delta, tau));
+}
+
+double Helmholtz::sFunc(double delta, double tau) const
+{
+    return specGasConst*(tau*(phi0t(delta, tau) + phirt(delta, tau)) - phi0(delta, tau) - phir(delta, tau));
+}
+
+double Helmholtz::pDDeltaFunc(double delta, double tau) const
+{
+    return critRho*critT*(specGasConst/tau)*(1.0 + 2.0*delta*phird(delta, tau) + delta*delta*phirdd(delta, tau));
+}
+
+double Helmholtz::sDDeltaFunc(double delta, double tau) const
+{
+    return specGasConst*(tau*(phi0dt(delta, tau) + phirdt(delta, tau)) - phi0d(delta, tau) - phird(delta, tau));
+}
+
+double Helmholtz::pDTauFunc(double delta, double tau) const
+{
+    return specGasConst*critRho*critT*(delta/tau)*((-1.0/tau) - (delta/tau)*phird(delta, tau) + delta*phirdt(delta, tau));
+}
+
+double Helmholtz::eDTauFunc(double delta, double tau) const
+{
+    return specGasConst*critT*(phi0tt(delta, tau) + phirtt(delta, tau));
+}
+
+double Helmholtz::sDTauFunc(double delta, double tau) const
+{
+    return specGasConst*tau*(phi0tt(delta, tau) + phirtt(delta, tau));
 }

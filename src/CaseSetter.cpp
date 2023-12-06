@@ -110,7 +110,7 @@ std::unique_ptr<FluxSolver> CaseSetter::createFluxSolver()
     {
         return std::make_unique<Hll>();
     }
-    else if(fluxSolverName == "ausm")
+    else if(fluxSolverName == "ausm+")
     {
         return std::make_unique<Hllc>(); //TODO
     }
@@ -135,11 +135,11 @@ std::unique_ptr<Thermo> CaseSetter::createThermoModel()
 
         if(gamma == "" || specGasConst == "")
         {
-            return std::make_unique<IdealGas>();
+            return std::make_unique<IdealGasThermo>();
         }
         else
         {
-            return std::make_unique<IdealGas>(std::stod(gamma), std::stod(specGasConst));
+            return std::make_unique<IdealGasThermo>(std::stod(gamma), std::stod(specGasConst));
         }
     }
     else if(name == "iapws95")
@@ -149,13 +149,17 @@ std::unique_ptr<Thermo> CaseSetter::createThermoModel()
     }
     else if(name == "specialgasequation")
     {
-        return std::make_unique<Iapws95SpecialGas>();
+        return std::make_unique<SpecialGasThermo>();
+    }
+    else if(name == "iapws95interpolation")
+    {
+        return std::make_unique<Iapws95InterpolationThermo>(Iapws95InterpolationThermo::BILINEAR);
     }
 
     errorMessage("neznamy termo solver");
 
     std::cout << "Nastaven defaultni thermo model idealGas(gamma = 1.4, R = 287.05)" << std::endl;
-    return std::make_unique<IdealGas>();
+    return std::make_unique<IdealGasThermo>();
 }
 
 

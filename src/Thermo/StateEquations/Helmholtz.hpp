@@ -4,7 +4,7 @@
 #include <array>
 #include <vector>
 
-#include "../../NonLinearSolver/NewtonMethod.hpp"
+#include "NonLinearSolver/NewtonMethod.hpp"
 
 class Helmholtz
 {
@@ -48,16 +48,16 @@ class Helmholtz
         virtual double phirtt(double delta, double tau) const = 0;
         virtual double phirdt(double delta, double tau) const = 0;
 
-        std::function<double(double, double)> pFunc = [this](double delta, double tau) { return critT*critRho*specGasConst*(delta/tau)*(1.0 + delta*phird(delta, tau)); };
-        std::function<double(double, double)> eFunc = [this](double delta, double tau) { return specGasConst*critT*(phi0t(delta, tau) + phirt(delta, tau)); };
-        std::function<double(double, double)> sFunc = [this](double delta, double tau) { return specGasConst*(tau*(phi0t(delta, tau) + phirt(delta, tau)) - phi0(delta, tau) - phir(delta, tau)); };
+        double pFunc(double delta, double tau) const;
+        double eFunc(double delta, double tau) const;
+        double sFunc(double delta, double tau) const;
 
-        std::function<double(double, double)> pDDeltaFunc = [this](double delta, double tau) { return critRho*critT*(specGasConst/tau)*(1.0 + 2.0*delta*phird(delta, tau) + delta*delta*phirdd(delta, tau)); };
-        std::function<double(double, double)> sDDeltaFunc = [this](double delta, double tau) { return specGasConst*(tau*(phi0dt(delta, tau) + phirdt(delta, tau)) - phi0d(delta, tau) - phird(delta, tau)); };
+        double pDDeltaFunc(double delta, double tau) const;
+        double sDDeltaFunc(double delta, double tau) const;
 
-        std::function<double(double, double)> pDTauFunc = [this](double delta, double tau) { return specGasConst*critRho*critT*(delta/tau)*((-1.0/tau) - (delta/tau)*phird(delta, tau) + delta*phirdt(delta, tau)); };
-        std::function<double(double, double)> eDTauFunc = [this](double delta, double tau) { return specGasConst*critT*(phi0tt(delta, tau) + phirtt(delta, tau)); };
-        std::function<double(double, double)> sDTauFunc = [this](double delta, double tau) { return specGasConst*tau*(phi0tt(delta, tau) + phirtt(delta, tau)); };
+        double pDTauFunc(double delta, double tau) const;
+        double eDTauFunc(double delta, double tau) const;
+        double sDTauFunc(double delta, double tau) const;
 
 };
 
