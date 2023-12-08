@@ -145,44 +145,80 @@ void Compressible::operator-=(const Vars<5>& v)
 // u == v
 bool operator== (const Compressible& u, const Compressible& v)
 {
-    if(u[0] == v[0] && u[0] == v[0] && u[0] == v[0] && u[0] == v[0] && u[0] == v[0]) return true;
+    if(u[0] == v[0] && u[1] == v[1] && u[2] == v[2] && u[3] == v[3] && u[4] == v[4]) return true;
     return false;
 }
 
 // u + v
 Compressible operator+ (const Compressible& u, const Compressible& v)
 {
-    return Compressible({u[0] + v[0], u[1] + v[1], u[2] + v[2], u[3] + v[3], u[4] + v[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] += v[i];
+    }
+    
+    return out;
 }
 
 // u - v
 Compressible operator- (const Compressible& u, const Compressible& v)
 {
-    return Compressible({u[0] - v[0], u[1] - v[1], u[2] - v[2], u[3] - v[3], u[4] - v[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] -= v[i];
+    }
+    
+    return out;
 }
 
 // w * u
 Compressible operator* (const Compressible& u, const Compressible& v)
 {
-    return Compressible({u[0] * v[0], u[1] * v[1], u[2] * v[2], u[3] * v[3], u[4] * v[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] *= v[i];
+    }
+    
+    return out;
 }
 
 // a * u
-Compressible operator* (const double& a, const Compressible& u)
+Compressible operator* (double a, const Compressible& u)
 {
-    return Compressible({a*u[0], a*u[1], a*u[2], a*u[3], a*u[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] *= a;
+    }
+    
+    return out;
 }
 
 // u * a
-Compressible operator* (const Compressible& u, const double& a)
+Compressible operator* (const Compressible& u, double a)
 {
-    return Compressible({a*u[0], a*u[1], a*u[2], a*u[3], a*u[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] *= a;
+    }
+    
+    return out;
 }
 
 // u / a
-Compressible operator/ (const Compressible& u, const double& a)
+Compressible operator/ (const Compressible& u, double a)
 {
-    return Compressible({u[0]/a, u[1]/a, u[2]/a, u[3]/a, u[4]/a});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] /= a;
+    }
+    
+    return out;
 }
 
 // Compressible, Vars<5>
@@ -190,19 +226,37 @@ Compressible operator/ (const Compressible& u, const double& a)
 // u + v
 Compressible operator+ (const Compressible& u, const Vars<5>& v)
 {
-    return Compressible({u[0] + v[0], u[1] + v[1], u[2] + v[2], u[3] + v[3], u[4] + v[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] += v[i];
+    }
+    
+    return out;
 }
 
 // u - v
 Compressible operator- (const Compressible& u, const Vars<5>& v)
 {
-    return Compressible({u[0] - v[0], u[1] - v[1], u[2] - v[2], u[3] - v[3], u[4] - v[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] -= v[i];
+    }
+    
+    return out;
 }
 
 // w * u
 Compressible operator* (const Compressible& u, const Vars<5>& v)
 {
-    return Compressible({u[0] * v[0], u[1] * v[1], u[2] * v[2], u[3] * v[3], u[4] * v[4]});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] *= v[i];
+    }
+    
+    return out;
 }
 
 
@@ -210,5 +264,11 @@ Compressible operator* (const Compressible& u, const Vars<5>& v)
 
 Compressible sqrt(const Compressible& u)
 {
-    return Compressible({std::sqrt(u[0]), std::sqrt(u[1]), std::sqrt(u[2]), std::sqrt(u[3]), std::sqrt(u[4])});
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        out[i] = std::sqrt(u[i]);
+    }
+    
+    return out;
 }

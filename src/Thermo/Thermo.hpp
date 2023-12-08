@@ -14,7 +14,9 @@ class Thermo
 
         virtual ~Thermo() {}
 
+        Field<Compressible> updateField(Field<Compressible> w) const;
         Field<Compressible> updateField(Field<Compressible> wn, const Field<Compressible>& w) const;
+        Field<Compressible> updateInetrnalFieldFaces(Field<Compressible> w, const Mesh& mesh) const;
         Field<Compressible> updateInetrnalFieldFaces(Field<Compressible> wn, const Field<Compressible>& w, const Mesh& mesh) const;
 
         virtual Vars<3> updateThermo(const Compressible& data, const Compressible& dataOld) const = 0;

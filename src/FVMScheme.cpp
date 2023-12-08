@@ -79,8 +79,6 @@ void FVMScheme::init()
 
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
-    wlOld = Field<Compressible>(mesh.getFacesSize());
-    wrOld = Field<Compressible>(mesh.getFacesSize());
 
     timeSteps = Field<double>(mesh.getCellsSize());
 }
@@ -92,7 +90,7 @@ void FVMScheme::applyBoundaryConditions()
 
     for (auto & boundaryCondition : boundaryConditionList)
     {
-        boundaryCondition->apply(ownerIndexList, faceList, w, wr, wrOld, thermo.get());
+        boundaryCondition->apply(ownerIndexList, faceList, w, wr, thermo.get());
     }
 }
 
@@ -120,21 +118,6 @@ void FVMScheme::calculateWlWr()
     }    
 }
 
-void FVMScheme::initWrWlOld()
-{
-    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
-    const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
-
-    for (int i = 0; i < mesh.getFacesSize(); i++)
-    {        
-        wlOld[i] = w[ownerIndexList[i]];
-        wrOld[i] = w[ownerIndexList[i]];
-    }    
-
-    wlOld = thermo->updateField(wlOld, wlOld);
-    wrOld = thermo->updateField(wrOld, wrOld);
-}
-
 void FVMScheme::reconstruct()
 {
     Field<Mat<5,3>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
@@ -147,13 +130,14 @@ void FVMScheme::reconstruct()
     const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
 
     //EOS INTERVAL PRESERVING
-    for (int i = 0; i < cells.size(); i++)
+    /*for (int i = 0; i < cells.size(); i++)
     {
-        if (w[i][Compressible::RHO] < 0.11 || w[i][Compressible::RHO_E] < 250000.0)
+        if (w[i].density() < 0.11 || w[i].internalEnergy() < 2010000.0)
         {
             phi[i] = Vars<5>(0.0);
+            std::cout << "Err, EOS range; rho: " << w[i].density() << " e: " << w[i].internalEnergy() << std::endl;
         }
-    }
+    }*/
     
 
     for (int i = 0; i < faces.size(); i++)
@@ -176,42 +160,13 @@ void FVMScheme::reconstruct()
         }
     }
 
-
-    //korekce 2radu u steny
-    /*for (auto & boundaryCondition : boundaryConditionList)
-    {
-        boundaryCondition->correct(w, wl, wr, wrOld, grad, phi, mesh, thermo.get());
-    }*/
-
-    wr = thermo->updateInetrnalFieldFaces(wr, wrOld, mesh);
-
     for (auto & boundaryCondition : boundaryConditionList)
     {
-        if (boundaryCondition->getType() == BoundaryCondition::PERIODICITY)
-        {
-            std::vector<int> boundaryFaces = boundaryCondition->getBoundary().facesIndex;
-            std::vector<int> associatedBoundaryFaces = static_cast<Periodicity*>(boundaryCondition.get())->getPeriodicityFacesIndex();
-
-            Vector3 shift = static_cast<Periodicity*>(boundaryCondition.get())->getFaceShift();
-
-            for (int i = 0; i < boundaryFaces.size(); i++)
-            {
-                Vars<5> wlDiff = dot(grad[ownerIndexList[boundaryFaces[i]]], vector3toVars(faces[boundaryFaces[i]].midpoint - cells[ownerIndexList[boundaryFaces[i]]].center));
-                
-                Vars<5> wrDiff = dot(grad[ownerIndexList[associatedBoundaryFaces[i]]], vector3toVars(faces[boundaryFaces[i]].midpoint - cells[ownerIndexList[associatedBoundaryFaces[i]]].center + shift));
-
-                wl[boundaryFaces[i]] = w[ownerIndexList[boundaryFaces[i]]] + phi[ownerIndexList[boundaryFaces[i]]]*wlDiff;                
-                wr[boundaryFaces[i]] = w[ownerIndexList[associatedBoundaryFaces[i]]] + phi[ownerIndexList[associatedBoundaryFaces[i]]]*wrDiff;
-
-                wr[boundaryFaces[i]].setThermoVar(thermo->updateThermo(wr[boundaryFaces[i]], wrOld[boundaryFaces[i]]));
-            }
-        }
+        boundaryCondition->correct(w, wl, wr, grad, phi, mesh, thermo.get());
     }
     
-    wl = thermo->updateField(wl, wlOld);
-
-    wlOld = wl;
-    wrOld = wr;
+    wl = thermo->updateField(wl);
+    wr = thermo->updateInetrnalFieldFaces(wr, mesh);
 }
 
 void FVMScheme::updateTimeStep()

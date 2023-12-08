@@ -7,10 +7,7 @@ void ExplicitEuler::solve()
 {
     init();
 
-    //Field<Compressible> wOld = Field<Compressible>(w.size());
-
     w = thermo->updateField(w, w);
-    initWrWlOld();
 
     int iter = 0;
 
@@ -37,7 +34,7 @@ void ExplicitEuler::solve()
         
         wn = w + (res*timeSteps);
 
-        wn = thermo->updateField(wn, w);
+        wn = thermo->updateField(wn);
 
         resNorm = (wn - w).norm();
         outputCFD::saveResidual("../results/residuals.txt", resNorm);

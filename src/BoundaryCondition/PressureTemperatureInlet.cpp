@@ -1,37 +1,6 @@
 #include "PressureTemperatureInlet.hpp"
 
-
-void PressureTemperatureInlet::setTotalPressure(double totalPressure_)
+Compressible PressureTemperatureInlet::calculateState(const Compressible& w, const Face& f, const Thermo * const thermoModel) const
 {
-    totalPressure = totalPressure_;
-}
-
-void PressureTemperatureInlet::setTotalTemperature(double totalTemperature_)
-{
-    totalTemperature = totalTemperature_;
-}
-
-void PressureTemperatureInlet::setVelocityDirection(Vars<3> velocityDirection_)
-{
-    velocityDirection = velocityDirection_;
-}
-
-double PressureTemperatureInlet::getTotalPressure() const
-{
-    return totalPressure;
-}
-
-double PressureTemperatureInlet::getTotalTemperature() const
-{
-    return totalTemperature;
-}
-
-Vars<3> PressureTemperatureInlet::getVelocityDirection() const
-{
-    return velocityDirection;
-}
-
-Compressible PressureTemperatureInlet::calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const
-{
-    return thermoModel->isentropicInletPressureTemperature(totalPressure, totalTemperature, velocityDirection, wl, wrOld);
+    return thermoModel->isentropicInletPressureTemperature(totalPressure, totalTemperature, velocityDirection, w, w); //TODO
 }

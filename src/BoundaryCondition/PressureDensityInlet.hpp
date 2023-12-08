@@ -12,14 +12,7 @@ class PressureDensityInlet : public BoundaryCondition
                     totalDensity(totalDensity),
                     velocityDirection(velocityDirection_) {}
 
-        void setTotalPressure(double totalPressure_);
-        void setTotalDensity(double totalDensity);
-        void setVelocityDirection(Vars<3> velocityDirection_);
-        double getTotalPressure() const;
-        double getTotalDensity() const;
-        Vars<3> getVelocityDirection() const;
-
-        Compressible calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const;        
+        Compressible calculateState(const Compressible& w, const Face& f, const Thermo * const thermoModel) const;
 
     private:
         double totalPressure;

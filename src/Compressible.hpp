@@ -15,7 +15,7 @@ class Compressible : public Vars<5>
         Compressible(const std::array<double, 5>& in) : Vars<5>(in) {}
         Compressible(const std::array<double, 5>& in, const std::array<double, 3>& inTermo) : Vars<5>(in), thermoVar(inTermo) {}
 
-        void setThermoVar(Vars<3> thermoProp);
+        void setThermoVar(Vars<3> thermoProp); //TODO prejmenovat na setThernm
 
         virtual ~Compressible() {}
 
@@ -45,7 +45,6 @@ class Compressible : public Vars<5>
         Vars<5> primitive() const;
 
     private:
-        //0:T; 1:p, 2:w
         enum {T, P, A};
         Vars<3> thermoVar;
 };
@@ -67,13 +66,13 @@ Compressible operator- (const Compressible& u, const Compressible& v);
 Compressible operator* (const Compressible& u, const Compressible& v);
 
 // a * u
-Compressible operator* (const double& a, const Compressible& u);
+Compressible operator* (double a, const Compressible& u);
 
 // u * a
-Compressible operator* ( const Compressible& u, const double& a);
+Compressible operator* (const Compressible& u, double a);
 
 // u / a
-Compressible operator/ (const Compressible& u, const double& a);
+Compressible operator/ (const Compressible& u, double a);
 
 // Compressible, Vars
 

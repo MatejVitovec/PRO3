@@ -17,8 +17,8 @@ Vars<3> Iapws95Thermo::updateThermo(const Compressible& data, const Compressible
 Vars<3> Iapws95Thermo::updateThermo(const Compressible& data) const
 {
     double rho = data.density();
-    double TGuess = ((1.29 - 1.0)*(data.totalEnergy() - 0.5*data.absVelocity2()))/specGasConst; //ideal gas guess
-    double T = tFromRhoE(rho, data.internalEnergy(), TGuess);
+    //double TGuess = ((1.29 - 1.0)*(data.totalEnergy() - 0.5*data.absVelocity2()))/specGasConst; //ideal gas guess
+    double T = tFromRhoE(rho, data.internalEnergy(), data.temperature());
 
     return Vars<3>({T, p(rho, T), a(rho, T)});
 }
@@ -80,7 +80,8 @@ Compressible Iapws95Thermo::isentropicInletPressureTemperature(double pTot, doub
     //ideal gas as guess
     double rhoTot = rhoFromTP(TTot, pTot, pTot/(specGasConst*TTot));
 
-    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn, wrOld);
+    //return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn, wrOld);
+    return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn, stateIn);
 }
 
 Compressible Iapws95Thermo::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const

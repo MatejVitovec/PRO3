@@ -9,7 +9,6 @@ void HeunScheme::solve()
     Field<Compressible> wOld = Field<Compressible>(w.size());
 
     w = thermo->updateField(w, w);
-    initWrWlOld();
 
     int iter = 0;
 

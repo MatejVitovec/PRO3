@@ -9,9 +9,9 @@ class Wall : public BoundaryCondition
 
         Wall(Boundary meshBoundary) : BoundaryCondition(meshBoundary, WALL) {}
 
-        Compressible calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const;
+        Compressible calculateState(const Compressible& w, const Face& f, const Thermo * const thermoModel) const;
 
-        void correct(const Field<Compressible>& w, Field<Compressible> wl, Field<Compressible>& wr, const Field<Compressible>& wrOld, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const;
+        void correct(const Field<Compressible>& w, Field<Compressible>& wl, Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const;
     
     private:
 

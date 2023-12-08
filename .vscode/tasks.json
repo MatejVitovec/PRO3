@@ -9,7 +9,7 @@
 				"-fdiagnostics-color=always",
 				"-g",
 				"-O2",
-				//"-fopenmp",
+				"-fopenmp",
 				"*.cpp",
 				"Mesh/*.cpp",
 				"FluxSolver/*.cpp",

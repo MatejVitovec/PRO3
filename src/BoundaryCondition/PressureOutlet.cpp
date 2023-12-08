@@ -1,29 +1,16 @@
 #include "PressureOutlet.hpp"
 
 
-void PressureOutlet::setPressure(double pressure_)
+Compressible PressureOutlet::calculateState(const Compressible& w, const Face& f, const Thermo * const thermoModel) const
 {
-    pressure = pressure_;
-}
-
-double PressureOutlet::getPressure() const
-{
-    return pressure;
-}
-
-Compressible PressureOutlet::calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const
-{
-    Compressible aux = wl;
-    aux.setThermoVar(thermoModel->updateThermo(aux, wrOld));
-
-    if(wl.absVelocity()/aux.soundSpeed() >= 1.0)
+    if(w.absVelocity()/w.soundSpeed() >= 1.0)
     {
-        return aux;
+        return w;
     }
 
-    return thermoModel->primitiveToConservative(Vars<5>({wl.density(),
-                                                         wl.velocityU(),
-                                                         wl.velocityV(),
-                                                         wl.velocityW(),
+    return thermoModel->primitiveToConservative(Vars<5>({w.density(),
+                                                         w.velocityU(),
+                                                         w.velocityV(),
+                                                         w.velocityW(),
                                                          pressure}));
 }

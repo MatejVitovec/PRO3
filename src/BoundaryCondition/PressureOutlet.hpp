@@ -9,10 +9,7 @@ class PressureOutlet : public BoundaryCondition
 
         PressureOutlet(Boundary meshBoundary, double pressure_) : BoundaryCondition(meshBoundary, PRESSUREOUTLET), pressure(pressure_) {}
 
-        void setPressure(double pressure_);
-        double getPressure() const;
-
-        Compressible calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const;
+        Compressible calculateState(const Compressible& w, const Face& f, const Thermo * const thermoModel) const;
         
 
     private:

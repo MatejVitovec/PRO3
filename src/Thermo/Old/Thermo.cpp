@@ -3,6 +3,17 @@
 
 #include "Thermo.hpp"
 
+Field<Compressible> Thermo::updateField(Field<Compressible> w) const
+{
+    #pragma omp parallel for
+    for (int i = 0; i < w.size(); i++)
+    {
+        w[i].setThermoVar(updateThermo(w[i]));
+    }
+
+    return w;
+}
+
 Field<Compressible> Thermo::updateField(Field<Compressible> wn, const Field<Compressible>& w) const
 {
     #pragma omp parallel for

@@ -20,7 +20,7 @@ Mesh
 
 ThermoModel
 {
-        name:           iapws95interpolation
+        name:           iapws95
 }
 
 InitialCondition

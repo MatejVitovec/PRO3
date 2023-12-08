@@ -17,8 +17,8 @@ Vars<3> SpecialGasThermo::updateThermo(const Compressible& data, const Compressi
 Vars<3> SpecialGasThermo::updateThermo(const Compressible& data) const
 {
     double rho = data.density();
-    double TGuess = ((1.29 - 1.0)*(data.totalEnergy() - 0.5*data.absVelocity2()))/specGasConst; //ideal gas guess
-    double T = tFromRhoE(rho, data.internalEnergy(), TGuess);
+    //double TGuess = ((1.29 - 1.0)*(data.totalEnergy() - 0.5*data.absVelocity2()))/specGasConst; //ideal gas guess
+    double T = tFromRhoE(rho, data.internalEnergy(), data.temperature());
 
     return Vars<3>({T, p(rho, T), a(rho, T)});
 }

@@ -9,7 +9,7 @@ class FreeBoundary : public BoundaryCondition
 
         FreeBoundary(Boundary meshBoundary) : BoundaryCondition(meshBoundary, FREEBOUNDARY) {}
 
-        Compressible calculateState(const Compressible& wl, const Compressible& wrOld, const Face& f, const Thermo * const thermoModel) const;
+        Compressible calculateState(const Compressible& w, const Face& f, const Thermo * const thermoModel) const;
 
 };
 
