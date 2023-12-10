@@ -14,6 +14,13 @@ Field<Mat<5,3>> GradientScheme::calculateGradient(const Field<Compressible>& wl,
     return grad;
 }
 
+Field<Mat<5,3>> GradientScheme::calculateGradient(const Field<Primitive>& ul, const Field<Primitive>& ur, const Mesh& mesh) const
+{
+    Field<Mat<5,3>> grad(ul.size());
+
+    return grad;
+}
+
 void GradientScheme::calculateCellToCellDelta(const Mesh& mesh, const std::vector<std::shared_ptr<BoundaryCondition>>& boundaryConditionList)
 {
     const std::vector<Cell>& cells = mesh.getCellList();

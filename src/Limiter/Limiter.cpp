@@ -7,3 +7,8 @@ Field<Vars<5>> Limiter::calculateLimiter(const Field<Compressible>& wl, const Fi
     return Field<Vars<5>>(mesh.getCellsSize(), Vars<5>());
     //return Field<Vars<5>>(mesh.getCellsSize(), Vars<5>({1.0, 1.0, 1.0, 1.0, 1.0}));
 }
+
+Field<Vars<5>> Limiter::calculateLimiter(const Field<Primitive>& ul, const Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Mesh& mesh) const
+{
+    return Field<Vars<5>>(mesh.getCellsSize(), Vars<5>());
+}

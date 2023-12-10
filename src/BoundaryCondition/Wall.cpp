@@ -32,3 +32,8 @@ void Wall::correct(const Field<Compressible>& w, Field<Compressible>& wl, Field<
         wr[faceIndex] = calculateState(wl[faceIndex], faces[faceIndex], thermoModel);
     }*/
 }
+
+void BoundaryCondition::correct(const Field<Compressible>& w, Field<Primitive>& ul, Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const
+{
+
+}

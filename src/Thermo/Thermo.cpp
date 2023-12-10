@@ -61,3 +61,33 @@ Field<Compressible> Thermo::updateInetrnalFieldFaces(Field<Compressible> wn, con
 
     return wn;
 }
+
+
+Field<Primitive> Thermo::updateField(Field<Primitive> u) const
+{
+    #pragma omp parallel for
+    for (int i = 0; i < u.size(); i++)
+    {
+        u[i].setThermo(updateThermo(u[i]));
+    }
+
+    return u;
+}
+
+Field<Primitive> Thermo::updateInetrnalFieldFaces(Field<Primitive> u, const Mesh& mesh) const
+{
+    const std::vector<Face>& faces = mesh.getFaceList();
+    const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
+
+    #pragma omp parallel for
+    for (int i = 0; i < faces.size(); i++)
+    {
+        int neighbour = neighborIndexList[i];
+        if(neighbour >= 0)
+        {
+            u[i].setThermo(updateThermo(u[i]));
+        }
+    }
+
+    return u;
+}

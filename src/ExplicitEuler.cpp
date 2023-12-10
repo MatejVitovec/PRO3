@@ -20,6 +20,8 @@ void ExplicitEuler::solve()
     {
         iter++;
 
+        //boundField();
+
         updateTimeStep();
 
         applyBoundaryConditions();

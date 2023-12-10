@@ -79,6 +79,8 @@ void FVMScheme::init()
 
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
+    ul = Field<Primitive>(mesh.getFacesSize());
+    ur = Field<Primitive>(mesh.getFacesSize());
 
     timeSteps = Field<double>(mesh.getCellsSize());
 }
@@ -91,6 +93,17 @@ void FVMScheme::applyBoundaryConditions()
     for (auto & boundaryCondition : boundaryConditionList)
     {
         boundaryCondition->apply(ownerIndexList, faceList, w, wr, thermo.get());
+    }
+}
+
+void FVMScheme::applyBoundaryConditionsPrimitive()
+{
+    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
+    const std::vector<Face>& faceList = mesh.getFaceList();
+
+    for (auto & boundaryCondition : boundaryConditionList)
+    {
+        boundaryCondition->apply(ownerIndexList, faceList, w, ur, thermo.get());
     }
 }
 
@@ -118,11 +131,59 @@ void FVMScheme::calculateWlWr()
     }    
 }
 
+void FVMScheme::calculateUlUr()
+{
+    //Without reconstruction
+
+    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
+    const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
+
+    for (int i = 0; i < mesh.getFacesSize(); i++)
+    {        
+        ul[i] = Primitive(w[ownerIndexList[i]]);
+
+        int neighbour = neighborIndexList[i];
+        if(neighbour >= 0)
+        {
+            ur[i] = Primitive(w[neighbour]);
+        }
+    }    
+}
+
+void FVMScheme::boundField()
+{
+    double minDensity = 0.1;
+    double minInternalEnergy = 2100000.0;
+
+    const std::vector<Cell>& cells = mesh.getCellList();
+    for (int i = 0; i < cells.size(); i++)
+    {
+        if (w[i].density() < minDensity)
+        {
+            std::cout << "rho: " << w[i].density() << " U: " << w[i].absVelocity() << " energy: " << w[i].internalEnergy() << std::endl;
+            w[i][Compressible::RHO] = minDensity;
+            w[i][Compressible::RHO_U] = w[i].velocityU()*minDensity;
+            w[i][Compressible::RHO_V] = w[i].velocityV()*minDensity;
+            w[i][Compressible::RHO_W] = w[i].velocityW()*minDensity;
+            w[i][Compressible::RHO_E] = w[i].totalEnergy()*minDensity;
+        }
+
+        if (w[i].internalEnergy() < minInternalEnergy)
+        {
+            w[i][Compressible::RHO_E] = minInternalEnergy*w[i].density();
+            std::cout << "e min i: " << i << std::endl;
+        }
+    }
+}
+
 void FVMScheme::reconstruct()
 {
     Field<Mat<5,3>> grad = gradientScheme->calculateGradient(wl, wr, mesh);
 
     Field<Vars<5>> phi = limiter->calculateLimiter(wl, wr, grad, mesh);
+
+    phi[386] = Vars<5>(0.0);
+    phi[7385] = Vars<5>(0.0);
 
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
@@ -169,6 +230,42 @@ void FVMScheme::reconstruct()
     wr = thermo->updateInetrnalFieldFaces(wr, mesh);
 }
 
+void FVMScheme::reconstructPrimitive()
+{
+    Field<Mat<5,3>> grad = gradientScheme->calculateGradient(ul, ur, mesh);
+
+    Field<Vars<5>> phi = limiter->calculateLimiter(ul, ur, grad, mesh);
+
+    phi[386] = Vars<5>(0.0);
+    phi[7385] = Vars<5>(0.0);
+
+    const std::vector<Cell>& cells = mesh.getCellList();
+    const std::vector<Face>& faces = mesh.getFaceList();
+    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
+    const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
+
+    for (int i = 0; i < faces.size(); i++)
+    {
+        int neighbour = neighborIndexList[i];
+        if(neighbour >= 0)
+        {
+            Vars<5> ulDiff = dot(grad[ownerIndexList[i]], vector3toVars(faces[i].midpoint - cells[ownerIndexList[i]].center));
+            Vars<5> urDiff = dot(grad[neighborIndexList[i]], vector3toVars(faces[i].midpoint - cells[neighborIndexList[i]].center));
+
+            ul[i] = ul[i] + phi[ownerIndexList[i]]*ulDiff;
+            ur[i] = ur[i] + phi[neighborIndexList[i]]*urDiff;
+        }
+    }
+
+    for (auto & boundaryCondition : boundaryConditionList)
+    {
+        boundaryCondition->correct(w, ul, ur, grad, phi, mesh, thermo.get());
+    }
+    
+    ul = thermo->updateField(ul);
+    ur = thermo->updateInetrnalFieldFaces(ur, mesh);
+}
+
 void FVMScheme::updateTimeStep()
 {
     const std::vector<Cell>& cells = mesh.getCellList();
@@ -190,7 +287,8 @@ void FVMScheme::updateTimeStep()
 
 void FVMScheme::calculateFluxes()
 {
-    fluxes = fluxSolver->claculateFluxes(wl, wr, mesh.getFaceList());
+    fluxes = fluxSolver->calculateFluxes(wl, wr, mesh.getFaceList());
+    //fluxes = fluxSolver->calculateFluxes(ul, ul, mesh.getFaceList());
 }
 
 Field<Compressible> FVMScheme::getResults() const

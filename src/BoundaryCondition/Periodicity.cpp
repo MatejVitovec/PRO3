@@ -80,6 +80,15 @@ void Periodicity::apply(const std::vector<int>& ownerIndexList, const std::vecto
     }   
 }
 
+void Periodicity::apply(const std::vector<int>& ownerIndexList, const std::vector<Face>& faces, const Field<Compressible>& w, Field<Primitive>& ur, const Thermo * const thermoModel) const
+{
+    for (int i = 0; i < boundary.facesIndex.size(); i++)
+    {
+        //periodicity nema update thermo
+        ur[boundary.facesIndex[i]] = Primitive(w[periodicityFacesOwnersIndexes[i]]);
+    }   
+}
+
 void Periodicity::correct(const Field<Compressible>& w, Field<Compressible>& wl, Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const
 {
     const std::vector<Cell>& cells = mesh.getCellList();
@@ -96,5 +105,24 @@ void Periodicity::correct(const Field<Compressible>& w, Field<Compressible>& wl,
         wr[boundary.facesIndex[i]] = w[ownerIndexList[periodicityFacesIndex[i]]] + phi[ownerIndexList[periodicityFacesIndex[i]]]*wrDiff;
 
         wr[boundary.facesIndex[i]].setThermoVar(thermoModel->updateThermo(wr[boundary.facesIndex[i]]));
+    }
+}
+
+void Periodicity::correct(const Field<Compressible>& w, Field<Primitive>& ul, Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const
+{
+    const std::vector<Cell>& cells = mesh.getCellList();
+    const std::vector<Face>& faces = mesh.getFaceList();
+    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
+
+    for (int i = 0; i < boundary.facesIndex.size(); i++)
+    {
+        Vars<5> ulDiff = dot(grad[ownerIndexList[boundary.facesIndex[i]]], vector3toVars(faces[boundary.facesIndex[i]].midpoint - cells[ownerIndexList[boundary.facesIndex[i]]].center));
+                
+        Vars<5> urDiff = dot(grad[ownerIndexList[periodicityFacesIndex[i]]], vector3toVars(faces[boundary.facesIndex[i]].midpoint - cells[ownerIndexList[periodicityFacesIndex[i]]].center + faceMidpointShift));
+
+        ul[boundary.facesIndex[i]] = w[ownerIndexList[boundary.facesIndex[i]]] + phi[ownerIndexList[boundary.facesIndex[i]]]*ulDiff;                
+        ur[boundary.facesIndex[i]] = w[ownerIndexList[periodicityFacesIndex[i]]] + phi[ownerIndexList[periodicityFacesIndex[i]]]*urDiff;
+
+        ur[boundary.facesIndex[i]].setThermo(thermoModel->updateThermo(ur[boundary.facesIndex[i]]));
     }
 }

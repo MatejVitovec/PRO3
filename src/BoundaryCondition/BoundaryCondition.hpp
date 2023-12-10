@@ -7,6 +7,7 @@
 #include "../Mesh/Face.hpp"
 #include "../Field.hpp"
 #include "../Compressible.hpp"
+#include "../Primitive.hpp"
 #include "../Mat.hpp"
 #include "../Thermo/Thermo.hpp"
 
@@ -23,8 +24,10 @@ class BoundaryCondition
 
         //TODO predelat na mesh, wr na konec argumentu funkce
         virtual void apply(const std::vector<int>& ownerIndexList, const std::vector<Face>& faces, const Field<Compressible>& w, Field<Compressible>& wr, const Thermo * const thermoModel) const;
+        virtual void apply(const std::vector<int>& ownerIndexList, const std::vector<Face>& faces, const Field<Compressible>& w, Field<Primitive>& ur, const Thermo * const thermoModel) const;
 
         virtual void correct(const Field<Compressible>& w, Field<Compressible>& wl, Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const;
+        virtual void correct(const Field<Compressible>& w, Field<Primitive>& ul, Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const;
 
         virtual Compressible calculateState(const Compressible& w, const Face& f, const Thermo * const thermoModel) const = 0;
         

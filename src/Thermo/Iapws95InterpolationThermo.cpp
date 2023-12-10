@@ -64,7 +64,7 @@ Vars<3> Iapws95InterpolationThermo::updateThermo(const Compressible& data, const
     double soundSpeed = soundSpeedInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
     double temperature = temperatureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
 
-    return Vars<3>({temperature, pressure, soundSpeed}); //T = 0 - nepotrebuju
+    return Vars<3>({temperature, pressure, soundSpeed});
 }
 
 Vars<3> Iapws95InterpolationThermo::updateThermo(const Compressible& data) const
@@ -73,7 +73,20 @@ Vars<3> Iapws95InterpolationThermo::updateThermo(const Compressible& data) const
     double soundSpeed = soundSpeedInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
     double temperature = temperatureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
 
-    return Vars<3>({temperature, pressure, soundSpeed}); //T = 0 - nepotrebuju
+    return Vars<3>({temperature, pressure, soundSpeed});
+}
+
+Vars<3> Iapws95InterpolationThermo::updateThermo(const Primitive& data) const
+{
+    /*double pressure = pressureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
+    double soundSpeed = soundSpeedInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
+    double temperature = temperatureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());*/
+
+    double pressure = 0.0;
+    double soundSpeed = 0.0;
+    double temperature = 0.0;
+
+    return Vars<3>({temperature, pressure, soundSpeed});
 }
 
 Compressible Iapws95InterpolationThermo::primitiveToConservative(const Vars<5>& primitive) const

@@ -2,6 +2,7 @@
 #define THERMO_HPP
 
 #include "../Compressible.hpp"
+#include "../Primitive.hpp"
 #include "../Field.hpp"
 #include "../Mesh/Mesh.hpp"
 
@@ -19,8 +20,13 @@ class Thermo
         Field<Compressible> updateInetrnalFieldFaces(Field<Compressible> w, const Mesh& mesh) const;
         Field<Compressible> updateInetrnalFieldFaces(Field<Compressible> wn, const Field<Compressible>& w, const Mesh& mesh) const;
 
+        Field<Primitive> updateField(Field<Primitive> u) const;
+        Field<Primitive> updateInetrnalFieldFaces(Field<Primitive> u, const Mesh& mesh) const;
+
         virtual Vars<3> updateThermo(const Compressible& data, const Compressible& dataOld) const = 0;
         virtual Vars<3> updateThermo(const Compressible& data) const = 0;
+
+        virtual Vars<3> updateThermo(const Primitive& data) const = 0;
 
         virtual Compressible primitiveToConservative(const Vars<5>& primitive) const = 0;
         virtual Compressible stagnationState(double TTot, double pTot) const = 0;

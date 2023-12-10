@@ -23,6 +23,14 @@ Vars<3> SpecialGasThermo::updateThermo(const Compressible& data) const
     return Vars<3>({T, p(rho, T), a(rho, T)});
 }
 
+Vars<3> SpecialGasThermo::updateThermo(const Primitive& data) const
+{
+    double rho = data.density();
+    double T = tFromRhoP(rho, data.pressure(), data.temperature());
+
+    return Vars<3>({T, e(rho, T), a(rho, T)});
+}
+
 Compressible SpecialGasThermo::primitiveToConservative(const Vars<5>& primitive) const
 {
     double rho = primitive[0];

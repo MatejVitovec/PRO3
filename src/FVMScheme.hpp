@@ -12,6 +12,7 @@
 #include "Limiter/BarthJespersen.hpp"
 #include "Limiter/Venkatakrishnan.hpp"
 #include "Compressible.hpp"
+#include "Primitive.hpp"
 #include "Field.hpp"
 #include "BoundaryCondition/BoundaryCondition.hpp"
 
@@ -75,6 +76,8 @@ class FVMScheme
 
         Field<Compressible> wl; //faces size
         Field<Compressible> wr;
+        Field<Primitive> ul; //faces size
+        Field<Primitive> ur;
         Field<Vars<5>> fluxes;
 
         double cfl;
@@ -88,9 +91,13 @@ class FVMScheme
 
         void updateTimeStep();
         void applyBoundaryConditions();
+        void applyBoundaryConditionsPrimitive();
         void calculateWlWr();
+        void calculateUlUr();
         void calculateFluxes();
         void reconstruct();
+        void reconstructPrimitive();
+        void boundField();
 
     private:
 

@@ -6,7 +6,7 @@ TargetError:            0.00001
 
 MaxIter:                50000
 
-cfl:                    0.8
+cfl:                    0.6
 
 SaveEveryIter:          100
 
@@ -20,7 +20,7 @@ Mesh
 
 ThermoModel
 {
-        name:           iapws95
+        name:           idealGas
 }
 
 InitialCondition
