@@ -27,6 +27,12 @@ class Interpolation
         }
 
         virtual void calcCoeffs(std::function<double(double, double)> f) = 0;
+
+        virtual void calcCoeffs(std::function<double(double, double)> f,
+                                std::function<double(double, double)> fx,
+                                std::function<double(double, double)> fy,
+                                std::function<double(double, double)> fxy) = 0;
+                                
         virtual double calc(double x, double y) const = 0;
         virtual double calcInverseX(double y, double z, double xGuess) const = 0;
         virtual double calcInverseY(double x, double z, double yGuess) const = 0;

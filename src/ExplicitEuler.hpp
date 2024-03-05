@@ -17,7 +17,6 @@ class ExplicitEuler : public FVMScheme
 
     private:
     
-        Field<Vars<5>> calculateResidual();        
 
 };
 

@@ -7,7 +7,7 @@ void ExplicitEuler::solve()
 {
     init();
 
-    w = thermo->updateField(w, w);
+    w = thermo->updateField(w);
 
     int iter = 0;
 
@@ -25,15 +25,21 @@ void ExplicitEuler::solve()
         updateTimeStep();
 
         applyBoundaryConditions();
+        //applyBoundaryConditionsPrimitive();
 
         calculateWlWr();
+        //calculateUlUr();
 
-        reconstruct();
+        if(reconstruction)
+        {
+            reconstruct();
+            //reconstructPrimitive();
+        }
 
         calculateFluxes();
 
         Field<Vars<5>> res = calculateResidual();
-        
+
         wn = w + (res*timeSteps);
 
         wn = thermo->updateField(wn);
@@ -56,31 +62,4 @@ void ExplicitEuler::solve()
     std::cout << "iter: " << iter << std::endl;
 
     std::cout << "time: " << time << std::endl;
-}
-
-Field<Vars<5>> ExplicitEuler::calculateResidual()
-{
-    const std::vector<Cell>& cells = mesh.getCellList();
-    const std::vector<Face>& faces = mesh.getFaceList();
-
-    Field<Vars<5>> res(w.size());
-
-    for (int i = 0; i < cells.size(); i++)
-    {
-        Vars<5> aux= Vars<5>();
-
-        for (auto & faceIndex : cells[i].ownFaceIndex)
-        {
-            aux -= fluxes[faceIndex];
-        }
-
-        for (auto & faceIndex : cells[i].neighborFaceIndex)
-        {
-            aux += fluxes[faceIndex];
-        }
-
-        res[i] = aux/(cells[i].volume);
-    }    
-    
-    return res;
 }

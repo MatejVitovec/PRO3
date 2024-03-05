@@ -75,6 +75,28 @@ std::unique_ptr<FVMScheme> CaseSetter::createSolver(Mesh&& mesh_, std::unique_pt
     return std::make_unique<ExplicitEuler>(std::move(mesh_), std::move(fluxSolver_), std::move(thermo_));
 }
 
+std::unique_ptr<FVMScheme> CaseSetter::createAndSetSolver()
+{
+    std::unique_ptr<FVMScheme> tmpSolver = createSolver(createMesh(), createFluxSolver(), createThermoModel());
+    
+    if (isParameterDefined("Reconstruction", data_))
+    {
+        tmpSolver->setReconstructionSettings(true);
+        tmpSolver->setReconstructionGradient(createReconstructionGradient());
+        tmpSolver->setReconstructionLimiter(createReconstructionLimiter());
+    }
+
+    tmpSolver->setCfl(getCfl());
+    tmpSolver->setMaxIter(getMaxIter());
+    tmpSolver->setTargetError(getTargetError());
+    tmpSolver->setLocalTimeStep(getLocalTimeStepSetting());
+
+    tmpSolver->setBoundaryConditions(createBoundaryCondition(tmpSolver->getMesh()));
+    tmpSolver->setInitialConditions(getInitialCondition(tmpSolver->getThermoRef()));
+
+    return std::move(tmpSolver);
+}
+
 
 Mesh CaseSetter::createMesh()
 {
@@ -153,13 +175,52 @@ std::unique_ptr<Thermo> CaseSetter::createThermoModel()
     }
     else if(name == "iapws95interpolation")
     {
-        return std::make_unique<Iapws95InterpolationThermo>(Iapws95InterpolationThermo::BILINEAR);
+        return std::make_unique<Iapws95InterpolationThermo>(Iapws95InterpolationThermo::BIQUADRATIC);
     }
 
     errorMessage("neznamy termo solver");
 
     std::cout << "Nastaven defaultni thermo model idealGas(gamma = 1.4, R = 287.05)" << std::endl;
     return std::make_unique<IdealGasThermo>();
+}
+
+std::unique_ptr<GradientScheme> CaseSetter::createReconstructionGradient()
+{
+    std::vector<std::string> data = findParametersByKey("Reconstruction", data_);
+
+    std::string name = toLower(findParameterByKey("gradientSolver: ", data));
+
+    if (name == "leastsquares")
+    {
+        return std::make_unique<LeastSquare>();
+    }
+    
+    std::cout << "Gradient solver not defined" << std::endl;
+    return std::make_unique<GradientScheme>();
+}
+
+std::unique_ptr<Limiter> CaseSetter::createReconstructionLimiter()
+{
+    std::vector<std::string> data = findParametersByKey("Reconstruction", data_);
+
+    std::string name = toLower(findParameterByKey("limiter: ", data));
+
+    if (name == "barthjespersen")
+    {
+        return std::make_unique<BarthJespersen>();
+    }
+    else if(name == "venkatakrishnan")
+    {
+        return std::make_unique<Venkatakrishnan>();
+    }
+    else if(name == "cubic")
+    {
+        return std::make_unique<CubicLimiter>(2.0);
+    }
+
+
+    std::cout << "Gradient limiter not defined" << std::endl;
+    return std::make_unique<Limiter>();
 }
 
 
@@ -184,7 +245,7 @@ double CaseSetter::getCfl()
 }
 
 
-Compressible CaseSetter::getInitialCondition()
+Compressible CaseSetter::getInitialCondition(const Thermo * const thermoModel)
 {
     std::vector<std::string> data = findParametersByKey("InitialCondition", data_);
 
@@ -199,8 +260,9 @@ Compressible CaseSetter::getInitialCondition()
 
     if(name == "primitive")
     {
-        std::unique_ptr<Thermo> tempThermo = createThermoModel();
-        return tempThermo->primitiveToConservative(Vars<5>({value[0], value[1], value[2], value[3], value[4]}));
+        //std::unique_ptr<Thermo> tempThermo = createThermoModel();
+        //return tempThermo->primitiveToConservative(Vars<5>({value[0], value[1], value[2], value[3], value[4]}));
+        return thermoModel->primitiveToConservative(Vars<5>({value[0], value[1], value[2], value[3], value[4]}));
     }
     else if(name == "conservative")
     {
@@ -208,8 +270,9 @@ Compressible CaseSetter::getInitialCondition()
     }
     else if(name == "stagnationstate")
     {
-        std::unique_ptr<Thermo> tempThermo = createThermoModel();
-        return tempThermo->stagnationState(value[0], value[4]);
+        //std::unique_ptr<Thermo> tempThermo = createThermoModel();
+        //return tempThermo->stagnationState(value[0], value[4]);
+        return thermoModel->stagnationState(value[0], value[4]);
     }
     else
     {
@@ -405,6 +468,34 @@ std::vector<std::string> CaseSetter::stringArrayToVectorOfStrings(std::string st
     }
 
     return out;
+}
+
+bool CaseSetter::isParameterDefined(std::string key, std::vector<std::string> data)
+{
+    int level = 0;    
+
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        if (data[i].find('{') != std::string::npos)
+        {
+            level++;
+        }
+        if (data[i].find('}') != std::string::npos)
+        {
+            level--;
+        }
+
+        if(level == 0)
+        {
+            std::size_t found = data[i].find(key);
+            if (found != std::string::npos)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 std::string CaseSetter::findParameterByKey(std::string key, std::vector<std::string> data)

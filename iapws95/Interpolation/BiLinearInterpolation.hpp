@@ -21,6 +21,10 @@ class BiLinearInterpolation : public Interpolation
         ~BiLinearInterpolation() {}
 
         void calcCoeffs(std::function<double(double, double)> f);
+        void calcCoeffs(std::function<double(double, double)> f,
+                        std::function<double(double, double)> fx,
+                        std::function<double(double, double)> fy,
+                        std::function<double(double, double)> fxy);
 
         double calc(double x, double y) const;
         double calcInverseX(double y, double z, double xGuess) const;

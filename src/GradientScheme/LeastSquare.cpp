@@ -92,7 +92,8 @@ Field<Mat<5,3>> LeastSquare::calculateGradient(const Field<Primitive>& ul, const
 
     for (int i = 0; i < cells.size(); i++)
     {
-        grad[i] = transpose(dot(MInv[i], b[i]));        
+        grad[i] = transpose(dot(MInv[i], b[i])); 
+        grad[i] = zeroSmallNumbers(grad[i]);
     }
 
     return grad;

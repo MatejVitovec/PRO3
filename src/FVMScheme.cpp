@@ -6,6 +6,15 @@
 
 #include "outputCFD.hpp"
 
+void FVMScheme::setReconstructionGradient(std::unique_ptr<GradientScheme> gradScheme_)
+{
+    gradientScheme = std::move(gradScheme_);
+}
+void FVMScheme::setReconstructionLimiter(std::unique_ptr<Limiter> limiter_)
+{
+    limiter = std::move(limiter_);
+}
+
 void FVMScheme::setCfl(double cfl_)
 {
     cfl = cfl_;
@@ -24,6 +33,11 @@ void FVMScheme::setTargetError(double targetError_)
 void FVMScheme::setLocalTimeStep(bool localTimeStep_)
 {
     localTimeStep = localTimeStep_;
+}
+
+void FVMScheme::setReconstructionSettings(bool reconstruction_)
+{
+    reconstruction = reconstruction_;
 }
 
 double FVMScheme::getCfl() const
@@ -46,11 +60,20 @@ bool FVMScheme::getTimeStepsettings() const
     return localTimeStep;
 }
 
+bool FVMScheme::getReconstructionSettings() const
+{
+    return reconstruction;
+}
+
 const Mesh& FVMScheme::getMesh() const
 {
     return mesh;
 }
 
+const Thermo* FVMScheme::getThermoRef()
+{
+    return thermo.get();
+}
 
 
 void FVMScheme::setInitialConditions(Compressible initialCondition)
@@ -152,27 +175,45 @@ void FVMScheme::calculateUlUr()
 
 void FVMScheme::boundField()
 {
-    double minDensity = 0.1;
-    double minInternalEnergy = 2100000.0;
+    constexpr double minDensity = 0.1;
+    constexpr double maxMach = 2.2;
+    constexpr double minInternalEnergy = 2100000.0;
+    constexpr double maxInternalEnergy = 2800000.0;
+    
 
     const std::vector<Cell>& cells = mesh.getCellList();
     for (int i = 0; i < cells.size(); i++)
     {
         if (w[i].density() < minDensity)
         {
-            std::cout << "rho: " << w[i].density() << " U: " << w[i].absVelocity() << " energy: " << w[i].internalEnergy() << std::endl;
-            w[i][Compressible::RHO] = minDensity;
+            //std::cout << "rho: " << w[i].density() << " U: " << w[i].absVelocity() << " energy: " << w[i].internalEnergy() << std::endl;
             w[i][Compressible::RHO_U] = w[i].velocityU()*minDensity;
             w[i][Compressible::RHO_V] = w[i].velocityV()*minDensity;
             w[i][Compressible::RHO_W] = w[i].velocityW()*minDensity;
             w[i][Compressible::RHO_E] = w[i].totalEnergy()*minDensity;
+            w[i][Compressible::RHO] = minDensity;
         }
+
+        /*if (w[i].machNumber() > maxMach)
+        {
+            double velocityCoeff = (maxMach*w[i].soundSpeed())/(w[i].absVelocity());
+            w[i][Compressible::RHO_U] = w[i][Compressible::RHO_U]*velocityCoeff;
+            w[i][Compressible::RHO_V] = w[i][Compressible::RHO_V]*velocityCoeff;
+            w[i][Compressible::RHO_W] = w[i][Compressible::RHO_W]*velocityCoeff;
+            //std::cout << "M i: " << std::endl;
+        }*/
 
         if (w[i].internalEnergy() < minInternalEnergy)
         {
             w[i][Compressible::RHO_E] = minInternalEnergy*w[i].density();
-            std::cout << "e min i: " << i << std::endl;
+            //std::cout << "e min i: " << i << std::endl;
         }
+
+        /*if (w[i].internalEnergy() > maxInternalEnergy)
+        {
+            w[i][Compressible::RHO_E] = maxInternalEnergy*w[i].density();
+            //std::cout << "e min i: " << i << std::endl;
+        }*/
     }
 }
 
@@ -182,8 +223,10 @@ void FVMScheme::reconstruct()
 
     Field<Vars<5>> phi = limiter->calculateLimiter(wl, wr, grad, mesh);
 
-    phi[386] = Vars<5>(0.0);
-    phi[7385] = Vars<5>(0.0);
+    //phi = phi*0.8;
+
+    //phi[386] = Vars<5>(0.0);
+    //phi[7385] = Vars<5>(0.0);
 
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
@@ -191,14 +234,14 @@ void FVMScheme::reconstruct()
     const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
 
     //EOS INTERVAL PRESERVING
-    /*for (int i = 0; i < cells.size(); i++)
+    for (int i = 0; i < cells.size(); i++)
     {
-        if (w[i].density() < 0.11 || w[i].internalEnergy() < 2010000.0)
+        if (w[i].density() < 0.11 || w[i].internalEnergy() < 2200000.0)
         {
             phi[i] = Vars<5>(0.0);
-            std::cout << "Err, EOS range; rho: " << w[i].density() << " e: " << w[i].internalEnergy() << std::endl;
+            //std::cout << "Err, EOS range; rho: " << w[i].density() << " e: " << w[i].internalEnergy() << std::endl;
         }
-    }*/
+    }
     
 
     for (int i = 0; i < faces.size(); i++)
@@ -236,13 +279,21 @@ void FVMScheme::reconstructPrimitive()
 
     Field<Vars<5>> phi = limiter->calculateLimiter(ul, ur, grad, mesh);
 
-    phi[386] = Vars<5>(0.0);
-    phi[7385] = Vars<5>(0.0);
+    //phi[386] = Vars<5>(0.0);
+    //phi[7385] = Vars<5>(0.0);
 
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
     const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
     const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
+
+    /*for (int i = 0; i < cells.size(); i++)
+    {
+        if (w[i].density() < 0.1 || w[i].internalEnergy() < 2200000.0)
+        {
+            phi[i] = Vars<5>(0.0);
+        }
+    }*/
 
     for (int i = 0; i < faces.size(); i++)
     {
@@ -273,7 +324,11 @@ void FVMScheme::updateTimeStep()
     for (int i = 0; i < w.size(); i++)
     {
         Vars<3> projectedArea = vector3toVars(cells[i].projectedArea);
-        timeSteps[i] = cfl*(cells[i].volume/sum(projectedArea*(w[i].velocity() + Vars<3>(w[i].soundSpeed()))));
+        timeSteps[i] = cfl*(cells[i].volume/sum(projectedArea*(abs(w[i].velocity()) + Vars<3>(w[i].soundSpeed()))));
+        if (timeSteps[i] < 0.0)
+        {
+            std::cout << "cell index: " << i << std::endl;
+        }
     }
 
     if (!localTimeStep)
@@ -288,7 +343,34 @@ void FVMScheme::updateTimeStep()
 void FVMScheme::calculateFluxes()
 {
     fluxes = fluxSolver->calculateFluxes(wl, wr, mesh.getFaceList());
-    //fluxes = fluxSolver->calculateFluxes(ul, ul, mesh.getFaceList());
+    //fluxes = fluxSolver->calculateFluxes(ul, ur, mesh.getFaceList());
+}
+
+Field<Vars<5>> FVMScheme::calculateResidual()
+{
+    const std::vector<Cell>& cells = mesh.getCellList();
+    const std::vector<Face>& faces = mesh.getFaceList();
+
+    Field<Vars<5>> res(w.size());
+
+    for (int i = 0; i < cells.size(); i++)
+    {
+        Vars<5> aux= Vars<5>();
+
+        for (auto & faceIndex : cells[i].ownFaceIndex)
+        {
+            aux -= fluxes[faceIndex];
+        }
+
+        for (auto & faceIndex : cells[i].neighborFaceIndex)
+        {
+            aux += fluxes[faceIndex];
+        }
+
+        res[i] = aux/(cells[i].volume);
+    }    
+    
+    return res;
 }
 
 Field<Compressible> FVMScheme::getResults() const

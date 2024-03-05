@@ -35,6 +35,7 @@ Vars<3> IdealGasThermo::updateThermo(const Compressible& data) const
 Vars<3> IdealGasThermo::updateThermo(const Primitive& data) const
 {
     //return Vars<3>({temperature(data), pressure(data), soundSpeed(data)}); TODO
+    return Vars<3>();
 }
 
 Compressible IdealGasThermo::primitiveToConservative(const Vars<5>& primitive) const
@@ -65,7 +66,7 @@ Compressible IdealGasThermo::stagnationState(double TTot, double pTot) const
     return out;
 }
 
-Compressible IdealGasThermo::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
+Compressible IdealGasThermo::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
 {
     double p = std::min(pressure(stateIn), pTot);
     double M2 = (2.0/(gamma - 1.0))*(std::pow((pTot/p), ((gamma - 1.0)/gamma)) - 1.0);
@@ -82,7 +83,7 @@ Compressible IdealGasThermo::isentropicInletPressureTemperature(double pTot, dou
                          {T, p, a});
 }
 
-Compressible IdealGasThermo::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn, Compressible wrOld) const
+Compressible IdealGasThermo::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
 {
     //TODO
     return Compressible();

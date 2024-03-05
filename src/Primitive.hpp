@@ -16,7 +16,7 @@ class Primitive : public Vars<5>
         Primitive(const std::array<double, 5>& in, const std::array<double, 3>& inTermo) : Vars<5>(in), thermoVar(inTermo) {}
         Primitive(Compressible in);
 
-        void setThermo(Vars<3> thermoProp); //TODO prejmenovat na setThernm
+        void setThermo(Vars<3> thermoProp);
 
         virtual ~Primitive() {}
 

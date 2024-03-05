@@ -4,29 +4,29 @@ LocalTimeStep:          false
 
 TargetError:            0.00001
 
-MaxIter:                50000
+MaxIter:                200000
 
-cfl:                    0.6
+cfl:                    0.8
 
-SaveEveryIter:          100
+SaveEveryIter:          500
 
 RiemannSolver:          hllc
 
 Mesh
 {
 	type:           gmsh2
-	fileName:       ../meshes/se1050_coarse.msh
+	fileName:       ../meshes/se1050_coarse4.msh
 }
 
 ThermoModel
 {
-        name:           idealGas
+        name:           iapws95interpolation
 }
 
 InitialCondition
 {
         type: stagnationState
-        val: [372.21, 0.0, 0.0, 0.0, 98071.7]
+        val: [600.0, 0.0, 0.0, 0.0, 98071.7]
 }
 
 BoundaryCondition
@@ -35,7 +35,7 @@ BoundaryCondition
         {
                 type:                   pressureTemperatureInlet
                 totalPressure:          98071.7
-                totalTemperature:       372.21
+                totalTemperature:       600.0
                 xyAngle:                19.3
                 xzAngle:                0.0
         }

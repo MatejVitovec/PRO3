@@ -3,37 +3,34 @@
 
 
 #include "Interpolation.hpp"
-//#include "InterpolationCoeffs.hpp"
 
 
 class BiLinearInterpolation : public Interpolation
 {
     public:
     
-        BiLinearInterpolation(std::vector<int> xSizes_,
-                                             std::vector<int> ySizes_,
-                                             std::vector<double> xBoundary_,
-                                             std::vector<double> yBoundary_,
-                                             TransformationType xTransformation_,
-                                             TransformationType yTransformation_) : Interpolation(xSizes_, ySizes_, xBoundary_, yBoundary_, xTransformation_, yTransformation_),
-                                                                                    coeffs(std::vector<double>((sizeX*sizeY)*4)) {}
+        BiLinearInterpolation() : n(0), m(0), x(0), y(0), coeffs(0), Interpolation() {}
+
+        BiLinearInterpolation(std::vector<double> xx,
+                              std::vector<double> yy,
+                              std::function<double(double, double)> f);
 
         ~BiLinearInterpolation() {}
 
-        void calcCoeffs(std::function<double(double, double)> f);
-
-        double calc(double x, double y) const;
-        double calcInverseX(double y, double z, double xGuess) const;
-        double calcInverseY(double x, double z, double yGuess) const;
+        double calc(double xx, double yy) const;
 
     private:
 
-        std::vector<double> coeffs;
+        int n;
+        int m;
+        std::vector<double> x;
+        std::vector<double> y;
+        std::vector<double> dx;
+        std::vector<double> dy;
 
-        std::array<double, 4> getNodeCoeffs(int i, int j) const;
+        void calcCoeffs(std::function<double(double, double)> f);
 
-        std::tuple<double, double, double, double> getNodeXYdXdY(int i, int j) const;
-
+        std::vector<std::array<double, 4>> coeffs;
 };
 
 #endif // BILINEARINTERPOLATION_HPP

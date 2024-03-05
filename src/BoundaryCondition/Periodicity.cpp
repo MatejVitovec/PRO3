@@ -12,7 +12,7 @@ void Periodicity::init(const Mesh& mesh)
     const std::vector<Face>& faceList = mesh.getFaceList();
     const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
 
-    double minFaceSize = 100000.0;
+    /*double minFaceSize = 100000.0;
     for (int i = 0; i < faceList.size(); i++)
     {
         if (minFaceSize > faceList[i].area)
@@ -21,8 +21,8 @@ void Periodicity::init(const Mesh& mesh)
         }        
     }
 
-    double numTol = minFaceSize/2.0;
-    
+    double numTol = minFaceSize/2.0;*/
+    double numTol = 0.000001;
     
     periodicityFacesIndex.clear();
     periodicityFacesOwnersIndexes.clear();
@@ -120,8 +120,8 @@ void Periodicity::correct(const Field<Compressible>& w, Field<Primitive>& ul, Fi
                 
         Vars<5> urDiff = dot(grad[ownerIndexList[periodicityFacesIndex[i]]], vector3toVars(faces[boundary.facesIndex[i]].midpoint - cells[ownerIndexList[periodicityFacesIndex[i]]].center + faceMidpointShift));
 
-        ul[boundary.facesIndex[i]] = w[ownerIndexList[boundary.facesIndex[i]]] + phi[ownerIndexList[boundary.facesIndex[i]]]*ulDiff;                
-        ur[boundary.facesIndex[i]] = w[ownerIndexList[periodicityFacesIndex[i]]] + phi[ownerIndexList[periodicityFacesIndex[i]]]*urDiff;
+        ul[boundary.facesIndex[i]] = ul[boundary.facesIndex[i]] + phi[ownerIndexList[boundary.facesIndex[i]]]*ulDiff;                
+        ur[boundary.facesIndex[i]] = ur[boundary.facesIndex[i]] + phi[ownerIndexList[periodicityFacesIndex[i]]]*urDiff;
 
         ur[boundary.facesIndex[i]].setThermo(thermoModel->updateThermo(ur[boundary.facesIndex[i]]));
     }

@@ -66,7 +66,7 @@ double Primitive::temperature() const
 
 double Primitive::pressure() const
 {
-    return thermoVar[P];
+    return data[P];
 }
 
 double Primitive::soundSpeed() const

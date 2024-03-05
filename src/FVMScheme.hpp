@@ -32,16 +32,20 @@ class FVMScheme
                                                                                                             targetError(0000005),
                                                                                                             localTimeStep(false),
                                                                                                             time(0.0),
-                                                                                                            gradientScheme(std::make_unique<LeastSquare>()),
-                                                                                                            limiter(std::make_unique<Venkatakrishnan>()) {}
+                                                                                                            gradientScheme(std::make_unique<GradientScheme>()),
+                                                                                                            limiter(std::make_unique<Limiter>()) {}
 
 
         virtual ~FVMScheme() {}
+
+        void setReconstructionGradient(std::unique_ptr<GradientScheme> gradScheme_);
+        void setReconstructionLimiter(std::unique_ptr<Limiter> limiter_);
 
         void setCfl(double cfl_);
         void setMaxIter(int maxIter_);
         void setTargetError(double targetError_);
         void setLocalTimeStep(bool localTimeStep_);
+        void setReconstructionSettings(bool reconstruction_);
 
         void setThermoModel(std::unique_ptr<Thermo> thermo_) {thermo = std::move(thermo_);}
         
@@ -49,7 +53,9 @@ class FVMScheme
         int getMaxIter() const;
         double getTargetError() const;
         bool getTimeStepsettings() const;
+        bool getReconstructionSettings() const;
         const Mesh& getMesh() const;
+        const Thermo* getThermoRef();
 
         void setInitialConditions(Compressible initialCondition);
         void setInitialConditionsPrimitive(Vars<5> initialCondition);
@@ -84,6 +90,7 @@ class FVMScheme
         int maxIter;
         double targetError;
         bool localTimeStep;
+        bool reconstruction;
 
         Field<double> timeSteps;
 
@@ -95,6 +102,7 @@ class FVMScheme
         void calculateWlWr();
         void calculateUlUr();
         void calculateFluxes();
+        Field<Vars<5>> calculateResidual();
         void reconstruct();
         void reconstructPrimitive();
         void boundField();

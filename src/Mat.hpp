@@ -34,7 +34,7 @@ class Mat
         void operator-=(const Mat<M, N>& v);
         
     protected:
-        std::array<double, N*M> data_;
+        std::array<double, M*N> data_;
 };
 
 template <int M, int N>
@@ -223,6 +223,25 @@ Mat<M, N> transpose(const Mat<N, M>& u)
         for (int j = 0; j < N; j++)
         {
             out[i][j] = u[j][i];
+        }
+    }
+    return out;
+}
+
+template <int M, int N>
+Mat<M, N> zeroSmallNumbers(const Mat<M, N>& u)
+{
+    constexpr double SMALLNUM = 1e-15;
+
+    Mat<M, N> out = u;
+    for (int i = 0; i < M; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            if(std::fabs(out[i][j]) < SMALLNUM)
+            {
+                out[i][j] = 0.0;
+            }
         }
     }
     return out;

@@ -15,7 +15,7 @@ Field<Compressible> Thermo::updateField(Field<Compressible> w) const
 }
 
 
-Field<Compressible> Thermo::updateField(Field<Compressible> wn, const Field<Compressible>& w) const
+/*Field<Compressible> Thermo::updateField(Field<Compressible> wn, const Field<Compressible>& w) const
 {
     #pragma omp parallel for
     for (int i = 0; i < wn.size(); i++)
@@ -24,7 +24,7 @@ Field<Compressible> Thermo::updateField(Field<Compressible> wn, const Field<Comp
     }
 
     return wn;
-}
+}*/
 
 Field<Compressible> Thermo::updateInetrnalFieldFaces(Field<Compressible> w, const Mesh& mesh) const
 {
@@ -44,7 +44,7 @@ Field<Compressible> Thermo::updateInetrnalFieldFaces(Field<Compressible> w, cons
     return w;
 }
 
-Field<Compressible> Thermo::updateInetrnalFieldFaces(Field<Compressible> wn, const Field<Compressible>& w, const Mesh& mesh) const
+/*Field<Compressible> Thermo::updateInetrnalFieldFaces(Field<Compressible> wn, const Field<Compressible>& w, const Mesh& mesh) const
 {
     const std::vector<Face>& faces = mesh.getFaceList();
     const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
@@ -60,7 +60,7 @@ Field<Compressible> Thermo::updateInetrnalFieldFaces(Field<Compressible> wn, con
     }
 
     return wn;
-}
+}*/
 
 
 Field<Primitive> Thermo::updateField(Field<Primitive> u) const

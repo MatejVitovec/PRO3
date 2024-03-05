@@ -21,6 +21,11 @@
 #include "Thermo/SpecialGasThermo.hpp"
 #include "Thermo/Iapws95InterpolationThermo.hpp"
 
+#include "GradientScheme/LeastSquare.hpp"
+#include "Limiter/BarthJespersen.hpp"
+#include "Limiter/Venkatakrishnan.hpp"
+#include "Limiter/CubicLimiter.hpp"
+
 /*#include "Thermo/IdealGas.hpp"
 #include "Thermo/Iapws95.hpp"
 #include "Thermo/Iapws95SpecialGas.hpp"*/
@@ -39,14 +44,18 @@ class CaseSetter
         double getMaxIter();
         double getCfl();
 
-        Compressible getInitialCondition();
+        Compressible getInitialCondition(const Thermo * const thermoModel);
 
         std::unique_ptr<FVMScheme> createSolver();
         std::unique_ptr<FVMScheme> createSolver(Mesh&& mesh_, std::unique_ptr<FluxSolver> fluxSolver_, std::unique_ptr<Thermo> thermo_);
+        std::unique_ptr<FVMScheme> createAndSetSolver();
 
         Mesh createMesh();
         std::unique_ptr<FluxSolver> createFluxSolver();
         std::unique_ptr<Thermo> createThermoModel();
+        std::unique_ptr<GradientScheme> createReconstructionGradient();
+        std::unique_ptr<Limiter> createReconstructionLimiter();
+
         std::vector<std::shared_ptr<BoundaryCondition>> createBoundaryCondition(const Mesh& mesh);
 
     private:
@@ -60,6 +69,7 @@ class CaseSetter
         std::vector<std::string> stringArrayToVectorOfStrings(std::string str);
         std::vector<double> vectorStringToDouble(std::vector<std::string> in);
         
+        bool isParameterDefined(std::string key, std::vector<std::string> data);
         std::string findParameterByKey(std::string key, std::vector<std::string> data);
         std::vector<std::string> findParametersByKey(std::string key, std::vector<std::string> data);
 

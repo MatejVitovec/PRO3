@@ -59,6 +59,14 @@ void BiLinearInterpolation::calcCoeffs(std::function<double(double, double)> f)
     }
 }
 
+void BiLinearInterpolation::calcCoeffs(std::function<double(double, double)> f,
+                                       std::function<double(double, double)> fx,
+                                       std::function<double(double, double)> fy,
+                                       std::function<double(double, double)> fxy)
+{
+    calcCoeffs(f);
+}
+
 std::array<double, 4> BiLinearInterpolation::getNodeCoeffs(int i, int j) const
 {
     std::array<double, 4> out;

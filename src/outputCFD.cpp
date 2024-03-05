@@ -205,7 +205,7 @@ void outputCFD::outputVTKPeriodicBoundary(std::string fileName, const Mesh& mesh
 	}
 
 
-	const std::vector<Face>& faceList = mesh.getFaceList();
+	/*const std::vector<Face>& faceList = mesh.getFaceList();
     double minFaceSize = 100000.0;
     for (int i = 0; i < faceList.size(); i++)
     {
@@ -214,7 +214,8 @@ void outputCFD::outputVTKPeriodicBoundary(std::string fileName, const Mesh& mesh
             minFaceSize = faceList[i].area;
         }        
     }
-    double numTol = minFaceSize/2.0;
+    double numTol = minFaceSize/2.0;*/
+	double numTol = 0.000001;
 
 
 	std::vector<int> duplicityNodes;
@@ -438,6 +439,62 @@ void outputCFD::saveGradients(Field<Mat<5,3>> grad, const Mesh& mesh)
     for (int i = 0; i < cellList.size(); i++)
     {
 		f << roundToZero(grad[i][0][0]) << " " << roundToZero(grad[i][0][1]) << " " << roundToZero(grad[i][0][2]) << "\n";
+	}
+
+	f << std::endl;
+
+	f.close();
+
+	f.open("../results/rhoUGrad.txt", std::ios::out);
+
+ 	f << "SCALARS rhoUGrad float 3\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(grad[i][1][0]) << " " << roundToZero(grad[i][1][1]) << " " << roundToZero(grad[i][1][2]) << "\n";
+	}
+
+	f << std::endl;
+
+	f.close();
+
+	f.open("../results/rhoVGrad.txt", std::ios::out);
+
+ 	f << "SCALARS rhoVGrad float 3\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(grad[i][2][0]) << " " << roundToZero(grad[i][2][1]) << " " << roundToZero(grad[i][2][2]) << "\n";
+	}
+
+	f << std::endl;
+
+	f.close();
+
+	f.open("../results/rhoWGrad.txt", std::ios::out);
+
+ 	f << "SCALARS rhoWGrad float 3\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(grad[i][3][0]) << " " << roundToZero(grad[i][3][1]) << " " << roundToZero(grad[i][3][2]) << "\n";
+	}
+
+	f << std::endl;
+
+	f.close();
+
+	f.open("../results/rhoEGrad.txt", std::ios::out);
+
+ 	f << "SCALARS rhoEGrad float 3\n"; 
+	f << "LOOKUP_TABLE default\n";
+
+    for (int i = 0; i < cellList.size(); i++)
+    {
+		f << roundToZero(grad[i][4][0]) << " " << roundToZero(grad[i][4][1]) << " " << roundToZero(grad[i][4][2]) << "\n";
 	}
 
 	f << std::endl;

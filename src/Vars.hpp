@@ -220,6 +220,22 @@ Vars<N> min(const Vars<N>& u, const Vars<N>& v)
     return out;
 }
 
+template <int N>
+Vars<N> zeroSmallNumbers(const Vars<N>& u)
+{
+    constexpr double SMALLNUM = 1e-12;
+
+    Vars<N> out = u;
+    for (int i = 0; i < N; i++)
+    {
+        if(std::fabs(out[i]) < SMALLNUM)
+        {
+            out[i] = 0.0;
+        }
+    }
+    return out;
+}
+
 Vars<3> vector3toVars(const Vector3& vec);
 
 

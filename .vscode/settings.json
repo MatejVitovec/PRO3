@@ -75,7 +75,8 @@
         "future": "cpp",
         "ranges": "cpp",
         "valarray": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "dense": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

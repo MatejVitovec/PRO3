@@ -229,6 +229,8 @@ void Iawps95::saturatedCurve() const
     std::vector<double> densityS = std::vector<double>(n);
     std::vector<double> energy = std::vector<double>(n);
     std::vector<double> pressure = std::vector<double>(n);
+    std::vector<double> soundSpeed = std::vector<double>(n);
+
 
     for (int i = 0; i < n; i++)
     {
@@ -238,6 +240,7 @@ void Iawps95::saturatedCurve() const
         double liquidDensity = saturatedLiquidDensity(temperature[i]);
 
         energy[i] = e(densityS[i], temperature[i]);
+        soundSpeed[i] = std::sqrt(w2(densityS[i], temperature[i]));
 
         pressure[i] = vaporPressure(temperature[i]);
     }
@@ -250,7 +253,8 @@ void Iawps95::saturatedCurve() const
     for (int i = 0; i < temperature.size(); i++)
     {
         //f << temperature[i] << " " << densityS[i] << " " << 1.0/densityS[i] << " " << energy[i] << " " << pressure[i] << "\n";
-        f << densityS[i] << " " << energy[i] << " " << temperature[i] <<  "\n";
+        if(densityS[i] <= 125)
+            f << densityS[i] << " " << energy[i] << " " << temperature[i] << " " << pressure[i] << " " << soundSpeed[i] << "\n";
     }
 
     f << std::endl;

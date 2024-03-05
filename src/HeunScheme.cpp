@@ -8,7 +8,7 @@ void HeunScheme::solve()
 
     Field<Compressible> wOld = Field<Compressible>(w.size());
 
-    w = thermo->updateField(w, w);
+    w = thermo->updateField(w);
 
     int iter = 0;
 
@@ -21,6 +21,8 @@ void HeunScheme::solve()
     {
         iter++;
         wOld = w;
+
+        boundField();
 
         updateTimeStep();
 
@@ -36,7 +38,7 @@ void HeunScheme::solve()
         
         wn = w + (res*timeSteps);
 
-        //wn = thermo->updateField(wn, w);
+        wn = thermo->updateField(wn);
 
         w = wn;
 
@@ -52,7 +54,7 @@ void HeunScheme::solve()
 
         wn = w + (res*(timeSteps/2.0));
 
-        wn = thermo->updateField(wn, wOld);
+        wn = thermo->updateField(wn);
 
         resNorm = (wn - wOld).norm();
         outputCFD::saveResidual("../results/residuals.txt", resNorm);
@@ -72,31 +74,4 @@ void HeunScheme::solve()
     std::cout << "iter: " << iter << std::endl;
 
     std::cout << "time: " << time << std::endl;
-}
-
-Field<Vars<5>> HeunScheme::calculateResidual()
-{
-    const std::vector<Cell>& cells = mesh.getCellList();
-    const std::vector<Face>& faces = mesh.getFaceList();
-
-    Field<Vars<5>> res(w.size());
-
-    for (int i = 0; i < cells.size(); i++)
-    {
-        Vars<5> aux= Vars<5>();
-
-        for (auto & faceIndex : cells[i].ownFaceIndex)
-        {
-            aux -= fluxes[faceIndex];
-        }
-
-        for (auto & faceIndex : cells[i].neighborFaceIndex)
-        {
-            aux += fluxes[faceIndex];
-        }
-
-        res[i] = aux/(cells[i].volume);
-    }    
-    
-    return res;
 }

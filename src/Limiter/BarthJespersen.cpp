@@ -1,7 +1,7 @@
 #include "BarthJespersen.hpp"
 
 
-Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Mesh& mesh) const
+/*Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Mesh& mesh) const
 {
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
@@ -75,12 +75,12 @@ Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Compressible>& wl, c
     }
 
     return out;
-}
+}*/
 
 
 
 
-Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Primitive>& ul, const Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Mesh& mesh) const
+/*Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Primitive>& ul, const Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Mesh& mesh) const
 {
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
@@ -154,4 +154,9 @@ Field<Vars<5>> BarthJespersen::calculateLimiter(const Field<Primitive>& ul, cons
     }
 
     return out;
+}*/
+
+double BarthJespersen::limiterFunction(double y) const
+{
+    return std::min(1.0, y);
 }

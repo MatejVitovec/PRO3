@@ -17,8 +17,7 @@ class HeunScheme : public FVMScheme
         
 
     private:
-    
-        Field<Vars<5>> calculateResidual();        
+     
 
 };
 

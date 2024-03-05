@@ -18,8 +18,8 @@ class Limiter
         virtual Field<Vars<5>> calculateLimiter(const Field<Compressible>& wl, const Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Mesh& mesh) const;
         virtual Field<Vars<5>> calculateLimiter(const Field<Primitive>& ul, const Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Mesh& mesh) const;
 
-
     protected:
+        virtual double limiterFunction(double y) const;
 
 };
 

@@ -1,0 +1,76 @@
+Solver:                 explicitEuler
+
+LocalTimeStep:          false
+
+TargetError:            0.00001
+
+MaxIter:                40000
+
+cfl:                    0.8
+
+SaveEveryIter:          100
+
+RiemannSolver:          hllc
+
+Reconstruction
+{
+        gradientSolver: leastSquares
+        limiter:        Venkatakrishnan
+}
+
+Mesh
+{
+	type:           gmsh2
+	fileName:       ../meshes/se1050_coarse2.msh
+}
+
+ThermoModel
+{
+        name:           specialgasequation
+}
+
+InitialCondition
+{
+        type: stagnationState
+        val: [372.21, 0.0, 0.0, 0.0, 98071.7]
+}
+
+BoundaryCondition
+{
+        inlet
+        {
+                type:                   pressureTemperatureInlet
+                totalPressure:          98071.7
+                totalTemperature:       372.21
+                xyAngle:                19.3
+                xzAngle:                0.0
+        }
+
+        outlet
+        {
+                type:           pressureOutlet
+                pressure:       42207.157
+        }
+
+        wall
+        {
+                type:   wall
+        }
+
+        wall2
+        {
+                type:   wall
+        }
+
+        periodbeg
+        {
+                type:   periodicity
+                shift:  [0.0, 0.0551168, 0.0]
+        }
+
+        periodend
+        {
+                type:   periodicity
+                shift:  [0.0, -0.0551168, 0.0]
+        }
+}
