@@ -83,3 +83,15 @@ double BiLinearInterpolation::calc(double xx, double yy) const
     return 0.0;
 
 }
+
+double BiLinearInterpolation::calcInverseX(double zz, double yy, double guessXX) const
+{
+    //TODO
+    return 0.0;
+}
+
+double BiLinearInterpolation::calcInverseY(double xx, double zz, double guessYY) const
+{
+    //TODO
+    return 0.0;
+}

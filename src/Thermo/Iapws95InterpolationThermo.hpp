@@ -28,7 +28,8 @@ class Iapws95InterpolationThermo : public Thermo, Iapws95
         std::unique_ptr<Interpolation> pressureInterpolationFromRhoE;
         std::unique_ptr<Interpolation> soundSpeedInterpolationFromRhoE;
         std::unique_ptr<Interpolation> temperatureInterpolationFromRhoE;
-        //std::unique_ptr<Interpolation> energyFromRhoPAux;
+
+        std::unique_ptr<Interpolation> energyInterpolationFromRhoPAux;
 
         std::vector<double> createInterpolationAxis(std::vector<int> gridSize, std::vector<double> boundary, Transformation transformation);
 };

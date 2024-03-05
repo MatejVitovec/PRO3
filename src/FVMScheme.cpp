@@ -348,6 +348,7 @@ void FVMScheme::calculateFluxes()
 
 Field<Vars<5>> FVMScheme::calculateResidual()
 {
+    //TODO predelat na cyklus pres steny
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
 

@@ -12,6 +12,12 @@ SaveEveryIter:          500
 
 RiemannSolver:          hllc
 
+Reconstruction
+{
+        gradientSolver: leastSquares
+        limiter:        cubic
+}
+
 Mesh
 {
 	type:           gmsh2

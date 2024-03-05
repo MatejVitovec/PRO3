@@ -18,6 +18,8 @@ class BiLinearInterpolation : public Interpolation
         ~BiLinearInterpolation() {}
 
         double calc(double xx, double yy) const;
+        double calcInverseX(double zz, double yy, double guessXX) const;
+        double calcInverseY(double xx, double zz, double guessYY) const;
 
     private:
 

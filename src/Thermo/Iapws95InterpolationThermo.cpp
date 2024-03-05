@@ -13,6 +13,8 @@ Iapws95InterpolationThermo::Iapws95InterpolationThermo(InterpolationType interpo
     std::vector<double> densityGrid = createInterpolationAxis(std::vector<int>{200}, std::vector<double>{1/1188.87, 1/0.008}, Transformation::LOGINV);
     std::vector<double> internalEnergyGrid = createInterpolationAxis(std::vector<int>{100, 100}, std::vector<double>{2005000.0, 2650000.0, 4085000.27}, Transformation::NONE);
 
+    std::vector<double> pressureGridAux = createInterpolationAxis(std::vector<int>{800}, std::vector<double>{7000.0, 150000.0}, Transformation::LOGINV);
+
     switch (interpolationType)
     {
     case BILINEAR:
@@ -20,7 +22,8 @@ Iapws95InterpolationThermo::Iapws95InterpolationThermo(InterpolationType interpo
         soundSpeedInterpolationFromRhoE  = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return a(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
         temperatureInterpolationFromRhoE = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805); });
 
-        //energyFromRhoPAux = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return 0.0; }); TODO
+        energyInterpolationFromRhoPAux = std::make_unique<BiLinearInterpolation>(densityGrid, pressureGridAux, [=](double density, double pressure) { return e(density, tFromRhoP(density, pressure, pressure/(density*461.51805))); });
+        
         break;
 
     case BIQUADRATIC:
@@ -34,13 +37,10 @@ Iapws95InterpolationThermo::Iapws95InterpolationThermo(InterpolationType interpo
         temperatureInterpolationFromRhoE = std::make_unique<BiQuadraticInterpolation>(densityGrid, internalEnergyGrid,
             [=](double density, double energy) { return tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805); });
 
-                std::cout << "BiQuadratic interpolation thermo init ok" << std::endl;
+        energyInterpolationFromRhoPAux = std::make_unique<BiQuadraticInterpolation>(densityGrid, pressureGridAux, [=](double density, double pressure) { return e(density, tFromRhoP(density, pressure, pressure/(density*461.51805))); });
 
-        /*energyFromRhoPAux = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid,
-            [=](double density, double energy) { return 0.0; },
-            [=](double density, double energy) { return 0.0; },
-            [=](double density, double energy) { return 0.0; },
-            [=](double density, double energy) { return 0.0; });*/
+        std::cout << "BiQuadratic interpolation thermo init ok" << std::endl;
+
         break;
 
     default:
@@ -73,10 +73,16 @@ Vars<3> Iapws95InterpolationThermo::updateThermo(const Primitive& data) const
 
 Compressible Iapws95InterpolationThermo::primitiveToConservative(const Vars<5>& primitive) const
 {
-    /*double density = primitive[0];
+    double density = primitive[0];
     double pressure = primitive[4];
 
-    double energy = pressureInterpolationFromRhoE->calcInverseY(density, pressure, energyFromRhoPAux->calc(density, pressure));
+    double energyAux = energyInterpolationFromRhoPAux->calc(density, pressure);
+
+    //double Taux = tFromRhoP(density, pressure, pressure/(specGasConst*density)); //odhad T pomoci idealniho plynu
+    //double energyAux2 = e(density, Taux);
+    //std::cout << "e interpol: " << energyAux << ", e IAPWS: " << energyAux2 << ", p: " << pressure << "rho : " << density << std::endl;
+    
+    double energy = pressureInterpolationFromRhoE->calcInverseY(density, pressure, energyAux);
     double soundSpeed = soundSpeedInterpolationFromRhoE->calc(density, energy);
 
     return Compressible({density,
@@ -84,10 +90,10 @@ Compressible Iapws95InterpolationThermo::primitiveToConservative(const Vars<5>& 
                          density*primitive[2],
                          density*primitive[3],
                          density*(energy + 0.5*(primitive[1]*primitive[1] + primitive[2]*primitive[2] + primitive[3]*primitive[3]))},
-                         {0.0, pressure, soundSpeed});*/
+                         {0.0, pressure, soundSpeed});
 
     //FULL IAPWS95
-    double rho = primitive[0];
+    /*double rho = primitive[0];
     double p = primitive[4];
     double T = tFromRhoP(rho, p, p/(specGasConst*rho)); //odhad T pomoci idealniho plynu
 
@@ -96,7 +102,7 @@ Compressible Iapws95InterpolationThermo::primitiveToConservative(const Vars<5>& 
                          rho*primitive[2],
                          rho*primitive[3],
                          rho*(e(rho, T) + 0.5*(primitive[1]*primitive[1] + primitive[2]*primitive[2] + primitive[3]*primitive[3]))},
-                         {T, p, a(rho, T)});
+                         {T, p, a(rho, T)});*/
 }
 
 Compressible Iapws95InterpolationThermo::stagnationState(double TTot, double pTot) const

@@ -477,11 +477,13 @@ void BiQuadraticInterpolation::calcCoeffs(std::function<double(double, double)> 
             idx++;
         }
     }
+
+    int a = 5; //TODO smazat tohle
 }
 
 //////////////////
 
-double BiQuadraticInterpolation::calc(double xx, double yy) const
+std::pair<int, int> BiQuadraticInterpolation::findPosition(double xx, double yy) const
 {
     int i = 0;
     int found = 2;
@@ -508,16 +510,45 @@ double BiQuadraticInterpolation::calc(double xx, double yy) const
 
     if(found == 0)
     {
-        double v = xx - x[i];
-        double w = yy - y[j];
-
-        Mat3x3 coeff = coeffs[j*n + i];
-
-        return coeff[0][0] + w*(coeff[0][1] + w*coeff[0][2]) + v*(coeff[1][0] + w*(coeff[1][1] + w*coeff[1][2]) + v*(coeff[2][0] + w*(coeff[2][1] + w*coeff[2][2])));
+        return std::pair<int, int>(i, j);
     }
 
     std::cout << "ERROR: Interpolation out of range" << std::endl;
-    return 0.0;
+    return std::pair<int, int>(0, 0);
+}
+
+double BiQuadraticInterpolation::calc(double xx, double yy) const
+{
+    std::pair<int, int> position = findPosition(xx, yy);
+
+    double v = xx - x[position.first];
+    double w = yy - y[position.second];
+
+    Mat3x3 coeff = coeffs[position.second*n + position.first];
+
+    return coeff[0][0] + w*(coeff[0][1] + w*coeff[0][2]) + v*(coeff[1][0] + w*(coeff[1][1] + w*coeff[1][2]) + v*(coeff[2][0] + w*(coeff[2][1] + w*coeff[2][2])));
+}
+
+double BiQuadraticInterpolation::calcInverseX(double zz, double yy, double guessXX) const
+{
+
+
+    return 0.0; //TODO
+}
+
+double BiQuadraticInterpolation::calcInverseY(double xx, double zz, double guessYY) const
+{
+    std::pair<int, int> position = findPosition(xx, guessYY);
+
+    Mat3x3 coeff = coeffs[position.second*n + position.first];
+
+    double dx = xx - x[position.first];
+
+    double A = coeff[3][1] + dx*(coeff[3][2] + coeff[3][3]*dx);
+    double B = coeff[2][1] + dx*(coeff[2][2] + coeff[2][3]*dx);
+    double C = coeff[1][1] + dx*(coeff[1][2] + coeff[1][3]*dx) - zz;
+    
+    return (-B + sqrt(B*B - 4.0*A*C))/(2.0*A) + y[position.second];
 }
 
 

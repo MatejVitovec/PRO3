@@ -27,6 +27,8 @@ class BiQuadraticInterpolation : public Interpolation
         ~BiQuadraticInterpolation() {}
 
         double calc(double xx, double yy) const;
+        double calcInverseX(double zz, double yy, double guessXX) const;
+        double calcInverseY(double xx, double zz, double guessYY) const;
 
     private:
         class Mat3x3
@@ -88,6 +90,8 @@ class BiQuadraticInterpolation : public Interpolation
                         std::function<double(double, double)> fxy);
 
         void calcCoeffs(std::function<double(double, double)> f);
+
+        std::pair<int, int> findPosition(double xx, double yy) const;
 
         std::vector<double> solveTridiagonal(const std::vector<double>& L, const std::vector<double>& D, const std::vector<double>& U, const std::vector<double>& b) const;
         double calcDerivativeX(std::function<double(double, double)> f, double x, double y, double step) const;
