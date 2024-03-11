@@ -11,33 +11,45 @@
 
 Iapws95InterpolationThermo::Iapws95InterpolationThermo(InterpolationType interpolationType) : Thermo(), Iapws95()
 {
-    std::vector<double> densityGrid = createInterpolationAxis(std::vector<int>{200}, std::vector<double>{1/1188.87, 1/0.008}, Transformation::LOGINV);
-    std::vector<double> internalEnergyGrid = createInterpolationAxis(std::vector<int>{100, 100}, std::vector<double>{2005000.0, 2650000.0, 4085000.27}, Transformation::NONE);
+    std::vector<int> densityGridSize({200});
+    std::vector<double> densityBoundary({1/1188.87, 1/0.008});
+    Interpolation::Transformation densityTransformation(Interpolation::LOGINV);
 
-    std::vector<double> pressureGridAux = createInterpolationAxis(std::vector<int>{800}, std::vector<double>{7000.0, 150000.0}, Transformation::LOGINV);
+    std::vector<int> internalEnergyGridSize({100, 100});
+    std::vector<double> internalEnergyBoundary({2005000.0, 2650000.0, 4085000.27});
+    Interpolation::Transformation internalEnergyTransformation(Interpolation::NONE);
+
+    std::vector<int> pressureGridSize({800});
+    std::vector<double> pressureBoundary({7000.0, 150000.0});
+    Interpolation::Transformation pressureTransformation(Interpolation::LOGINV);
 
     switch (interpolationType)
     {
     case BILINEAR:
-        pressureInterpolationFromRhoE    = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return p(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
+        /*pressureInterpolationFromRhoE    = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return p(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
         soundSpeedInterpolationFromRhoE  = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return a(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
         temperatureInterpolationFromRhoE = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805); });
 
         energyInterpolationFromRhoPAux = std::make_unique<BiLinearInterpolation>(densityGrid, pressureGridAux, [=](double density, double pressure) { return e(density, tFromRhoP(density, pressure, pressure/(density*461.51805))); });
         
-        break;
+        */break;
 
     case BIQUADRATIC:
-        pressureInterpolationFromRhoE    = std::make_unique<BiQuadraticInterpolation>(densityGrid, internalEnergyGrid,
+        pressureInterpolationFromRhoE    = std::make_unique<BiQuadraticInterpolation>(
+            densityGridSize, internalEnergyGridSize, densityBoundary, internalEnergyBoundary, densityTransformation, internalEnergyTransformation,
             [=](double density, double energy) { return p(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
 
-        soundSpeedInterpolationFromRhoE  = std::make_unique<BiQuadraticInterpolation>(densityGrid, internalEnergyGrid,
+        soundSpeedInterpolationFromRhoE  = std::make_unique<BiQuadraticInterpolation>(
+            densityGridSize, internalEnergyGridSize, densityBoundary, internalEnergyBoundary, densityTransformation, internalEnergyTransformation,
             [=](double density, double energy) { return a(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
 
-        temperatureInterpolationFromRhoE = std::make_unique<BiQuadraticInterpolation>(densityGrid, internalEnergyGrid,
+        temperatureInterpolationFromRhoE = std::make_unique<BiQuadraticInterpolation>(
+            densityGridSize, internalEnergyGridSize, densityBoundary, internalEnergyBoundary, densityTransformation, internalEnergyTransformation,
             [=](double density, double energy) { return tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805); });
 
-        energyInterpolationFromRhoPAux = std::make_unique<BiQuadraticInterpolation>(densityGrid, pressureGridAux, [=](double density, double pressure) { return e(density, tFromRhoP(density, pressure, pressure/(density*461.51805))); });
+        energyInterpolationFromRhoPAux   = std::make_unique<BiQuadraticInterpolation>(
+            densityGridSize, pressureGridSize, densityBoundary, pressureBoundary, densityTransformation, pressureTransformation,
+            [=](double density, double pressure) { return e(density, tFromRhoP(density, pressure, pressure/(density*461.51805))); });
 
         std::cout << "BiQuadratic interpolation thermo init ok" << std::endl;
 
@@ -51,9 +63,9 @@ Iapws95InterpolationThermo::Iapws95InterpolationThermo(InterpolationType interpo
 
 Vars<3> Iapws95InterpolationThermo::updateThermo(const Compressible& data) const
 {
-    double pressure = pressureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
-    double soundSpeed = soundSpeedInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
-    double temperature = temperatureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
+    double pressure = pressureInterpolationFromRhoE->calcFastFind(data.density(), data.internalEnergy());
+    double soundSpeed = soundSpeedInterpolationFromRhoE->calcFastFind(data.density(), data.internalEnergy());
+    double temperature = temperatureInterpolationFromRhoE->calcFastFind(data.density(), data.internalEnergy());
 
     return Vars<3>({temperature, pressure, soundSpeed});
 }
@@ -76,14 +88,14 @@ Compressible Iapws95InterpolationThermo::primitiveToConservative(const Vars<5>& 
     double density = primitive[0];
     double pressure = primitive[4];
 
-    double energyAux = energyInterpolationFromRhoPAux->calc(density, pressure);
+    double energyAux = energyInterpolationFromRhoPAux->calcFastFind(density, pressure);
 
     //double Taux = tFromRhoP(density, pressure, pressure/(specGasConst*density)); //odhad T pomoci idealniho plynu
     //double energyAux2 = e(density, Taux);
     //std::cout << "e interpol: " << energyAux << ", e IAPWS: " << energyAux2 << ", p: " << pressure << "rho : " << density << std::endl;
     
     double energy = pressureInterpolationFromRhoE->calcInverseY(density, pressure, energyAux);
-    double soundSpeed = soundSpeedInterpolationFromRhoE->calc(density, energy);
+    double soundSpeed = soundSpeedInterpolationFromRhoE->calcFastFind(density, energy);
 
     return Compressible({density,
                          density*primitive[1],
@@ -199,7 +211,7 @@ std::vector<double> Iapws95InterpolationThermo::createInterpolationAxis(std::vec
         dx[i] = (boundary[i+1] - boundary[i])/gridSize[i];
     }
 
-    auto backTransform = [transformation](double x)
+    auto backTransformL = [transformation](double x)
     {
         switch(transformation) 
         {
@@ -215,14 +227,14 @@ std::vector<double> Iapws95InterpolationThermo::createInterpolationAxis(std::vec
     };
 
     int idx = 0;
-    out[idx] = backTransform(boundary[0]);
+    out[idx] = backTransformL(boundary[0]);
     idx++;
 
     for (int ii = 0; ii < gridSize.size(); ii++)
     {
         for (int i = 0; i < gridSize[ii]; i++)
         {
-            out[idx] = backTransform(boundary[ii] + dx[ii]*(i+1));
+            out[idx] = backTransformL(boundary[ii] + dx[ii]*(i+1));
             idx++;
         }        
     }
