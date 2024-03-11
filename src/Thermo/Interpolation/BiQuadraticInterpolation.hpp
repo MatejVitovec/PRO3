@@ -23,10 +23,16 @@ class BiQuadraticInterpolation : public Interpolation
                                  std::function<double(double, double)> fx,
                                  std::function<double(double, double)> fy,
                                  std::function<double(double, double)> fxy);
+
+        BiQuadraticInterpolation(std::vector<int> gridSizeX_, std::vector<int> gridSizeY_,
+                                 std::vector<double> boundaryX_, std::vector<double> boundaryY_,
+                                 Transformation transformationX_, Transformation transformationY_,
+                                 std::function<double(double, double)> f);
         
         ~BiQuadraticInterpolation() {}
 
         double calc(double xx, double yy) const;
+        double calcFastFind(double xx, double yy) const;
         double calcInverseX(double zz, double yy, double guessXX) const;
         double calcInverseY(double xx, double zz, double guessYY) const;
 
@@ -82,6 +88,10 @@ class BiQuadraticInterpolation : public Interpolation
         std::vector<double> dx;
         std::vector<double> dy;
 
+        // for fast search - array size is number of different region
+        std::vector<double> dz;
+        std::vector<double> dt;
+
         std::vector<Mat3x3> coeffs;
 
         void calcCoeffs(std::function<double(double, double)> f,
@@ -92,6 +102,7 @@ class BiQuadraticInterpolation : public Interpolation
         void calcCoeffs(std::function<double(double, double)> f);
 
         std::pair<int, int> findPosition(double xx, double yy) const;
+        std::pair<int, int> fastFindPosition(double xx, double yy) const;
 
         std::vector<double> solveTridiagonal(const std::vector<double>& L, const std::vector<double>& D, const std::vector<double>& U, const std::vector<double>& b) const;
         double calcDerivativeX(std::function<double(double, double)> f, double x, double y, double step) const;

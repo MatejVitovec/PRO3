@@ -40,7 +40,6 @@ BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<double> xx,
 }
 
 
-
 BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<double> xx,
                                                    std::vector<double> yy,
                                                    std::function<double(double, double)> f,
@@ -81,6 +80,125 @@ BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<double> xx,
 
     calcCoeffs(f, fx, fy, fxy);
 }
+
+
+BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<int> gridSizeX_, std::vector<int> gridSizeY_,
+                                                   std::vector<double> boundaryX_, std::vector<double> boundaryY_,
+                                                   Transformation transformationX_, Transformation transformationY_,
+                                                   std::function<double(double, double)> f) : n(0), m(0), x(0), y(0), coeffs(0),
+                                                   Interpolation(gridSizeX_, gridSizeY_, boundaryX_, boundaryY_, transformationX_, transformationY_)
+{
+    //TODO prohodit x a z / (y a t)
+
+    for (int i = 0; i < boundaryX.size(); i++)
+    {
+        boundaryX[i] = transform(boundaryX[i], transformationX);
+    }
+    for (int i = 0; i < boundaryY.size(); i++)
+    {
+        boundaryY[i] = transform(boundaryY[i], transformationY);
+    }
+
+    if(boundaryX[0] > boundaryX[1])
+    {
+        std::reverse(boundaryX.begin(), boundaryX.end());
+    }
+    if(boundaryY[0] > boundaryY[1])
+    {
+        std::reverse(boundaryY.begin(), boundaryY.end());
+    }
+
+    double sizeX = 0.0;
+    for (int i = 0; i < gridSizeX.size(); i++)
+    {
+        sizeX += gridSizeX[i];
+    }
+    double sizeY = 0.0;
+    for (int i = 0; i < gridSizeY.size(); i++)
+    {
+        sizeY += gridSizeY[i];
+    }
+
+    x = std::vector<double>(sizeX+1);
+    t = std::vector<double>(sizeX+2);
+
+    y = std::vector<double>(sizeY+1);
+    z = std::vector<double>(sizeY+2);
+
+    dz = std::vector<double>(gridSizeX.size());
+    dt = std::vector<double>(gridSizeY.size());
+
+    for (int i = 0; i < dz.size(); i++)
+    {
+        dz[i] = (boundaryX[i+1] - boundaryX[i])/gridSizeX[i];
+    }
+    for (int i = 0; i < dt.size(); i++)
+    {
+        dt[i] = (boundaryY[i+1] - boundaryY[i])/gridSizeY[i];
+    }
+
+    int idx = 0;
+    x[idx] = backTransform(boundaryX[0], transformationX);
+    z[idx] = backTransform(boundaryX[0]-0.5*dz[0], transformationX);
+    idx++;
+
+    for (int ii = 0; ii < gridSizeX.size(); ii++)
+    {
+        for (int i = 0; i < gridSizeX[ii]; i++)
+        {
+            x[idx] = backTransform(boundaryX[ii] + dz[ii]*(i+1), transformationX);
+            z[idx] = backTransform(boundaryX[ii] + dz[ii]*(i+1) - 0.5*dz[ii], transformationX);
+            idx++;
+        }        
+    }
+
+    idx = 0;
+    y[idx] = backTransform(boundaryY[0], transformationY);
+    t[idx] = backTransform(boundaryY[0]-0.5*dt[0], transformationY);
+    idx++;
+
+    for (int ii = 0; ii < gridSizeY.size(); ii++)
+    {
+        for (int i = 0; i < gridSizeY[ii]; i++)
+        {
+            y[idx] = backTransform(boundaryY[ii] + dt[ii]*(i+1), transformationY);
+            t[idx] = backTransform(boundaryY[ii] + dt[ii]*(i+1) - 0.5*dt[ii], transformationY);
+            idx++;
+        }        
+    }
+
+    if(x[0] > x[1])
+    {
+        std::reverse(x.begin(), x.end());
+        std::reverse(t.begin(), t.end());
+    }
+    if(y[0] > y[1])
+    {
+        std::reverse(y.begin(), y.end());
+        std::reverse(z.begin(), z.end());
+    }
+
+    ////////
+    for (int i = 1; i < dx.size()-1; i++)
+    {
+        dx[i] = x[i] - x[i-1];
+    }
+    dx[0] = dx[1];
+    dx[n] = dx[n-1];
+
+    for (int j = 1; j < dy.size()-1; j++)
+    {
+        dy[j] = y[j] - y[j-1];
+    }
+    dy[0] = dy[1];
+    dy[m] = dy[m-1];
+
+
+    calcCoeffs(f);
+}
+
+
+
 
 
 void BiQuadraticInterpolation::calcCoeffs(std::function<double(double, double)> f,
@@ -477,9 +595,9 @@ void BiQuadraticInterpolation::calcCoeffs(std::function<double(double, double)> 
             idx++;
         }
     }
-
-    int a = 5; //TODO smazat tohle
 }
+
+
 
 //////////////////
 
@@ -520,6 +638,33 @@ std::pair<int, int> BiQuadraticInterpolation::findPosition(double xx, double yy)
 double BiQuadraticInterpolation::calc(double xx, double yy) const
 {
     std::pair<int, int> position = findPosition(xx, yy);
+
+    double v = xx - x[position.first];
+    double w = yy - y[position.second];
+
+    Mat3x3 coeff = coeffs[position.second*n + position.first];
+
+    return coeff[0][0] + w*(coeff[0][1] + w*coeff[0][2]) + v*(coeff[1][0] + w*(coeff[1][1] + w*coeff[1][2]) + v*(coeff[2][0] + w*(coeff[2][1] + w*coeff[2][2])));
+}
+
+std::pair<int, int> BiQuadraticInterpolation::fastFindPosition(double xx, double yy) const
+{
+    //TODO
+
+    /*for (int i = 0; i < gridSizeX.size(); i++)
+    {
+        if ( )
+        {
+            
+        }
+        
+    }*/
+    
+}
+
+double BiQuadraticInterpolation::calcFastFind(double xx, double yy) const
+{
+    std::pair<int, int> position = fastFindPosition(xx, yy);
 
     double v = xx - x[position.first];
     double w = yy - y[position.second];
