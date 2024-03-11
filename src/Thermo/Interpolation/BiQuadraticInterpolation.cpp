@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "BiQuadraticInterpolation.hpp"
 
 BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<double> xx,
@@ -88,8 +89,6 @@ BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<int> gridSizeX_, 
                                                    std::function<double(double, double)> f) : n(0), m(0), x(0), y(0), coeffs(0),
                                                    Interpolation(gridSizeX_, gridSizeY_, boundaryX_, boundaryY_, transformationX_, transformationY_)
 {
-    //TODO prohodit x a z / (y a t)
-
     for (int i = 0; i < boundaryX.size(); i++)
     {
         boundaryX[i] = transform(boundaryX[i], transformationX);
@@ -119,11 +118,11 @@ BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<int> gridSizeX_, 
         sizeY += gridSizeY[i];
     }
 
-    x = std::vector<double>(sizeX+1);
-    t = std::vector<double>(sizeX+2);
+    x = std::vector<double>(sizeX);
+    t = std::vector<double>(sizeX+1);
 
-    y = std::vector<double>(sizeY+1);
-    z = std::vector<double>(sizeY+2);
+    y = std::vector<double>(sizeY);
+    z = std::vector<double>(sizeY+1);
 
     dz = std::vector<double>(gridSizeX.size());
     dt = std::vector<double>(gridSizeY.size());
@@ -138,16 +137,16 @@ BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<int> gridSizeX_, 
     }
 
     int idx = 0;
-    x[idx] = backTransform(boundaryX[0], transformationX);
-    z[idx] = backTransform(boundaryX[0]-0.5*dz[0], transformationX);
+    z[idx] = backTransform(boundaryX[0], transformationX);
+    x[idx] = backTransform(boundaryX[0]+0.5*dz[0], transformationX);
     idx++;
 
     for (int ii = 0; ii < gridSizeX.size(); ii++)
     {
         for (int i = 0; i < gridSizeX[ii]; i++)
         {
-            x[idx] = backTransform(boundaryX[ii] + dz[ii]*(i+1), transformationX);
-            z[idx] = backTransform(boundaryX[ii] + dz[ii]*(i+1) - 0.5*dz[ii], transformationX);
+            z[idx] = backTransform(boundaryX[ii] + dz[ii]*(i+1), transformationX);
+            x[idx] = backTransform(boundaryX[ii] + dz[ii]*(i+1) + 0.5*dz[ii], transformationX);
             idx++;
         }        
     }
@@ -161,24 +160,31 @@ BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<int> gridSizeX_, 
     {
         for (int i = 0; i < gridSizeY[ii]; i++)
         {
-            y[idx] = backTransform(boundaryY[ii] + dt[ii]*(i+1), transformationY);
-            t[idx] = backTransform(boundaryY[ii] + dt[ii]*(i+1) - 0.5*dt[ii], transformationY);
+            t[idx] = backTransform(boundaryY[ii] + dt[ii]*(i+1), transformationY);
+            y[idx] = backTransform(boundaryY[ii] + dt[ii]*(i+1) + 0.5*dt[ii], transformationY);
             idx++;
         }        
     }
 
-    if(x[0] > x[1])
+    if(z[0] > z[1])
     {
         std::reverse(x.begin(), x.end());
         std::reverse(t.begin(), t.end());
     }
-    if(y[0] > y[1])
+    if(t[0] > t[1])
     {
         std::reverse(y.begin(), y.end());
         std::reverse(z.begin(), z.end());
     }
 
+
     ////////
+    m = x.size();
+    n = y.size();
+    dx = std::vector<double>(n+1);
+    dy = std::vector<double>(m+1);
+    coeffs = std::vector<Mat3x3>(m*n);
+
     for (int i = 1; i < dx.size()-1; i++)
     {
         dx[i] = x[i] - x[i-1];
@@ -193,11 +199,8 @@ BiQuadraticInterpolation::BiQuadraticInterpolation(std::vector<int> gridSizeX_, 
     dy[0] = dy[1];
     dy[m] = dy[m-1];
 
-
     calcCoeffs(f);
 }
-
-
 
 
 
@@ -598,7 +601,6 @@ void BiQuadraticInterpolation::calcCoeffs(std::function<double(double, double)> 
 }
 
 
-
 //////////////////
 
 std::pair<int, int> BiQuadraticInterpolation::findPosition(double xx, double yy) const
@@ -649,17 +651,22 @@ double BiQuadraticInterpolation::calc(double xx, double yy) const
 
 std::pair<int, int> BiQuadraticInterpolation::fastFindPosition(double xx, double yy) const
 {
-    //TODO
+    double xt = transform(xx, transformationX);
+    double yt = transform(yy, transformationY);
 
-    /*for (int i = 0; i < gridSizeX.size(); i++)
+    int ii;
+    for (ii = 0; ii < gridSizeX.size(); ii++)
     {
-        if ( )
-        {
-            
-        }
-        
-    }*/
+        if (xt < boundaryX[ii]) { break; }
+    }
+    int jj;
+    for (jj = 0; jj < gridSizeY.size(); jj++)
+    {
+        if (yt < boundaryY[ii]) { break; }
+    }
     
+    return std::pair<int, int>(std::floor(xt - boundaryX[ii]/dz[ii]),
+                               std::floor(yt - boundaryY[jj]/dt[jj]));
 }
 
 double BiQuadraticInterpolation::calcFastFind(double xx, double yy) const

@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include "Iapws95InterpolationThermo.hpp"
 
@@ -27,7 +28,6 @@ Iapws95InterpolationThermo::Iapws95InterpolationThermo(InterpolationType interpo
         break;
 
     case BIQUADRATIC:
-        //TODO derivace - nebo numericky
         pressureInterpolationFromRhoE    = std::make_unique<BiQuadraticInterpolation>(densityGrid, internalEnergyGrid,
             [=](double density, double energy) { return p(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
 
