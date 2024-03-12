@@ -20,6 +20,8 @@
 #include "Thermo/Iapws95Thermo.hpp"
 #include "Thermo/SpecialGasThermo.hpp"
 #include "Thermo/Iapws95InterpolationThermo.hpp"
+#include "Thermo/Interpolation/BiLinearInterpolation.hpp"
+#include "Thermo/Interpolation/BiQuadraticInterpolation.hpp"
 
 #include "GradientScheme/LeastSquare.hpp"
 #include "Limiter/BarthJespersen.hpp"

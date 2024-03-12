@@ -2,7 +2,7 @@ Solver:                 explicitEuler
 
 LocalTimeStep:          false
 
-TargetError:            0.00001
+TargetError:            0.0000001
 
 MaxIter:                200000
 
@@ -26,7 +26,7 @@ Mesh
 
 ThermoModel
 {
-        name:           iapws95interpolation
+        name:           specialgasequation
 }
 
 InitialCondition

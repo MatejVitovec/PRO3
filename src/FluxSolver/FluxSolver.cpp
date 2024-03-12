@@ -6,6 +6,7 @@ Field<Vars<5>> FluxSolver::calculateFluxes(const Field<Compressible>& wl, const 
 {
     Field<Vars<5>> out(wl.size());
 
+    #pragma omp parallel for
     for (int i = 0; i < wl.size(); i++)
     {
         out[i] = claculateFlux(wl[i], wr[i], vector3toVars(faceList[i].normalVector))*faceList[i].area;
@@ -18,6 +19,7 @@ Field<Vars<5>> FluxSolver::calculateFluxes(const Field<Primitive>& ul, const Fie
 {
     Field<Vars<5>> out(ul.size());
 
+    #pragma omp parallel for
     for (int i = 0; i < ul.size(); i++)
     {
         out[i] = claculateFlux(ul[i], ur[i], vector3toVars(faceList[i].normalVector))*faceList[i].area;

@@ -75,6 +75,7 @@ std::unique_ptr<FVMScheme> CaseSetter::createSolver(Mesh&& mesh_, std::unique_pt
     return std::make_unique<ExplicitEuler>(std::move(mesh_), std::move(fluxSolver_), std::move(thermo_));
 }
 
+
 std::unique_ptr<FVMScheme> CaseSetter::createAndSetSolver()
 {
     std::unique_ptr<FVMScheme> tmpSolver = createSolver(createMesh(), createFluxSolver(), createThermoModel());
@@ -166,17 +167,28 @@ std::unique_ptr<Thermo> CaseSetter::createThermoModel()
     }
     else if(name == "iapws95")
     {
-        //return std::make_unique<Iapws95>();
+        std::string interpolationName = findParameterByKey("interpolation: ", data);
+
+        if(interpolationName == "bilinear")
+        {
+            return std::make_unique<Iapws95InterpolationThermo<BiLinearInterpolation>>();
+        }
+        else if(interpolationName == "biquadratic")
+        {
+            return std::make_unique<Iapws95InterpolationThermo<BiQuadraticInterpolation>>();
+            std::cout << "nacteni biQuad ok" << std::endl;
+        }
+
         return std::make_unique<Iapws95Thermo>();
     }
     else if(name == "specialgasequation")
     {
         return std::make_unique<SpecialGasThermo>();
     }
-    else if(name == "iapws95interpolation")
+    /*else if(name == "iapws95interpolation")
     {
-        return std::make_unique<Iapws95InterpolationThermo>(Iapws95InterpolationThermo::BIQUADRATIC);
-    }
+        return std::make_unique<Iapws95InterpolationThermo<BiQuadraticInterpolation>>();
+    }*/
 
     errorMessage("neznamy termo solver");
 

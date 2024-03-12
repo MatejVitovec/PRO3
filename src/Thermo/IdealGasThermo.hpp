@@ -7,7 +7,7 @@ class IdealGasThermo : public Thermo
 {
     public:
 
-        IdealGasThermo() : Thermo(), gamma(1.4), R(287.05) {}
+        IdealGasThermo() : Thermo(), gamma(1.33), R(287.05) {}
         IdealGasThermo(double gamma_, double R_) : Thermo(), gamma(gamma_), R(R_) {}
 
         //overwritten virtual
