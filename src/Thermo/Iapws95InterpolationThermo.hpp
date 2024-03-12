@@ -11,7 +11,7 @@ class Iapws95InterpolationThermo : public Thermo, Iapws95
 {
     public:
         enum InterpolationType{BILINEAR, BIQUADRATIC};
-        enum Transformation{NONE, LOG, LOG10, LOGINV};
+        //enum Transformation{NONE, LOG, LOG10, LOGINV};
 
         Iapws95InterpolationThermo(InterpolationType interpolationType);
 
@@ -30,8 +30,6 @@ class Iapws95InterpolationThermo : public Thermo, Iapws95
         std::unique_ptr<Interpolation> temperatureInterpolationFromRhoE;
 
         std::unique_ptr<Interpolation> energyInterpolationFromRhoPAux;
-
-        std::vector<double> createInterpolationAxis(std::vector<int> gridSize, std::vector<double> boundary, Transformation transformation);
 };
 
 #endif // IAPWS95INTERPOLATIONTHERMO

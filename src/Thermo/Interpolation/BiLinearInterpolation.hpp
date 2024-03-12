@@ -26,7 +26,7 @@ class BiLinearInterpolation : public Interpolation
         std::pair<int, int> fastFindPosition(double xx, double yy) const;
 
         double calc(double xx, double yy) const;
-        double calcFastFind(double xx, double yy) const { return 0.0; }
+        double calcFastFind(double xx, double yy) const;
         double calcInverseX(double zz, double yy, double guessXX) const;
         double calcInverseY(double xx, double zz, double guessYY) const;
 

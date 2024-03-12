@@ -26,13 +26,13 @@ Iapws95InterpolationThermo::Iapws95InterpolationThermo(InterpolationType interpo
     switch (interpolationType)
     {
     case BILINEAR:
-        /*pressureInterpolationFromRhoE    = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return p(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
-        soundSpeedInterpolationFromRhoE  = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return a(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
-        temperatureInterpolationFromRhoE = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805); });
+        //pressureInterpolationFromRhoE    = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return p(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
+        //soundSpeedInterpolationFromRhoE  = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return a(density, tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805)); });
+        //temperatureInterpolationFromRhoE = std::make_unique<BiLinearInterpolation>(densityGrid, internalEnergyGrid, [=](double density, double energy) { return tFromRhoE(density, energy, (energy*(1.32 - 1.0))/461.51805); });
 
-        energyInterpolationFromRhoPAux = std::make_unique<BiLinearInterpolation>(densityGrid, pressureGridAux, [=](double density, double pressure) { return e(density, tFromRhoP(density, pressure, pressure/(density*461.51805))); });
+        //energyInterpolationFromRhoPAux = std::make_unique<BiLinearInterpolation>(densityGrid, pressureGridAux, [=](double density, double pressure) { return e(density, tFromRhoP(density, pressure, pressure/(density*461.51805))); });
         
-        */break;
+        break;
 
     case BIQUADRATIC:
         pressureInterpolationFromRhoE    = std::make_unique<BiQuadraticInterpolation>(
@@ -171,78 +171,4 @@ Compressible Iapws95InterpolationThermo::isentropicInletPressureDensity(double p
     double TTot = tFromRhoP(rhoTot, pTot, pTot/(specGasConst*rhoTot));
 
     return isentropicInlet(pTot, TTot, rhoTot, velocityDirection, stateIn);
-}
-
-std::vector<double> Iapws95InterpolationThermo::createInterpolationAxis(std::vector<int> gridSize, std::vector<double> boundary, Transformation transformation)
-{
-    for (int i = 0; i < boundary.size(); i++)
-    {
-        switch(transformation) 
-        {
-            case LOG:
-                boundary[i] = log(boundary[i]);
-                break;
-            case LOG10:
-                boundary[i] = log10(boundary[i]);
-                break;
-            case LOGINV:
-                boundary[i] = log(1/boundary[i]);
-                break;
-        }
-    }
-
-    if(boundary[0] > boundary[1])
-    {
-        std::reverse(boundary.begin(), boundary.end());
-    }
-
-    double size = 0.0;
-    for (int i = 0; i < gridSize.size(); i++)
-    {
-        size += gridSize[i];
-    }
-
-    std::vector<double> out(size+1);
-
-    std::vector<double> dx = std::vector<double>(gridSize.size());
-
-    for (int i = 0; i < dx.size(); i++)
-    {
-        dx[i] = (boundary[i+1] - boundary[i])/gridSize[i];
-    }
-
-    auto backTransformL = [transformation](double x)
-    {
-        switch(transformation) 
-        {
-            case LOG:
-                return exp(x);
-            case LOG10:
-                return pow(x, 10.0);
-            case LOGINV:
-                return 1.0/exp(x);
-        }
-
-        return x;
-    };
-
-    int idx = 0;
-    out[idx] = backTransformL(boundary[0]);
-    idx++;
-
-    for (int ii = 0; ii < gridSize.size(); ii++)
-    {
-        for (int i = 0; i < gridSize[ii]; i++)
-        {
-            out[idx] = backTransformL(boundary[ii] + dx[ii]*(i+1));
-            idx++;
-        }        
-    }
-
-    if(out[0] > out[1])
-    {
-        std::reverse(out.begin(), out.end());
-    }
-
-    return out;
 }

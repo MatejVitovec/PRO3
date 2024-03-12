@@ -32,15 +32,98 @@ BiLinearInterpolation::BiLinearInterpolation(std::vector<int> gridSizeX_, std::v
                                              std::function<double(double, double)> f) : n(0), m(0), x(0), y(0), coeffs(0),
                                                 Interpolation(gridSizeX_, gridSizeY_, boundaryX_, boundaryY_, transformationX_, transformationY_)
 {
-    //TODO
+    std::vector<double> boundaryXAux = boundaryX;
+    std::vector<double> boundaryYAux = boundaryY;
+    for (int i = 0; i < boundaryXAux.size(); i++)
+    {
+        boundaryXAux[i] = transform(boundaryXAux[i], transformationX);
+    }
+
+    for (int j = 0; j < boundaryYAux.size(); j++)
+    {
+        boundaryYAux[j] = transform(boundaryYAux[j], transformationY);
+    }
+
+    if(boundaryXAux[0] > boundaryXAux[1])
+    {
+        std::reverse(boundaryXAux.begin(), boundaryXAux.end());
+    }
+
+    if(boundaryYAux[0] > boundaryYAux[1])
+    {
+        std::reverse(boundaryYAux.begin(), boundaryYAux.end());
+    }
+
+    double sizeX = 0.0;
+    for (int i = 0; i < gridSizeX.size(); i++)
+    {
+        sizeX += gridSizeX[i];
+    }
+
+    double sizeY = 0.0;
+    for (int j = 0; j < gridSizeY.size(); j++)
+    {
+        sizeY += gridSizeY[j];
+    }
+
+    x = std::vector<double>(sizeX+1);
+    y = std::vector<double>(sizeY+1);
+
+    dxTransf = std::vector<double>(gridSizeX.size());
+    dyTransf = std::vector<double>(gridSizeY.size());
+
+    for (int i = 0; i < dxTransf.size(); i++)
+    {
+        dxTransf[i] = (boundaryXAux[i+1] - boundaryXAux[i])/gridSizeX[i];
+    }
+
+    for (int j = 0; j < dyTransf.size(); j++)
+    {
+        dyTransf[j] = (boundaryYAux[j+1] - boundaryYAux[j])/gridSizeY[j];
+    }
+
+    int idx = 0;
+    x[idx] = backTransform(boundaryXAux[0], transformationX);
+    idx++;
+
+    for (int ii = 0; ii < gridSizeX.size(); ii++)
+    {
+        for (int i = 0; i < gridSizeX[ii]; i++)
+        {
+            x[idx] = backTransform(boundaryXAux[ii] + dxTransf[ii]*(i+1), transformationX);
+            idx++;
+        }        
+    }
+
+    idx = 0;
+    y[idx] = backTransform(boundaryYAux[0], transformationY);
+    idx++;
+
+    for (int jj = 0; jj < gridSizeY.size(); jj++)
+    {
+        for (int j = 0; j < gridSizeY[jj]; j++)
+        {
+            y[idx] = backTransform(boundaryYAux[jj] + dyTransf[jj]*(j+1), transformationY);
+            idx++;
+        }        
+    }
+
+    if(x[0] > x[1]) { std::reverse(x.begin(), x.end()); }
+    if(y[0] > y[1]) { std::reverse(y.begin(), y.end()); }
+
+
+    n = x.size();
+    m = y.size();
+
     dx = std::vector<double>(n);
     dy = std::vector<double>(m);
+
+    coeffs = std::vector<std::array<double, 4>>(m*n);
 
     for (int i = 0; i < dx.size(); i++)
     {
         dx[i] = x[i+1] - x[i];
     }
-
 
     for (int j = 0; j < dy.size(); j++)
     {
@@ -135,14 +218,36 @@ double BiLinearInterpolation::calc(double xx, double yy) const
     return nodeCoeffs[0] + nodeCoeffs[1]*w + nodeCoeffs[2]*v + nodeCoeffs[3]*v*w;
 }
 
+double BiLinearInterpolation::calcFastFind(double xx, double yy) const
+{
+    std::pair<int, int> position = fastFindPosition(xx, yy);
+
+    double v = xx - x[position.first];
+    double w = yy - y[position.second];
+
+    std::array<double, 4> nodeCoeffs = coeffs[position.second*n + position.first];
+
+    return nodeCoeffs[0] + nodeCoeffs[1]*w + nodeCoeffs[2]*v + nodeCoeffs[3]*v*w;
+}
+
 double BiLinearInterpolation::calcInverseX(double zz, double yy, double guessXX) const
 {
-    //TODO
-    return 0.0;
+    std::pair<int, int> position = findPosition(guessXX, yy);
+
+    std::array<double, 4> coeff = coeffs[position.second*n + position.first];
+
+    double w = yy - y[position.first];
+
+    return (zz - coeff[0] - coeff[1]*w)/(coeff[2] + coeff[3]*w) + x[position.second];
 }
 
 double BiLinearInterpolation::calcInverseY(double xx, double zz, double guessYY) const
 {
-    //TODO
-    return 0.0;
+    std::pair<int, int> position = findPosition(xx, guessYY);
+
+    std::array<double, 4> coeff = coeffs[position.second*n + position.first];
+
+    double v = xx - x[position.first];
+
+    return (zz - coeff[0] - coeff[2]*v)/(coeff[1] + coeff[3]*v) + y[position.second];
 }
