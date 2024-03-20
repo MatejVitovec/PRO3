@@ -4,17 +4,12 @@
 
 double IdealGasThermo::pressure(const Compressible& data) const
 {
-    return (gamma - 1.0)*data.density()*(data.totalEnergy() - 0.5*data.absVelocity2());
-}
-
-double IdealGasThermo::internalEnergy(const Compressible& data) const
-{
-    return pressure(data)/((gamma - 1.0)*data.density());
+    return (gamma - 1.0)*data.density()*((data.totalEnergy() - 0.5*data.absVelocity2() - energyShift)); //pridan posun energie
 }
 
 double IdealGasThermo::soundSpeed(const Compressible& data) const
 {
-    return std::sqrt((gamma*std::max(0.0, pressure(data)))/data.density());
+    return std::sqrt((gamma*std::max(0.0, pressure(data)))/data[Compressible::RHO]);
 }
 
 double IdealGasThermo::temperature(const Compressible& data) const
@@ -46,7 +41,7 @@ Compressible IdealGasThermo::primitiveToConservative(const Vars<5>& primitive) c
                                      primitive[0]*primitive[1],
                                      primitive[0]*primitive[2],
                                      primitive[0]*primitive[3],
-                                     0.5*primitive[0]*velocity2 + (primitive[4])/(gamma - 1.0)});
+                                     0.5*primitive[0]*velocity2 + (primitive[4])/(gamma - 1.0) + primitive[0]*energyShift});
 
     out.setThermoVar(Vars<3>({temperature(out), pressure(out), soundSpeed(out)}));
 
@@ -59,7 +54,7 @@ Compressible IdealGasThermo::stagnationState(double TTot, double pTot) const
                                      0.0,
                                      0.0,
                                      0.0,
-                                     pTot/(gamma - 1.0)});
+                                     pTot/(gamma - 1.0) + pTot/(R*TTot)*energyShift});
                                      
     out.setThermoVar(Vars<3>({temperature(out), pressure(out), soundSpeed(out)}));
 
@@ -79,7 +74,7 @@ Compressible IdealGasThermo::isentropicInletPressureTemperature(double pTot, dou
                          rho*absU*velocityDirection[0],
                          rho*absU*velocityDirection[1],
                          rho*absU*velocityDirection[2],
-                         0.5*rho*absU*absU + p/(gamma - 1.0)},
+                         0.5*rho*absU*absU + p/(gamma - 1.0) + rho*energyShift},
                          {T, p, a});
 }
 

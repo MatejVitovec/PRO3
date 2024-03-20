@@ -7,8 +7,8 @@ class IdealGasThermo : public Thermo
 {
     public:
 
-        IdealGasThermo() : Thermo(), gamma(1.33), R(287.05) {}
-        IdealGasThermo(double gamma_, double R_) : Thermo(), gamma(gamma_), R(R_) {}
+        IdealGasThermo() : Thermo(), gamma(1.3326), R(461.51805), energyShift(1995917.326) {}
+        IdealGasThermo(double gamma_, double R_) : Thermo(), gamma(gamma_), R(R_), energyShift(1995917.326) {}
 
         //overwritten virtual
         Vars<3> updateThermo(const Compressible& data, const Compressible& dataOld) const;
@@ -22,9 +22,9 @@ class IdealGasThermo : public Thermo
     private:
         double gamma;
         double R;
+        double energyShift;
 
         double pressure(const Compressible& data) const;
-        double internalEnergy(const Compressible& data) const;
         double soundSpeed(const Compressible& data) const;
         double temperature(const Compressible& data) const;
 

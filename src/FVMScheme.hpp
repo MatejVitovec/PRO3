@@ -43,6 +43,7 @@ class FVMScheme
 
         void setCfl(double cfl_);
         void setMaxIter(int maxIter_);
+        void setSaveEveryIter(int saveEveryIter_);
         void setTargetError(double targetError_);
         void setLocalTimeStep(bool localTimeStep_);
         void setReconstructionSettings(bool reconstruction_);
@@ -88,6 +89,7 @@ class FVMScheme
 
         double cfl;
         int maxIter;
+        int saveEveryIter;
         double targetError;
         bool localTimeStep;
         bool reconstruction;

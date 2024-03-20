@@ -91,6 +91,7 @@ std::unique_ptr<FVMScheme> CaseSetter::createAndSetSolver()
     tmpSolver->setMaxIter(getMaxIter());
     tmpSolver->setTargetError(getTargetError());
     tmpSolver->setLocalTimeStep(getLocalTimeStepSetting());
+    tmpSolver->setSaveEveryIter(getSaveIterInterval());
 
     tmpSolver->setBoundaryConditions(createBoundaryCondition(tmpSolver->getMesh()));
     tmpSolver->setInitialConditions(getInitialCondition(tmpSolver->getThermoRef()));
@@ -175,14 +176,15 @@ std::unique_ptr<Thermo> CaseSetter::createThermoModel()
         }
         else if(interpolationName == "biquadratic")
         {
+            std::cout << "Nacitani biQuad interpolace" << std::endl;
             return std::make_unique<Iapws95InterpolationThermo<BiQuadraticInterpolation>>();
-            std::cout << "nacteni biQuad ok" << std::endl;
         }
 
         return std::make_unique<Iapws95Thermo>();
     }
     else if(name == "specialgasequation")
     {
+        std::cout << "Nacitani specialGasEquation modelu" << std::endl;
         return std::make_unique<SpecialGasThermo>();
     }
     /*else if(name == "iapws95interpolation")
@@ -238,7 +240,7 @@ std::unique_ptr<Limiter> CaseSetter::createReconstructionLimiter()
 
 bool CaseSetter::getLocalTimeStepSetting()
 {
-    return stringToBool(findParameterByKey("LocalTimeStep: ", data_));
+    return stringToBool(findParameterByKey("LocalTimeStep:", data_));
 }
 
 double CaseSetter::getTargetError()
@@ -248,12 +250,17 @@ double CaseSetter::getTargetError()
 
 double CaseSetter::getMaxIter()
 {
-    return std::stod(findParameterByKey("MaxIter: ", data_));
+    return std::stod(findParameterByKey("MaxIter:", data_));
 }
 
 double CaseSetter::getCfl()
 {
-    return std::stod(findParameterByKey("cfl: ", data_));
+    return std::stod(findParameterByKey("cfl:", data_));
+}
+
+int CaseSetter::getSaveIterInterval()
+{
+    return std::stoi(findParameterByKey("SaveEveryIter:", data_));
 }
 
 

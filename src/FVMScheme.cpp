@@ -25,6 +25,11 @@ void FVMScheme::setMaxIter(int maxIter_)
     maxIter = maxIter_;
 }
 
+void FVMScheme::setSaveEveryIter(int saveEveryIter_)
+{
+    saveEveryIter = saveEveryIter_;
+}
+
 void FVMScheme::setTargetError(double targetError_)
 {
     targetError = targetError_;

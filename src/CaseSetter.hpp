@@ -45,6 +45,7 @@ class CaseSetter
         double getTargetError();
         double getMaxIter();
         double getCfl();
+        int getSaveIterInterval();
 
         Compressible getInitialCondition(const Thermo * const thermoModel);
 

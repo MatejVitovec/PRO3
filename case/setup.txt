@@ -8,15 +8,9 @@ MaxIter:                200000
 
 cfl:                    0.8
 
-SaveEveryIter:          500
+SaveEveryIter:          1000
 
 RiemannSolver:          hllc
-
-Reconstruction
-{
-        gradientSolver: leastSquares
-        limiter:        cubic
-}
 
 Mesh
 {
@@ -26,7 +20,7 @@ Mesh
 
 ThermoModel
 {
-        name:           specialgasequation
+        name:           iapws95
 }
 
 InitialCondition
