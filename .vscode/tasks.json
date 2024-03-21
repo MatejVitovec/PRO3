@@ -8,8 +8,8 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"-O3",
-				"-fopenmp",
+				"-O2",
+				//"-fopenmp",
 				"*.cpp",
 				"Mesh/*.cpp",
 				"FluxSolver/*.cpp",

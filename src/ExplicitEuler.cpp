@@ -46,7 +46,7 @@ void ExplicitEuler::solve()
 
         if(iter % 100 == 0)
         {
-            resNorm = (wn - w).norm();
+            resNorm = ((wn - w)/wn).norm();
             outputCFD::saveResidual("../results/residuals.txt", resNorm);
             std::cout << "iter: " << iter << " density res: " << resNorm[0] << std::endl;
             if(resNorm[0] < targetError) exitLoop = true;

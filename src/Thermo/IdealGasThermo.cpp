@@ -27,11 +27,7 @@ Vars<3> IdealGasThermo::updateThermo(const Compressible& data) const
     return Vars<3>({temperature(data), pressure(data), soundSpeed(data)});
 }
 
-Vars<3> IdealGasThermo::updateThermo(const Primitive& data) const
-{
-    //return Vars<3>({temperature(data), pressure(data), soundSpeed(data)}); TODO
-    return Vars<3>();
-}
+
 
 Compressible IdealGasThermo::primitiveToConservative(const Vars<5>& primitive) const
 {

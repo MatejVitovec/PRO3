@@ -19,20 +19,7 @@ void BoundaryCondition::apply(const std::vector<int>& ownerIndexList, const std:
     }    
 }
 
-void BoundaryCondition::apply(const std::vector<int>& ownerIndexList, const std::vector<Face>& faces, const Field<Compressible>& w, Field<Primitive>& ur, const Thermo * const thermoModel) const
-{
-    for (auto & faceIndex : boundary.facesIndex)
-    {
-        ur[faceIndex] = Primitive(calculateState(w[ownerIndexList[faceIndex]], faces[faceIndex], thermoModel));
-    }    
-}
-
 void BoundaryCondition::correct(const Field<Compressible>& w, Field<Compressible>& wl, Field<Compressible>& wr, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const
-{
-
-}
-
-void BoundaryCondition::correct(const Field<Compressible>& w, Field<Primitive>& ul, Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const
 {
 
 }

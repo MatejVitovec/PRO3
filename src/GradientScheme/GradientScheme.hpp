@@ -6,7 +6,6 @@
 #include "../BoundaryCondition/Periodicity.hpp"
 #include "../Field.hpp"
 #include "../Compressible.hpp"
-#include "../Primitive.hpp"
 
 #include "../Mat.hpp"
 
@@ -21,9 +20,7 @@ class GradientScheme
         virtual void init(const Mesh& mesh, const std::vector<std::shared_ptr<BoundaryCondition>>& boundaryConditionList);
 
         virtual Field<Mat<5,3>> calculateGradient(const Field<Compressible>& wl, const Field<Compressible>& wr, const Mesh& mesh) const;
-        virtual Field<Mat<5,3>> calculateGradient(const Field<Primitive>& ul, const Field<Primitive>& ur, const Mesh& mesh) const;
-        
-
+  
     protected:
 
         Field<Vars<3>> cellToCellDelta;

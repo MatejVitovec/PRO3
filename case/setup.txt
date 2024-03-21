@@ -2,7 +2,7 @@ Solver:                 explicitEuler
 
 LocalTimeStep:          false
 
-TargetError:            0.0000001
+TargetError:            0.00003
 
 MaxIter:                200000
 
@@ -12,6 +12,12 @@ SaveEveryIter:          1000
 
 RiemannSolver:          hllc
 
+Reconstruction
+{
+        gradientSolver: leastSquares
+        limiter:        cubic
+}
+
 Mesh
 {
 	type:           gmsh2
@@ -20,7 +26,7 @@ Mesh
 
 ThermoModel
 {
-        name:           iapws95
+        name:           idealgas
 }
 
 InitialCondition

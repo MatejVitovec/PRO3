@@ -69,6 +69,18 @@ Vars<N> Vars<N>::operator-()
 //////////////Non member operators///////////////////
 
 template <int N>
+bool operator== (const Vars<N>& u, const Vars<N>& v)
+{
+    Vars<N> out;
+    for (int i = 0; i < N; i++)
+    {
+        if(u[i] != v[i])
+            return false;
+    }
+    return true;
+}
+
+template <int N>
 Vars<N> operator+ (const Vars<N>& u, const Vars<N>& v)
 {
     Vars<N> out;

@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "Compressible.hpp"
+#include "Field.hpp"
 #include "Mesh/Mesh.hpp"
 #include "FluxSolver/FluxSolver.hpp"
 #include "Thermo/Thermo.hpp"
@@ -11,9 +13,6 @@
 #include "Limiter/Limiter.hpp"
 #include "Limiter/BarthJespersen.hpp"
 #include "Limiter/Venkatakrishnan.hpp"
-#include "Compressible.hpp"
-#include "Primitive.hpp"
-#include "Field.hpp"
 #include "BoundaryCondition/BoundaryCondition.hpp"
 
 class FVMScheme
@@ -83,8 +82,6 @@ class FVMScheme
 
         Field<Compressible> wl; //faces size
         Field<Compressible> wr;
-        Field<Primitive> ul; //faces size
-        Field<Primitive> ur;
         Field<Vars<5>> fluxes;
 
         double cfl;
@@ -100,13 +97,10 @@ class FVMScheme
 
         void updateTimeStep();
         void applyBoundaryConditions();
-        void applyBoundaryConditionsPrimitive();
         void calculateWlWr();
-        void calculateUlUr();
         void calculateFluxes();
         Field<Vars<5>> calculateResidual();
         void reconstruct();
-        void reconstructPrimitive();
         void boundField();
 
     private:

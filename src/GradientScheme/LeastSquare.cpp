@@ -1,5 +1,5 @@
 #include "LeastSquare.hpp"
-
+#include <iostream>
 
 void LeastSquare::init(const Mesh& mesh, const std::vector<std::shared_ptr<BoundaryCondition>>& boundaryConditionList)
 {
@@ -8,18 +8,17 @@ void LeastSquare::init(const Mesh& mesh, const std::vector<std::shared_ptr<Bound
     Field<Mat<3,3>> M(mesh.getCellsSize());
 
     const std::vector<Cell>& cells = mesh.getCellList();
-    /*const std::vector<Face>& faces = mesh.getFaceList();
+    const std::vector<Face>& faces = mesh.getFaceList();
     const std::vector<int>& neighbours = mesh.getNeighborIndexList();
-    const std::vector<int>& owners = mesh.getOwnerIndexList();*/
+    const std::vector<int>& owners = mesh.getOwnerIndexList();
 
-    for (int i = 0; i < cells.size(); i++)
+    for (int i = 0; i < owners.size(); i++)
     {
-        std::vector<int> cellFacesIndexes = cells[i].ownFaceIndex;
-        cellFacesIndexes.insert(cellFacesIndexes.end(), cells[i].neighborFaceIndex.begin(), cells[i].neighborFaceIndex.end());
-
-        for (int j = 0; j < cellFacesIndexes.size(); j++)
+        Mat<3,3> auxM = outerProd(cellToCellDelta[i], cellToCellDelta[i]);
+        M[owners[i]] += auxM;
+        if (neighbours[i] >= 0)
         {
-            M[i] += outerProd(cellToCellDelta[cellFacesIndexes[j]], cellToCellDelta[cellFacesIndexes[j]]);
+            M[neighbours[i]] += auxM;
         }
     }
 
@@ -49,51 +48,21 @@ Field<Mat<5,3>> LeastSquare::calculateGradient(const Field<Compressible>& wl, co
 
     Field<Mat<3,5>> b = Field<Mat<3,5>>(MInv.size());
 
-    for (int i = 0; i < cells.size(); i++)
+    for (int i = 0; i < owners.size(); i++)
     {
-        std::vector<int> cellFacesIndexes = cells[i].ownFaceIndex;
-        cellFacesIndexes.insert(cellFacesIndexes.end(), cells[i].neighborFaceIndex.begin(), cells[i].neighborFaceIndex.end());
+        int neighbour = neighbours[i];
 
-        for (int j = 0; j < cellFacesIndexes.size(); j++)
+        Mat<3,5> rhs = outerProd(cellToCellDelta[i], wr[i] - wl[i]);
+        b[owners[i]] += rhs;
+        if (neighbour >= 0)
         {
-            b[i] += outerProd(cellToCellDelta[cellFacesIndexes[j]], wr[cellFacesIndexes[j]] - wl[cellFacesIndexes[j]]);
+            b[neighbour] -= rhs;
         }
     }
 
     for (int i = 0; i < cells.size(); i++)
     {
         grad[i] = transpose(dot(MInv[i], b[i]));        
-    }
-
-    return grad;
-}
-
-Field<Mat<5,3>> LeastSquare::calculateGradient(const Field<Primitive>& ul, const Field<Primitive>& ur, const Mesh& mesh) const
-{
-    Field<Mat<5,3>> grad(ul.size());
-    
-    const std::vector<Cell>& cells = mesh.getCellList();
-    const std::vector<Face>& faces = mesh.getFaceList();
-    const std::vector<int>& neighbours = mesh.getNeighborIndexList();
-    const std::vector<int>& owners = mesh.getOwnerIndexList();
-
-    Field<Mat<3,5>> b = Field<Mat<3,5>>(MInv.size());
-
-    for (int i = 0; i < cells.size(); i++)
-    {
-        std::vector<int> cellFacesIndexes = cells[i].ownFaceIndex;
-        cellFacesIndexes.insert(cellFacesIndexes.end(), cells[i].neighborFaceIndex.begin(), cells[i].neighborFaceIndex.end());
-
-        for (int j = 0; j < cellFacesIndexes.size(); j++)
-        {
-            b[i] += outerProd(cellToCellDelta[cellFacesIndexes[j]], ur[cellFacesIndexes[j]] - ul[cellFacesIndexes[j]]);
-        }
-    }
-
-    for (int i = 0; i < cells.size(); i++)
-    {
-        grad[i] = transpose(dot(MInv[i], b[i])); 
-        grad[i] = zeroSmallNumbers(grad[i]);
     }
 
     return grad;

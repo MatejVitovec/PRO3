@@ -185,6 +185,20 @@ Compressible operator* (const Compressible& u, const Compressible& v)
     return out;
 }
 
+Compressible operator/ (const Compressible& u, const Compressible& v)
+{
+    Compressible out = u;
+    for (int i = 0; i < 5; i++)
+    {
+        if (out[i] != 0)
+        {
+            out[i] /= v[i];
+        }
+    }
+    
+    return out;
+}
+
 // a * u
 Compressible operator* (double a, const Compressible& u)
 {

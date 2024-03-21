@@ -106,45 +106,6 @@ void Mesh::createFaces()
             }
         }
     }
-
-
-    //asi pomalejsi nutno otestovat
-    //vytvoreni sten + ownerList, neighborList
-    /*for (int j = 0; j < cellList.size(); j++)
-    {
-        cellList[j].ownFaceIndex.clear();
-        std::vector<Face> ownFaces = cellList[j].createFaces();
-
-        for (auto & ownFace : ownFaces)
-        {
-            bool existInList = false;
-
-            int i;
-            for (i = 0; i < faceList.size(); i++)
-            {
-                if (faceList[i].equal(ownFace))
-                {
-                    existInList = true;
-                    break;
-                }                
-            }
-
-            if (existInList)
-            {
-                cellList[j].neighborFaceIndex.push_back(i);
-                neighborIndexList[i] = j;
-            }
-            else
-            {
-                cellList[j].ownFaceIndex.push_back(faceList.size());
-
-                faceList.push_back(ownFace);                
-                ownerIndexList.push_back(j);
-                neighborIndexList.push_back(-1);
-            }
-        }
-    }*/
-    ////////
 }
 
 //rozdelane - BC jako v OpenFOAMU

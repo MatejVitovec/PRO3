@@ -42,24 +42,4 @@ void Wall::correct(const Field<Compressible>& w, Field<Compressible>& wl, Field<
         Vars<5> wrDiff = dot(grad[ownerIndexList[faceIndex]], -vector3toVars(faces[faceIndex].midpoint - cells[ownerIndexList[faceIndex]].center));
         wr[faceIndex] = wr[faceIndex] + phi[ownerIndexList[faceIndex]]*wrDiff;
     }*/
-
-    /*const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
-    const std::vector<Cell>& cells = mesh.getCellList();
-
-    for (auto & faceIndex : boundary.facesIndex)
-    {
-        for (auto & f : cells[ownerIndexList[faceIndex]].ownFaceIndex)
-        {
-            wl[f] = w[ownerIndexList[faceIndex]];
-        }
-        for (auto & f : cells[ownerIndexList[faceIndex]].neighborFaceIndex)
-        {
-            wr[f] = w[ownerIndexList[faceIndex]];
-        }        
-    }    */
-}
-
-void Wall::correct(const Field<Compressible>& w, Field<Primitive>& ul, Field<Primitive>& ur, const Field<Mat<5,3>>& grad, const Field<Vars<5>>& phi, const Mesh& mesh, const Thermo * const thermoModel) const
-{
-
 }

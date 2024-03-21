@@ -16,7 +16,6 @@ class Iapws95InterpolationThermo : public Thermo, Iapws95
         Iapws95InterpolationThermo();
 
         Vars<3> updateThermo(const Compressible& data) const;
-        Vars<3> updateThermo(const Primitive& data) const;
         Compressible primitiveToConservative(const Vars<5>& primitive) const;
         Compressible stagnationState(double TTot, double pTot) const;
         Compressible isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const;
@@ -79,19 +78,6 @@ Vars<3> Iapws95InterpolationThermo<INTERPOLATION>::updateThermo(const Compressib
     return Vars<3>({temperature, pressure, soundSpeed});
 }
 
-template <typename INTERPOLATION>
-Vars<3> Iapws95InterpolationThermo<INTERPOLATION>::updateThermo(const Primitive& data) const
-{
-    /*double pressure = pressureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
-    double soundSpeed = soundSpeedInterpolationFromRhoE->calc(data.density(), data.internalEnergy());
-    double temperature = temperatureInterpolationFromRhoE->calc(data.density(), data.internalEnergy());*/
-
-    double pressure = 0.0;
-    double soundSpeed = 0.0;
-    double temperature = 0.0;
-
-    return Vars<3>({temperature, pressure, soundSpeed});
-}
 
 template <typename INTERPOLATION>
 Compressible Iapws95InterpolationThermo<INTERPOLATION>::primitiveToConservative(const Vars<5>& primitive) const
@@ -146,6 +132,7 @@ template <typename INTERPOLATION>
 Compressible Iapws95InterpolationThermo<INTERPOLATION>::isentropicInlet(double pTot, double TTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
 {
     // FULL IAPWS95
+    // TODO konzistence
     stateIn.setThermoVar(updateThermo(stateIn));
 
     double pIn = std::min(stateIn.pressure(), pTot);

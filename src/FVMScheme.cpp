@@ -107,8 +107,6 @@ void FVMScheme::init()
 
     wl = Field<Compressible>(mesh.getFacesSize());
     wr = Field<Compressible>(mesh.getFacesSize());
-    ul = Field<Primitive>(mesh.getFacesSize());
-    ur = Field<Primitive>(mesh.getFacesSize());
 
     timeSteps = Field<double>(mesh.getCellsSize());
 }
@@ -121,17 +119,6 @@ void FVMScheme::applyBoundaryConditions()
     for (auto & boundaryCondition : boundaryConditionList)
     {
         boundaryCondition->apply(ownerIndexList, faceList, w, wr, thermo.get());
-    }
-}
-
-void FVMScheme::applyBoundaryConditionsPrimitive()
-{
-    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
-    const std::vector<Face>& faceList = mesh.getFaceList();
-
-    for (auto & boundaryCondition : boundaryConditionList)
-    {
-        boundaryCondition->apply(ownerIndexList, faceList, w, ur, thermo.get());
     }
 }
 
@@ -155,25 +142,6 @@ void FVMScheme::calculateWlWr()
         if(neighbour >= 0)
         {
             wr[i] = w[neighbour];
-        }
-    }    
-}
-
-void FVMScheme::calculateUlUr()
-{
-    //Without reconstruction
-
-    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
-    const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
-
-    for (int i = 0; i < mesh.getFacesSize(); i++)
-    {        
-        ul[i] = Primitive(w[ownerIndexList[i]]);
-
-        int neighbour = neighborIndexList[i];
-        if(neighbour >= 0)
-        {
-            ur[i] = Primitive(w[neighbour]);
         }
     }    
 }
@@ -278,50 +246,6 @@ void FVMScheme::reconstruct()
     wr = thermo->updateInetrnalFieldFaces(wr, mesh);
 }
 
-void FVMScheme::reconstructPrimitive()
-{
-    Field<Mat<5,3>> grad = gradientScheme->calculateGradient(ul, ur, mesh);
-
-    Field<Vars<5>> phi = limiter->calculateLimiter(ul, ur, grad, mesh);
-
-    //phi[386] = Vars<5>(0.0);
-    //phi[7385] = Vars<5>(0.0);
-
-    const std::vector<Cell>& cells = mesh.getCellList();
-    const std::vector<Face>& faces = mesh.getFaceList();
-    const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
-    const std::vector<int>& neighborIndexList = mesh.getNeighborIndexList();
-
-    /*for (int i = 0; i < cells.size(); i++)
-    {
-        if (w[i].density() < 0.1 || w[i].internalEnergy() < 2200000.0)
-        {
-            phi[i] = Vars<5>(0.0);
-        }
-    }*/
-
-    for (int i = 0; i < faces.size(); i++)
-    {
-        int neighbour = neighborIndexList[i];
-        if(neighbour >= 0)
-        {
-            Vars<5> ulDiff = dot(grad[ownerIndexList[i]], vector3toVars(faces[i].midpoint - cells[ownerIndexList[i]].center));
-            Vars<5> urDiff = dot(grad[neighborIndexList[i]], vector3toVars(faces[i].midpoint - cells[neighborIndexList[i]].center));
-
-            ul[i] = ul[i] + phi[ownerIndexList[i]]*ulDiff;
-            ur[i] = ur[i] + phi[neighborIndexList[i]]*urDiff;
-        }
-    }
-
-    for (auto & boundaryCondition : boundaryConditionList)
-    {
-        boundaryCondition->correct(w, ul, ur, grad, phi, mesh, thermo.get());
-    }
-    
-    ul = thermo->updateField(ul);
-    ur = thermo->updateInetrnalFieldFaces(ur, mesh);
-}
-
 void FVMScheme::updateTimeStep()
 {
     const std::vector<Cell>& cells = mesh.getCellList();
@@ -353,28 +277,29 @@ void FVMScheme::calculateFluxes()
 
 Field<Vars<5>> FVMScheme::calculateResidual()
 {
-    //TODO predelat na cyklus pres steny
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
+    const std::vector<int>& owners = mesh.getOwnerIndexList();
+    const std::vector<int>& neighbors = mesh.getNeighborIndexList();
 
     Field<Vars<5>> res(w.size());
 
+    for (int i = 0; i < faces.size(); i++)
+    {
+        int owner = owners[i];
+        int neighbor = neighbors[i];
+        
+        res[owner] -= fluxes[i];
+        if (neighbor >= 0)
+        {
+            res[neighbor] += fluxes[i];
+        }
+    }
+
     for (int i = 0; i < cells.size(); i++)
     {
-        Vars<5> aux= Vars<5>();
-
-        for (auto & faceIndex : cells[i].ownFaceIndex)
-        {
-            aux -= fluxes[faceIndex];
-        }
-
-        for (auto & faceIndex : cells[i].neighborFaceIndex)
-        {
-            aux += fluxes[faceIndex];
-        }
-
-        res[i] = aux/(cells[i].volume);
-    }    
+        res[i] = res[i]/cells[i].volume;
+    }
     
     return res;
 }

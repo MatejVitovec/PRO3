@@ -62,8 +62,11 @@ Compressible operator+ (const Compressible& u, const Compressible& v);
 // u - v
 Compressible operator- (const Compressible& u, const Compressible& v);
 
-// w * u
+// u * v
 Compressible operator* (const Compressible& u, const Compressible& v);
+
+// u / v
+Compressible operator/ (const Compressible& u, const Compressible& v);
 
 // a * u
 Compressible operator* (double a, const Compressible& u);
