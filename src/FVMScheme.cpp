@@ -196,11 +196,6 @@ void FVMScheme::reconstruct()
 
     Field<Vars<5>> phi = limiter->calculateLimiter(wl, wr, grad, mesh);
 
-    //phi = phi*0.8;
-
-    //phi[386] = Vars<5>(0.0);
-    //phi[7385] = Vars<5>(0.0);
-
     const std::vector<Cell>& cells = mesh.getCellList();
     const std::vector<Face>& faces = mesh.getFaceList();
     const std::vector<int>& ownerIndexList = mesh.getOwnerIndexList();
@@ -272,7 +267,6 @@ void FVMScheme::updateTimeStep()
 void FVMScheme::calculateFluxes()
 {
     fluxes = fluxSolver->calculateFluxes(wl, wr, mesh.getFaceList());
-    //fluxes = fluxSolver->calculateFluxes(ul, ur, mesh.getFaceList());
 }
 
 Field<Vars<5>> FVMScheme::calculateResidual()

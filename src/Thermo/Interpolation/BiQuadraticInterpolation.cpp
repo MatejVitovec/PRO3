@@ -649,7 +649,7 @@ double BiQuadraticInterpolation::calc(double xx, double yy) const
     double v = xx - x[position.first];
     double w = yy - y[position.second];
 
-    Mat3x3 coeff = coeffs[position.second*n + position.first];
+    const Mat3x3& coeff = coeffs[position.second*n + position.first];
 
     return coeff[0][0] + w*(coeff[0][1] + w*coeff[0][2]) + v*(coeff[1][0] + w*(coeff[1][1] + w*coeff[1][2]) + v*(coeff[2][0] + w*(coeff[2][1] + w*coeff[2][2])));
 }
@@ -665,13 +665,13 @@ std::pair<int, int> BiQuadraticInterpolation::fastFindPosition(double xx, double
         if (xx < boundaryX[ii+1]) { break; }
         shiftIdxX += gridSizeX[ii];
     }
-    int jj;
+    int jj; 
     for (jj = 0; jj < gridSizeY.size(); jj++)
     {
         if (yy < boundaryY[jj+1]) { break; }
         shiftIdxY += gridSizeY[jj];
     }
-    //std::cout << "ii: " << ii << " jj: " << jj << " xt: " << xt << " yt: " << yt << std::endl;
+    
     return std::pair<int, int>(std::floor((abs(transform(xx, transformationX) - transform(boundaryX[ii], transformationX)))/dz[ii]) + shiftIdxX,
                                std::floor((abs(transform(yy, transformationY) - transform(boundaryY[jj], transformationY)))/dt[jj]) + shiftIdxY);
 }
@@ -689,9 +689,31 @@ double BiQuadraticInterpolation::calcFastFind(double xx, double yy) const
     double v = xx - x[position.first];
     double w = yy - y[position.second];
 
-    Mat3x3 coeff = coeffs[position.second*n + position.first];
+    const Mat3x3& coeff = coeffs[position.second*n + position.first];
 
     return coeff[0][0] + w*(coeff[0][1] + w*coeff[0][2]) + v*(coeff[1][0] + w*(coeff[1][1] + w*coeff[1][2]) + v*(coeff[2][0] + w*(coeff[2][1] + w*coeff[2][2])));
+}
+
+double BiQuadraticInterpolation::calcFastFindDiffX(double xx, double yy) const
+{
+    std::pair<int, int> position = fastFindPosition(xx, yy);
+    double v = xx - x[position.first];
+    double w = yy - y[position.second];
+
+    const Mat3x3& coeff = coeffs[position.second*n + position.first];
+
+    return coeff[1][0] + w*(coeff[1][1] + w*coeff[1][2]) + v*2.0*(coeff[2][0] + w*(coeff[2][1] + w*coeff[2][2]));
+}
+
+double BiQuadraticInterpolation::calcFastFindDiffY(double xx, double yy) const
+{
+    std::pair<int, int> position = fastFindPosition(xx, yy);
+    double v = xx - x[position.first];
+    double w = yy - y[position.second];
+
+    const Mat3x3& coeff = coeffs[position.second*n + position.first];
+
+    return coeff[0][1] + v*(coeff[1][1] + v*coeff[2][1]) + w*2.0*(coeff[0][2] + v*(coeff[1][2] + v*coeff[2][2]));
 }
 
 double BiQuadraticInterpolation::calcInverseX(double zz, double yy, double guessXX) const

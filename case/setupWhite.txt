@@ -1,0 +1,70 @@
+Solver:                 explicitEuler
+
+LocalTimeStep:          false
+
+TargetError:            0.000001
+
+MaxIter:                300000
+
+cfl:                    0.8
+
+SaveEveryIter:          1000
+
+RiemannSolver:          hllc
+
+Mesh
+{
+	type:           gmsh2
+	fileName:       ../meshes/white1.msh
+}
+
+ThermoModel
+{
+        name:           idealgas
+}
+
+InitialCondition
+{
+        type: stagnationState
+        val: [390.0, 0.0, 0.0, 0.0, 435000.0]
+}
+
+BoundaryCondition
+{
+        inlet
+        {
+                type:                   pressureTemperatureInlet
+                totalPressure:          435000.0
+                totalTemperature:       390.0
+                xyAngle:                0.0
+                xzAngle:                0.0
+        }
+
+        outlet
+        {
+                type:           pressureOutlet
+                pressure:       163000.0
+        }
+
+        wall
+        {
+                type:   wall
+        }
+
+        wall2
+        {
+                type:   wall
+        }
+
+        periodbeg
+        {
+                type:   periodicity
+                shift:  [0.0, 0.08759, 0.0]
+        }
+
+        periodend
+        {
+                type:   periodicity
+                shift:  [0.0, -0.08759, 0.0]
+        }
+}

@@ -1,38 +1,33 @@
-Solver:                 explicitEuler
+Solver:                 expliciteuler
 
-LocalTimeStep:          false
+LocalTimeStep:          true
 
-TargetError:            0.00003
+TargetError:            0.00001
 
-MaxIter:                200000
+MaxIter:                1000000
 
 cfl:                    0.8
 
-SaveEveryIter:          1000
+SaveEveryIter:          2000
 
 RiemannSolver:          hllc
-
-Reconstruction
-{
-        gradientSolver: leastSquares
-        limiter:        cubic
-}
 
 Mesh
 {
 	type:           gmsh2
-	fileName:       ../meshes/se1050_coarse4.msh
+	fileName:       ../meshes/se1050_cutEdgeCoarse2.msh
 }
 
 ThermoModel
 {
-        name:           idealgas
+        name:           iapws95
+        interpolation:  biquadratic
 }
 
 InitialCondition
 {
         type: stagnationState
-        val: [600.0, 0.0, 0.0, 0.0, 98071.7]
+        val: [573.15, 0.0, 0.0, 0.0, 100000.0]
 }
 
 BoundaryCondition
@@ -40,16 +35,16 @@ BoundaryCondition
         inlet
         {
                 type:                   pressureTemperatureInlet
-                totalPressure:          98071.7
-                totalTemperature:       600.0
-                xyAngle:                19.3
+                totalPressure:          100000.0
+                totalTemperature:       573.15
+                xyAngle:                20
                 xzAngle:                0.0
         }
 
         outlet
         {
                 type:           pressureOutlet
-                pressure:       42207.157
+                pressure:       42614.0
         }
 
         wall

@@ -15,6 +15,14 @@ int main(int argc, char** argv)
 {
     feenableexcept(FE_INVALID | FE_OVERFLOW);
 
+    /*std::shared_ptr<Iapws95Thermo> thermo = std::make_shared<Iapws95Thermo>();
+    for (int i = 0; i < 100; i++)
+    {
+        std::cout << "M2is: " << thermo->calcM2is(5000000.0, 573.15,  2196600 + i*1) << " p2: " <<  2196600 + i*1 << std::endl;
+    }*/
+
+    
+
     CaseSetter setter = CaseSetter();
     setter.loadSettingFile("../case/setup.txt");
 
@@ -32,9 +40,6 @@ int main(int argc, char** argv)
     outputCFD::saveFieldOnBoundary("../results/pressure.txt", "wall", mySolver->getMesh(), mySolver->getResults());
 
     outputCFD::outputVTKPeriodicBoundary("../results/periodicResult.vtk", mySolver->getMesh(), mySolver->getResults(), Vector3(0.0, 0.0551168, 0.0));
-
-
-    int g = 5;
 
     return 0;
 }

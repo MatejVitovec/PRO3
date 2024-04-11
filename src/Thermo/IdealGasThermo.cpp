@@ -57,7 +57,30 @@ Compressible IdealGasThermo::stagnationState(double TTot, double pTot) const
     return out;
 }
 
-Compressible IdealGasThermo::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
+/*Compressible IdealGasThermo::isentropicInletPressureTemperature(double pTot, double TTot, Vars<3> velocityDirection, Compressible stateIn) const
+{
+    double p = std::min(pressure(stateIn), pTot);
+    double M2 = (2.0/(gamma - 1.0))*(std::pow((pTot/p), ((gamma - 1.0)/gamma)) - 1.0);
+    double T = TTot/(1.0 + ((gamma - 1.0)/2)*M2);
+    double rho = p/(R*T);
+    double a = std::sqrt((gamma*p)/rho);
+    double absU= std::sqrt(M2)*a;
+
+    return Compressible({rho,
+                         rho*absU*velocityDirection[0],
+                         rho*absU*velocityDirection[1],
+                         rho*absU*velocityDirection[2],
+                         0.5*rho*absU*absU + p/(gamma - 1.0) + rho*energyShift},
+                         {T, p, a});
+}*/
+
+/*Compressible IdealGasThermo::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
+{
+    //TODO
+    return Compressible();
+}*/
+
+Compressible IdealGasThermo::isentropicInlet(double pTot, double TTot, double rhoTot, double sTot, double hTot, Vars<3> velocityDirection, Compressible stateIn) const
 {
     double p = std::min(pressure(stateIn), pTot);
     double M2 = (2.0/(gamma - 1.0))*(std::pow((pTot/p), ((gamma - 1.0)/gamma)) - 1.0);
@@ -74,8 +97,7 @@ Compressible IdealGasThermo::isentropicInletPressureTemperature(double pTot, dou
                          {T, p, a});
 }
 
-Compressible IdealGasThermo::isentropicInletPressureDensity(double pTot, double rhoTot, Vars<3> velocityDirection, Compressible stateIn) const
+std::array<double, 3> IdealGasThermo::initPressureTemperatureInlet(double pTot, double TTot) const
 {
-    //TODO
-    return Compressible();
+    return std::array<double, 3>({0.0, 0.0, 0.0});
 }

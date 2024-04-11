@@ -4,8 +4,9 @@
 
 #include "CaseSetter.hpp"
 
-#include "BoundaryCondition/PressureTemperatureInlet.hpp"
-#include "BoundaryCondition/PressureDensityInlet.hpp"
+//#include "BoundaryCondition/PressureTemperatureInlet.hpp"
+//#include "BoundaryCondition/PressureDensityInlet.hpp"
+#include "BoundaryCondition/IsentropicInlet.hpp"
 #include "BoundaryCondition/PressureOutlet.hpp"
 #include "BoundaryCondition/FreeBoundary.hpp"
 #include "BoundaryCondition/Wall.hpp"
@@ -93,7 +94,7 @@ std::unique_ptr<FVMScheme> CaseSetter::createAndSetSolver()
     tmpSolver->setLocalTimeStep(getLocalTimeStepSetting());
     tmpSolver->setSaveEveryIter(getSaveIterInterval());
 
-    tmpSolver->setBoundaryConditions(createBoundaryCondition(tmpSolver->getMesh()));
+    tmpSolver->setBoundaryConditions(createBoundaryCondition(tmpSolver->getMesh(), tmpSolver->getThermoRef()));
     tmpSolver->setInitialConditions(getInitialCondition(tmpSolver->getThermoRef()));
 
     return std::move(tmpSolver);
@@ -302,7 +303,7 @@ Compressible CaseSetter::getInitialCondition(const Thermo * const thermoModel)
 }
 
 
-std::vector<std::shared_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondition(const Mesh& mesh)
+std::vector<std::shared_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondition(const Mesh& mesh, const Thermo * const thermoModel)
 {
     const std::vector<Boundary>& meshBoundaryList = mesh.getBoundaryList();
 
@@ -342,14 +343,22 @@ std::vector<std::shared_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondit
 
             if(totalPressure != "" && totalTemperature != "" && xyAngle != "" && xzAngle != "")
             {
-                out.push_back(std::make_shared<PressureTemperatureInlet>(auxBoundary,
-                                                                         std::stod(totalPressure),
-                                                                         std::stod(totalTemperature),
-                                                                         vector3toVars(angleAngleToUnit(std::stod(xyAngle), std::stod(xzAngle)))));
+                double pTot = std::stod(totalPressure);
+                double TTot = std::stod(totalTemperature);
+
+                std::array<double, 3> state = thermoModel->initPressureTemperatureInlet(pTot, TTot);
+
+                out.push_back(std::make_shared<IsentropicInlet>(auxBoundary,
+                                                                state[0],
+                                                                pTot,
+                                                                TTot,
+                                                                state[1],
+                                                                state[2],
+                                                                vector3toVars(angleAngleToUnit(std::stod(xyAngle), std::stod(xzAngle)))));
             }
             else { errorMessage("spatne zadane parametry BC"); }
         }
-        else if (type == "pressuredensityinlet")
+        /*else if (type == "pressuredensityinlet")
         {
             std::string totalPressure = findParameterByKey("totalPressure: ", data);
             std::string totalDensity = findParameterByKey("totalDensity: ", data);
@@ -358,13 +367,13 @@ std::vector<std::shared_ptr<BoundaryCondition>> CaseSetter::createBoundaryCondit
 
             if(totalPressure != "" && totalDensity != "" && xyAngle != "" && xzAngle != "")
             {
-                out.push_back(std::make_shared<PressureDensityInlet>(auxBoundary,
+                out.push_back(std::make_shared<IsentropicInlet>(auxBoundary,
                                                                      std::stod(totalPressure),
                                                                      std::stod(totalDensity),
                                                                      vector3toVars(angleAngleToUnit(std::stod(xyAngle), std::stod(xzAngle)))));
             }
             else { errorMessage("spatne zadane parametry BC"); }
-        }
+        }*/
         else if (type == "pressureoutlet")
         {
             std::string pressure = findParameterByKey("pressure: ", data);

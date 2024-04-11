@@ -59,7 +59,7 @@ class CaseSetter
         std::unique_ptr<GradientScheme> createReconstructionGradient();
         std::unique_ptr<Limiter> createReconstructionLimiter();
 
-        std::vector<std::shared_ptr<BoundaryCondition>> createBoundaryCondition(const Mesh& mesh);
+        std::vector<std::shared_ptr<BoundaryCondition>> createBoundaryCondition(const Mesh& mesh, const Thermo * const thermoModel);
 
     private:
         std::vector<std::string> data_;

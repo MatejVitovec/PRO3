@@ -112,8 +112,8 @@ BiLinearInterpolation::BiLinearInterpolation(std::vector<int> gridSizeX_, std::v
     if(y[0] > y[1]) { std::reverse(y.begin(), y.end()); }
 
 
-    n = x.size();
-    m = y.size();
+    n = x.size()-1;
+    m = y.size()-1;
 
     dx = std::vector<double>(n);
     dy = std::vector<double>(m);
@@ -228,6 +228,30 @@ double BiLinearInterpolation::calcFastFind(double xx, double yy) const
     std::array<double, 4> nodeCoeffs = coeffs[position.second*n + position.first];
 
     return nodeCoeffs[0] + nodeCoeffs[1]*w + nodeCoeffs[2]*v + nodeCoeffs[3]*v*w;
+}
+
+double BiLinearInterpolation::calcFastFindDiffX(double xx, double yy) const
+{
+    std::pair<int, int> position = findPosition(xx, yy);
+
+    double v = xx - x[position.first];
+    double w = yy - y[position.second];
+
+    std::array<double, 4> nodeCoeffs = coeffs[position.second*n + position.first];
+
+    return nodeCoeffs[2] + nodeCoeffs[3]*w;
+}
+
+double BiLinearInterpolation::calcFastFindDiffY(double xx, double yy) const
+{
+    std::pair<int, int> position = findPosition(xx, yy);
+
+    double v = xx - x[position.first];
+    double w = yy - y[position.second];
+
+    std::array<double, 4> nodeCoeffs = coeffs[position.second*n + position.first];
+
+    return nodeCoeffs[1] + nodeCoeffs[3]*v;
 }
 
 double BiLinearInterpolation::calcInverseX(double zz, double yy, double guessXX) const

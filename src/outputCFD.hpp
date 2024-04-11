@@ -16,6 +16,7 @@ namespace outputCFD
     void saveData(std::string fileName, const Field<Compressible>& w);
 
     void saveResidual(std::string fileName, Vars<5> res);
+    void saveValue(std::string fileName, double val);
 
     void saveFieldOnBoundary(std::string fileName, std::string boundaryName, const Mesh& mesh, const Field<Compressible>& w);
 

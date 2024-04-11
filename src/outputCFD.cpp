@@ -148,6 +148,14 @@ void outputCFD::saveResidual(std::string fileName, Vars<5> res)
 	f.close();
 }
 
+void outputCFD::saveValue(std::string fileName, double val)
+{
+	std::ofstream f;
+	f.open(fileName, std::ios_base::app);
+	f << val << std::endl;
+	f.close();
+}
+
 void outputCFD::saveFieldOnBoundary(std::string fileName, std::string boundaryName, const Mesh& mesh, const Field<Compressible>& w)
 {
 	const std::vector<Boundary>& boundary = mesh.getBoundaryList();

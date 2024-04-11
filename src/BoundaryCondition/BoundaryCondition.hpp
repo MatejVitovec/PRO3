@@ -13,7 +13,7 @@
 class BoundaryCondition
 {
     public:
-        enum BoundaryConditionType{PRESSURETEMPERATUREINLET, PRESSUREDENSITYINLET, PRESSUREOUTLET, FREEBOUNDARY, WALL, PERIODICITY};
+        enum BoundaryConditionType{ISENTROPICINLET, PRESSUREOUTLET, FREEBOUNDARY, WALL, PERIODICITY};
 
         BoundaryCondition(BoundaryConditionType type_) : type(type_) {}
         BoundaryCondition(Boundary meshBoundary, BoundaryConditionType type_) : boundary(meshBoundary), type(type_) {}

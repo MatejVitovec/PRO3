@@ -107,7 +107,6 @@ std::pair<double, double> Helmholtz::RhoTFromSP(double s, double p, double guess
 double Helmholtz::pFunc(double delta, double tau) const
 {
     return critT*critRho*specGasConst*(delta/tau)*(1.0 + delta*phird(delta, tau));
-
 }
 
 double Helmholtz::eFunc(double delta, double tau) const

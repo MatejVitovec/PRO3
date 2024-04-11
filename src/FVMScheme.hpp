@@ -30,6 +30,7 @@ class FVMScheme
                                                                                                             cfl(0.8), maxIter(10000000),
                                                                                                             targetError(0000005),
                                                                                                             localTimeStep(false),
+                                                                                                            reconstruction(false),
                                                                                                             time(0.0),
                                                                                                             gradientScheme(std::make_unique<GradientScheme>()),
                                                                                                             limiter(std::make_unique<Limiter>()) {}
